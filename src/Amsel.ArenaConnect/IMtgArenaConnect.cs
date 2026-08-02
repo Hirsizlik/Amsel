@@ -2,6 +2,6 @@ namespace Amsel.ArenaConnect;
 
 public interface IMtgArenaConnect
 {
-    List<CardOwned> GetCardsOwnedFromInventory();
+    Dictionary<uint, CardOwned> GetCardsOwnedFromInventory();
     string GetDatabasePath();
 }

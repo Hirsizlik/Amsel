@@ -73,9 +73,9 @@ public class MtgArenaConnect : IMtgArenaConnect
         return (AssemblyImageFactory.Create(f, "Core"), gameExecutableFilePath);
     }
 
-    public List<CardOwned> GetCardsOwnedFromInventory()
+    public Dictionary<uint, CardOwned> GetCardsOwnedFromInventory()
     {
-        List<CardOwned> cards = [];
+        Dictionary<uint, CardOwned> cards = [];
         object[] cardEntries = assemblyImage["WrapperController"]
             ["<Instance>k__BackingField"]
             ["<InventoryManager>k__BackingField"]
@@ -90,7 +90,7 @@ public class MtgArenaConnect : IMtgArenaConnect
                 if (owned > 0)
                 {
                     uint groupId = cardInstance.GetValue<uint>("key");
-                    cards.Add(new CardOwned(groupId, owned));
+                    cards.Add(groupId, new CardOwned(groupId, owned));
                 }
             }
         }
