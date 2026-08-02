@@ -1,0 +1,54 @@
+@page "/card-list"
+@inject ArenaState state
+
+@if (error)
+{
+    <h1>Card list could not be loaded!</h1>
+}
+else
+{
+    <table>
+        <thead>
+            <th>Name</th>
+            <th>Set</th>
+            <th>Digital Set</th>
+            <th>Owned</th>
+        </thead>
+        <tbody>
+            @foreach (var cardInfo in state.Cards.Values)
+            {
+                var amount = 0;
+                @if (state.CardsOwned.TryGetValue(cardInfo.CardId, out var cardOwned))
+                {
+                    amount = cardOwned.Amount;
+                }
+                <tr>
+                    <td> @cardInfo.Name </td>
+                    <td> @cardInfo.ExpansionCode </td>
+                    <td> @cardInfo.DigitalReleaseSet </td>
+                    <td> @amount </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+
+    bool error = false;
+
+    protected override void OnInitialized()
+    {
+        try
+        {
+            state.LoadCardInfo();
+        }
+        catch (Exception)
+        {
+            error = true;
+        }
+    }
+}
+
+
+
