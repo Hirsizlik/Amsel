@@ -4,12 +4,12 @@ using Amsel.ArenaConnect;
 
 public class MtgArenaConnectTest
 {
-    private MtgArenaConnect mac;
+    private IMtgArenaConnect mac;
 
     [OneTimeSetUp]
     public void Init()
     {
-        mac = new();
+        mac = new MtgArenaConnect();
     }
 
     [Test]

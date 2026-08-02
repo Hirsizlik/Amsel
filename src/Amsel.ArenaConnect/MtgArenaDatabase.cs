@@ -2,7 +2,7 @@ using Microsoft.Data.Sqlite;
 
 namespace Amsel.ArenaConnect;
 
-public sealed class MtgArenaDatabase : IDisposable
+public sealed class MtgArenaDatabase : IMtgArenaDatabase
 {
     private readonly SqliteConnection connection;
 

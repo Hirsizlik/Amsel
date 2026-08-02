@@ -4,7 +4,7 @@ namespace Amsel.ArenaConnectTest;
 
 public class MtgArenaDatabaseTest
 {
-    private MtgArenaDatabase mad;
+    private IMtgArenaDatabase mad;
 
     [OneTimeSetUp]
     public void Setup()

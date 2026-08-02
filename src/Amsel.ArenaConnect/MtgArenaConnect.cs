@@ -7,7 +7,7 @@ using HackF5.UnitySpy.ProcessFacade;
 
 namespace Amsel.ArenaConnect;
 
-public class MtgArenaConnect
+public class MtgArenaConnect : IMtgArenaConnect
 {
     private readonly Process mtgaProcess;
     private readonly IAssemblyImage assemblyImage;
