@@ -1,0 +1,30 @@
+@using System.Collections.Frozen
+
+<select @bind="Value">
+    <option value="" />
+    @foreach (string option in Options)
+    {
+        <option value=@option>@option</option>
+    }
+</select>
+@code {
+
+    [Parameter]
+    public required string Value
+    {
+        get; set
+        {
+            if (field != value)
+            {
+                field = value;
+                ValueChanged.InvokeAsync(value);
+            }
+        }
+    }
+
+    [Parameter]
+    public EventCallback<string> ValueChanged { get; set; }
+
+    [Parameter]
+    public FrozenSet<string> Options { get; set; } = [];
+}

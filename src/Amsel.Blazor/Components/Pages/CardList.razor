@@ -1,5 +1,10 @@
 @page "/card-list"
+@rendermode InteractiveServer
 @inject ArenaState state
+
+@using System.Collections.Frozen;
+@using System.Collections.Immutable;
+@using ArenaConnect;
 
 @if (error)
 {
@@ -7,6 +12,10 @@
 }
 else
 {
+    <StringSelect Options="expansionSetCodes" @bind-Value="expansionFilter"
+                  @bind-Value:after="OnExpansionCodeFilterChanged" />
+    <StringSelect Options="digitalReleaseCodes" @bind-Value="digitalReleaseFilter"
+                  @bind-Value:after="OnDigitalReleaseCodeFilterChanged" />
     <table>
         <thead>
             <th>Name</th>
@@ -15,9 +24,10 @@ else
             <th>Owned</th>
         </thead>
         <tbody>
-            @foreach (var cardInfo in state.Cards.Values)
-            {
-                var amount = 0;
+            <Virtualize ItemsProvider="@ProvideFilteredCards" Context="cardInfo" @ref="CardInfoContainer">
+                @{
+                    var amount = 0;
+                }
                 @if (state.CardsOwned.TryGetValue(cardInfo.CardId, out var cardOwned))
                 {
                     amount = cardOwned.Amount;
@@ -28,7 +38,8 @@ else
                     <td> @cardInfo.DigitalReleaseSet </td>
                     <td> @amount </td>
                 </tr>
-            }
+
+            </Virtualize>
         </tbody>
     </table>
 }
@@ -36,19 +47,72 @@ else
 @code {
 
     bool error = false;
+    private FrozenSet<string> expansionSetCodes = [];
+    private FrozenSet<string> digitalReleaseCodes = [];
+    private string? expansionFilter;
+    private string? digitalReleaseFilter;
+    private ImmutableArray<CardInfo> filteredCards = [];
+    private Virtualize<CardInfo>? CardInfoContainer { get; set; }
 
     protected override void OnInitialized()
     {
         try
         {
             state.LoadCardInfo();
+            expansionSetCodes = state.Cards.Values.Select(c => c.ExpansionCode).ToFrozenSet();
+            digitalReleaseCodes = state.Cards.Values.Select(c => c.DigitalReleaseSet).ToFrozenSet();
+            filteredCards = state.Cards.Values.ToImmutableArray();
         }
         catch (Exception)
         {
             error = true;
         }
     }
-}
 
+    private async Task OnExpansionCodeFilterChanged()
+    {
+        if (!string.IsNullOrEmpty(expansionFilter)) digitalReleaseFilter = "";
+        await SetFilteredCardsAsync();
+    }
+
+    private async Task OnDigitalReleaseCodeFilterChanged()
+    {
+        if (!string.IsNullOrEmpty(digitalReleaseFilter)) expansionFilter = "";
+        await SetFilteredCardsAsync();
+    }
+
+    private async Task SetFilteredCardsAsync()
+    {
+        filteredCards = state.Cards.Values.Where(c =>
+        {
+            if (!string.IsNullOrEmpty(expansionFilter))
+            {
+                return c.ExpansionCode == expansionFilter;
+            }
+            else if (!string.IsNullOrEmpty(digitalReleaseFilter))
+            {
+                return c.DigitalReleaseSet == digitalReleaseFilter;
+            }
+            else
+            {
+                return true;
+            }
+        }).ToImmutableArray();
+
+        if (CardInfoContainer != null)
+        {
+            await CardInfoContainer.RefreshDataAsync();
+        }
+        StateHasChanged();
+    }
+
+    private async ValueTask<ItemsProviderResult<CardInfo>> ProvideFilteredCards(ItemsProviderRequest request)
+    {
+        await Task.Yield(); // Just to make it async
+        var numCards = Math.Min(request.Count, filteredCards.Length - request.StartIndex);
+        var result = filteredCards.Skip(request.StartIndex).Take(numCards);
+        return new ItemsProviderResult<CardInfo>(result, filteredCards.Length);
+    }
+}
 
 
