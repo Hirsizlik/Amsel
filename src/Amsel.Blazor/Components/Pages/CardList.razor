@@ -62,7 +62,10 @@ else
         {
             state.LoadCardInfo();
             expansionSetCodes = state.Cards.Values.Select(c => c.ExpansionCode).ToFrozenSet();
-            digitalReleaseCodes = state.Cards.Values.Select(c => c.DigitalReleaseSet).ToFrozenSet();
+            digitalReleaseCodes = state.Cards.Values
+                .Select(c => c.DigitalReleaseSet)
+                .Where(s => !string.IsNullOrEmpty(s))
+                .ToFrozenSet();
             filteredCards = state.Cards.Values.ToImmutableArray();
         }
         catch (Exception)
