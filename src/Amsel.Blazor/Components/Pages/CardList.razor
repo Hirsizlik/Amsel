@@ -117,12 +117,11 @@ else
         StateHasChanged();
     }
 
-    private async ValueTask<ItemsProviderResult<CardInfo>> ProvideFilteredCards(ItemsProviderRequest request)
+    private ValueTask<ItemsProviderResult<CardInfo>> ProvideFilteredCards(ItemsProviderRequest request)
     {
-        await Task.Yield(); // Just to make it async
         var numCards = Math.Min(request.Count, filteredCards.Length - request.StartIndex);
         var result = filteredCards.Skip(request.StartIndex).Take(numCards);
-        return new ItemsProviderResult<CardInfo>(result, filteredCards.Length);
+        return ValueTask.FromResult(new ItemsProviderResult<CardInfo>(result, filteredCards.Length));
     }
 }
 
