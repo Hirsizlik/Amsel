@@ -4,7 +4,6 @@
 
 @using System.Collections.Frozen;
 @using System.Collections.Immutable;
-@using ArenaConnect;
 
 @if (error)
 {
@@ -29,20 +28,13 @@ else
             <th>Owned</th>
         </thead>
         <tbody>
-            <Virtualize ItemsProvider="@ProvideFilteredCards" Context="cardInfo" @ref="CardInfoContainer">
-                @{
-                    var amount = 0;
-                }
-                @if (state.CardsOwned.TryGetValue(cardInfo.CardId, out var cardOwned))
-                {
-                    amount = cardOwned.Amount;
-                }
+            <Virtualize ItemsProvider="@ProvideFilteredCards" Context="card" @ref="CardStatsContainer">
                 <tr>
-                    <td> @cardInfo.Name </td>
-                    <td> @cardInfo.ExpansionCode </td>
-                    <td> @cardInfo.DigitalReleaseSet </td>
-                    <td> @cardInfo.Rarity </td>
-                    <td> @amount </td>
+                    <td> @card.Info.Name </td>
+                    <td> @card.Info.ExpansionCode </td>
+                    <td> @card.Info.DigitalReleaseSet </td>
+                    <td> @card.Info.Rarity </td>
+                    <td> @card.Owned </td>
                 </tr>
 
             </Virtualize>
@@ -58,8 +50,8 @@ else
     private FrozenSet<string> digitalReleaseCodes = [];
     private string? expansionFilter;
     private string? digitalReleaseFilter;
-    private ImmutableArray<CardInfo> filteredCards = [];
-    private Virtualize<CardInfo>? CardInfoContainer { get; set; }
+    private ImmutableArray<CardStats> filteredCards = [];
+    private Virtualize<CardStats>? CardStatsContainer { get; set; }
 
     protected async override Task OnInitializedAsync()
     {
@@ -67,15 +59,16 @@ else
         {
             await state.LoadCardInfoAsync();
             loading = false;
-            expansionSetCodes = state.Cards.Values.Select(c => c.ExpansionCode).ToFrozenSet();
-            digitalReleaseCodes = state.Cards.Values
-                .Select(c => c.DigitalReleaseSet)
+            expansionSetCodes = state.Cards.Select(c => c.Info.ExpansionCode).ToFrozenSet();
+            digitalReleaseCodes = state.Cards
+                .Select(c => c.Info.DigitalReleaseSet)
                 .Where(s => !string.IsNullOrEmpty(s))
                 .ToFrozenSet();
-            filteredCards = state.Cards.Values.ToImmutableArray();
+            filteredCards = state.Cards.ToImmutableArray();
         }
-        catch (Exception)
+        catch (Exception e)
         {
+            Console.WriteLine(e.ToString());
             error = true;
         }
     }
@@ -94,15 +87,15 @@ else
 
     private async Task SetFilteredCardsAsync()
     {
-        filteredCards = state.Cards.Values.Where(c =>
+        filteredCards = state.Cards.Where(c =>
         {
             if (!string.IsNullOrEmpty(expansionFilter))
             {
-                return c.ExpansionCode == expansionFilter;
+                return c.Info.ExpansionCode == expansionFilter;
             }
             else if (!string.IsNullOrEmpty(digitalReleaseFilter))
             {
-                return c.DigitalReleaseSet == digitalReleaseFilter;
+                return c.Info.DigitalReleaseSet == digitalReleaseFilter;
             }
             else
             {
@@ -110,18 +103,18 @@ else
             }
         }).ToImmutableArray();
 
-        if (CardInfoContainer != null)
+        if (CardStatsContainer != null)
         {
-            await CardInfoContainer.RefreshDataAsync();
+            await CardStatsContainer.RefreshDataAsync();
         }
         StateHasChanged();
     }
 
-    private ValueTask<ItemsProviderResult<CardInfo>> ProvideFilteredCards(ItemsProviderRequest request)
+    private ValueTask<ItemsProviderResult<CardStats>> ProvideFilteredCards(ItemsProviderRequest request)
     {
         var numCards = Math.Min(request.Count, filteredCards.Length - request.StartIndex);
         var result = filteredCards.Skip(request.StartIndex).Take(numCards);
-        return ValueTask.FromResult(new ItemsProviderResult<CardInfo>(result, filteredCards.Length));
+        return ValueTask.FromResult(new ItemsProviderResult<CardStats>(result, filteredCards.Length));
     }
 }
 

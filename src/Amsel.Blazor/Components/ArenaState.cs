@@ -1,11 +1,13 @@
+using System.Collections.Immutable;
 using Amsel.ArenaConnect;
 
 namespace Amsel.Blazor.Components;
 
+public record CardStats(CardInfo Info, int Owned);
+
 public sealed class ArenaState
 {
-    public Dictionary<uint, CardInfo> Cards { get; private set; } = [];
-    public Dictionary<uint, CardOwned> CardsOwned { get; private set; } = [];
+    public ImmutableArray<CardStats> Cards { get; private set; } = [];
 
     public async Task LoadCardInfoAsync()
     {
@@ -14,8 +16,10 @@ public sealed class ArenaState
             IMtgArenaConnect connect = new MtgArenaConnect();
             using IMtgArenaDatabase db = new MtgArenaDatabase(connect.GetDatabasePath());
             var loc = db.GetEnglishLocalization();
-            Cards = db.GetAllCards(loc);
-            CardsOwned = connect.GetCardsOwnedFromInventory();
+            Dictionary<uint, CardOwned> cardsOwned = connect.GetCardsOwnedFromInventory();
+            Cards = db.GetAllCards(loc)
+                .LeftJoin(cardsOwned, c => c.Key, o => o.Key, (c, o) => new CardStats(c.Value, o.Value?.Amount ?? 0))
+                .ToImmutableArray();
         });
     }
 }
