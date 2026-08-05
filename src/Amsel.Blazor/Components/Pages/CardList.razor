@@ -21,22 +21,19 @@ else
                   @bind-Value:after="OnDigitalReleaseCodeFilterChanged" />
     <table>
         <thead>
-            <th>Name</th>
-            <th>Set</th>
-            <th>Digital Set</th>
-            <th>Rarity</th>
-            <th>Owned</th>
+            @foreach (Column c in GetColumns())
+            {
+                <th @onclick="e => OnSort(c)" class=@GetCssClassForColumn(c)>@GetNameForColumn(c)</th>
+            }
         </thead>
         <tbody>
-            <Virtualize ItemsProvider="@ProvideFilteredCards" Context="card" @ref="CardStatsContainer">
+            <Virtualize ItemsProvider="ProvideFilteredCards" Context="card" @ref="CardStatsContainer">
                 <tr>
-                    <td> @card.Info.Name </td>
-                    <td> @card.Info.ExpansionCode </td>
-                    <td> @card.Info.DigitalReleaseSet </td>
-                    <td> @card.Info.Rarity </td>
-                    <td> @card.Owned </td>
+                    @foreach (Column c in GetColumns())
+                    {
+                        <td> @PickColumnValue(c, card) </td>
+                    }
                 </tr>
-
             </Virtualize>
         </tbody>
     </table>
@@ -52,6 +49,19 @@ else
     private string? digitalReleaseFilter;
     private ImmutableArray<CardStats> filteredCards = [];
     private Virtualize<CardStats>? CardStatsContainer { get; set; }
+
+    private enum Column
+    {
+        None,
+        Name,
+        Set,
+        DigitalSet,
+        Rarity,
+        Owned,
+    }
+    private record Sort(Column column, bool isDesc);
+    private Sort sortColumn = new Sort(Column.None, false);
+
 
     protected async override Task OnInitializedAsync()
     {
@@ -85,9 +95,28 @@ else
         await SetFilteredCardsAsync();
     }
 
+    private object PickSortColumnValue(CardStats c)
+    {
+        return PickColumnValue(sortColumn.column, c);
+    }
+
+    private static object PickColumnValue(Column column, CardStats c)
+    {
+        return column switch
+        {
+            Column.None => "",
+            Column.Name => c.Info.Name,
+            Column.Set => c.Info.ExpansionCode,
+            Column.DigitalSet => c.Info.DigitalReleaseSet,
+            Column.Rarity => c.Info.Rarity,
+            Column.Owned => c.Owned,
+            _ => throw new ArgumentOutOfRangeException($"Unknown Column {column} picked"),
+        };
+    }
+
     private async Task SetFilteredCardsAsync()
     {
-        filteredCards = state.Cards.Where(c =>
+        var filteredCardsEnumerable = state.Cards.Where(c =>
         {
             if (!string.IsNullOrEmpty(expansionFilter))
             {
@@ -101,7 +130,11 @@ else
             {
                 return true;
             }
-        }).ToImmutableArray();
+        });
+        filteredCardsEnumerable = sortColumn.isDesc ?
+            filteredCardsEnumerable.OrderByDescending(PickSortColumnValue) :
+            filteredCardsEnumerable.OrderBy(PickSortColumnValue);
+        filteredCards = filteredCardsEnumerable.ToImmutableArray();
 
         if (CardStatsContainer != null)
         {
@@ -116,6 +149,51 @@ else
         var result = filteredCards.Skip(request.StartIndex).Take(numCards);
         return ValueTask.FromResult(new ItemsProviderResult<CardStats>(result, filteredCards.Length));
     }
+
+    private async Task OnSort(Column column)
+    {
+        if (sortColumn.column == column)
+        {
+            if (!sortColumn.isDesc)
+            {
+                sortColumn = new Sort(column, true);
+            }
+            else
+            {
+                sortColumn = new Sort(Column.None, false); // reset
+            }
+        }
+        else
+        {
+            sortColumn = new Sort(column, false);
+        }
+
+        await SetFilteredCardsAsync();
+    }
+
+    private string GetCssClassForColumn(Column column)
+    {
+        if (column == sortColumn.column)
+        {
+            return sortColumn.isDesc ? "sort-desc" : "sort-asc";
+        }
+        else
+        {
+            return "";
+        }
+    }
+
+    private static string GetNameForColumn(Column column)
+    {
+        return column switch
+        {
+            Column.DigitalSet => "Digital Set",
+            _ => column.ToString()
+        };
+    }
+
+    private static IEnumerable<Column> GetColumns()
+    {
+        return Enum.GetValues<Column>().Skip(1);
+    }
 }
-
-
