@@ -10,6 +10,10 @@
 {
     <h1>Card list could not be loaded!</h1>
 }
+else if (loading)
+{
+    <h1>Loading...</h1>
+}
 else
 {
     <StringSelect Options="expansionSetCodes" @bind-Value="expansionFilter"
@@ -49,6 +53,7 @@ else
 @code {
 
     bool error = false;
+    bool loading = true;
     private FrozenSet<string> expansionSetCodes = [];
     private FrozenSet<string> digitalReleaseCodes = [];
     private string? expansionFilter;
@@ -56,11 +61,12 @@ else
     private ImmutableArray<CardInfo> filteredCards = [];
     private Virtualize<CardInfo>? CardInfoContainer { get; set; }
 
-    protected override void OnInitialized()
+    protected async override Task OnInitializedAsync()
     {
         try
         {
-            state.LoadCardInfo();
+            await state.LoadCardInfoAsync();
+            loading = false;
             expansionSetCodes = state.Cards.Values.Select(c => c.ExpansionCode).ToFrozenSet();
             digitalReleaseCodes = state.Cards.Values
                 .Select(c => c.DigitalReleaseSet)
