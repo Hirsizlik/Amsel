@@ -2,7 +2,6 @@
 @rendermode InteractiveServer
 @inject ArenaState state
 
-@using System.Collections.Frozen;
 @using System.Collections.Immutable;
 
 @if (error)
@@ -43,8 +42,8 @@ else
 
     bool error = false;
     bool loading = true;
-    private FrozenSet<string> expansionSetCodes = [];
-    private FrozenSet<string> digitalReleaseCodes = [];
+    private ImmutableArray<string> expansionSetCodes = [];
+    private ImmutableArray<string> digitalReleaseCodes = [];
     private string? expansionFilter;
     private string? digitalReleaseFilter;
     private ImmutableArray<CardStats> filteredCards = [];
@@ -69,11 +68,19 @@ else
         {
             await state.LoadCardInfoAsync();
             loading = false;
-            expansionSetCodes = state.Cards.Select(c => c.Info.ExpansionCode).ToFrozenSet();
+            expansionSetCodes = state.Cards
+                .Where(c => c.Info.IsPrimary)
+                .Select(c => c.Info.ExpansionCode)
+                .Distinct()
+                .OrderBy(s => s)
+                .ToImmutableArray();
             digitalReleaseCodes = state.Cards
+                .Where(c => c.Info.IsPrimary)
                 .Select(c => c.Info.DigitalReleaseSet)
+                .Distinct()
                 .Where(s => !string.IsNullOrEmpty(s))
-                .ToFrozenSet();
+                .OrderBy(s => s)
+                .ToImmutableArray();
             filteredCards = state.Cards.ToImmutableArray();
         }
         catch (Exception e)

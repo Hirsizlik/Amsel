@@ -1,4 +1,4 @@
-@using System.Collections.Frozen
+@using System.Collections.Immutable
 
 <select @bind="Value">
     <option value="" />
@@ -26,5 +26,5 @@
     public EventCallback<string> ValueChanged { get; set; }
 
     [Parameter]
-    public FrozenSet<string> Options { get; set; } = [];
+    public ImmutableArray<string> Options { get; set; } = [];
 }
