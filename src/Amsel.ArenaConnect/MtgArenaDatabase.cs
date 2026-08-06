@@ -40,7 +40,8 @@ public sealed class MtgArenaDatabase : IMtgArenaDatabase
     {
         using var command = connection.CreateCommand();
         command.CommandText = """
-        SELECT c.GrpId, c.TitleId, c.ExpansionCode, c.DigitalReleaseSet, c.CollectorNumber, c.CollectorMax, c.Rarity
+        SELECT c.GrpId, c.TitleId, c.ExpansionCode, c.DigitalReleaseSet,
+            c.CollectorNumber, c.CollectorMax, c.Rarity, c.IsPrimaryCard
         FROM Cards c
         """;
         using var reader = command.ExecuteReader();
@@ -60,7 +61,8 @@ public sealed class MtgArenaDatabase : IMtgArenaDatabase
                 reader.GetString(3),
                 (uint)reader.GetInt32(4),
                 reader.GetValue(5) as uint?,
-                (Rarity)reader.GetInt32(6)
+                (Rarity)reader.GetInt32(6),
+                reader.GetBoolean(7)
             ));
         }
         return result;

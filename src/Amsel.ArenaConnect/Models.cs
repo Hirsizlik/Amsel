@@ -13,4 +13,4 @@ public enum Rarity
 public record CardOwned(uint CardId, int Amount);
 
 public record CardInfo(uint CardId, string Name, string ExpansionCode, string DigitalReleaseSet,
-    uint CollectorNumber, uint? CollectorMax, Rarity Rarity);
+    uint CollectorNumber, uint? CollectorMax, Rarity Rarity, bool IsPrimary);

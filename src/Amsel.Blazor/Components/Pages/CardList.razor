@@ -118,18 +118,20 @@ else
     {
         var filteredCardsEnumerable = state.Cards.Where(c =>
         {
+            if (!c.Info.IsPrimary)
+            {
+                return false;
+            }
             if (!string.IsNullOrEmpty(expansionFilter))
             {
                 return c.Info.ExpansionCode == expansionFilter;
             }
-            else if (!string.IsNullOrEmpty(digitalReleaseFilter))
+            if (!string.IsNullOrEmpty(digitalReleaseFilter))
             {
                 return c.Info.DigitalReleaseSet == digitalReleaseFilter;
             }
-            else
-            {
-                return true;
-            }
+            return true;
+
         });
         filteredCardsEnumerable = sortColumn.isDesc ?
             filteredCardsEnumerable.OrderByDescending(PickSortColumnValue) :
