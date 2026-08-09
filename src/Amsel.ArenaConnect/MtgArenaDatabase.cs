@@ -36,7 +36,7 @@ public sealed class MtgArenaDatabase : IMtgArenaDatabase
         return result;
     }
 
-    public Dictionary<uint, CardInfo> GetAllCards(Dictionary<uint, string> Localizations)
+    public Dictionary<uint, CardInfo> GetAllCards(Dictionary<uint, string> localizations, bool onlyPrimary)
     {
         using var command = connection.CreateCommand();
         command.CommandText = """
@@ -44,6 +44,10 @@ public sealed class MtgArenaDatabase : IMtgArenaDatabase
             c.CollectorNumber, c.CollectorMax, c.Rarity, c.IsPrimaryCard
         FROM Cards c
         """;
+        if (onlyPrimary)
+        {
+            command.CommandText += " WHERE c.IsPrimaryCard = 1";
+        }
         using var reader = command.ExecuteReader();
         Dictionary<uint, CardInfo> result = [];
         while (reader.Read())
@@ -56,7 +60,7 @@ public sealed class MtgArenaDatabase : IMtgArenaDatabase
             result.Add(id, new CardInfo
             (
                 id,
-                Localizations[titleId],
+                localizations[titleId],
                 reader.GetString(2),
                 reader.GetString(3),
                 (uint)reader.GetInt32(4),

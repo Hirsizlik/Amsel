@@ -69,13 +69,11 @@ else
             await state.LoadCardInfoAsync();
             loading = false;
             expansionSetCodes = state.Cards
-                .Where(c => c.Info.IsPrimary)
                 .Select(c => c.Info.ExpansionCode)
                 .Distinct()
                 .OrderBy(s => s)
                 .ToImmutableArray();
             digitalReleaseCodes = state.Cards
-                .Where(c => c.Info.IsPrimary)
                 .Select(c => c.Info.DigitalReleaseSet)
                 .Distinct()
                 .Where(s => !string.IsNullOrEmpty(s))
@@ -125,10 +123,6 @@ else
     {
         var filteredCardsEnumerable = state.Cards.Where(c =>
         {
-            if (!c.Info.IsPrimary)
-            {
-                return false;
-            }
             if (!string.IsNullOrEmpty(expansionFilter))
             {
                 return c.Info.ExpansionCode == expansionFilter;

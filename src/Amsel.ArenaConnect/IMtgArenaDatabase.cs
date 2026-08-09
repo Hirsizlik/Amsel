@@ -3,5 +3,5 @@ namespace Amsel.ArenaConnect;
 public interface IMtgArenaDatabase : IDisposable
 {
     Dictionary<uint, string> GetEnglishLocalization();
-    Dictionary<uint, CardInfo> GetAllCards(Dictionary<uint, string> Localizations);
+    Dictionary<uint, CardInfo> GetAllCards(Dictionary<uint, string> localizations, bool onlyPrimary = true);
 }
