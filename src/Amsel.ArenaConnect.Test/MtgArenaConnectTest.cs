@@ -1,6 +1,4 @@
-﻿namespace Amsel.ArenaConnectTest;
-
-using Amsel.ArenaConnect;
+﻿namespace Amsel.ArenaConnect.Test;
 
 public class MtgArenaConnectTest
 {
