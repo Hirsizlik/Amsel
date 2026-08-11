@@ -8,6 +8,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\externals\unityspy\src\HackF5.UnitySpy\HackF5.UnitySpy.csproj" />
+    <ProjectReference Include="..\Amsel.Data\Amsel.Data.csproj" />
   </ItemGroup>
 
   <ItemGroup>

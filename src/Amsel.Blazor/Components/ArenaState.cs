@@ -1,9 +1,8 @@
 using System.Collections.Immutable;
 using Amsel.ArenaConnect;
+using Amsel.Data;
 
 namespace Amsel.Blazor.Components;
-
-public record CardStats(CardInfo Info, int Owned);
 
 public sealed class ArenaState
 {

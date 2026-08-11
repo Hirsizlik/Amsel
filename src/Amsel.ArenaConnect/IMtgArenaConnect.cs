@@ -1,3 +1,5 @@
+using Amsel.Data;
+
 namespace Amsel.ArenaConnect;
 
 public interface IMtgArenaConnect

@@ -3,6 +3,7 @@
 @inject ArenaState state
 
 @using System.Collections.Immutable;
+@using Amsel.Data;
 
 @if (error)
 {
@@ -113,7 +114,7 @@ else
             Column.Name => c.Info.Name,
             Column.Set => c.Info.ExpansionCode,
             Column.DigitalSet => c.Info.DigitalReleaseSet,
-            Column.Rarity => formatted ? RarityToChar(c.Info.Rarity) : c.Info.Rarity,
+            Column.Rarity => formatted ? c.Info.Rarity.ToChar() : c.Info.Rarity,
             Column.Owned => c.Owned,
             _ => throw new ArgumentOutOfRangeException($"Unknown Column {column} picked"),
         };
@@ -198,18 +199,5 @@ else
     private static IEnumerable<Column> GetColumns()
     {
         return Enum.GetValues<Column>().Skip(1);
-    }
-
-    private static char RarityToChar(ArenaConnect.Rarity r)
-    {
-        return r switch
-        {
-            ArenaConnect.Rarity.Unknown => '?',
-            ArenaConnect.Rarity.Land => 'L',
-            ArenaConnect.Rarity.Common => 'C',
-            ArenaConnect.Rarity.Uncommon => 'U',
-            ArenaConnect.Rarity.Rare => 'R',
-            ArenaConnect.Rarity.MythicRare => 'M'
-        };
     }
 }
