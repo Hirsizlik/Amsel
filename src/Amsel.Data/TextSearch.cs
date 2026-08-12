@@ -1,3 +1,4 @@
+using System.Collections.Frozen;
 using System.ComponentModel;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -7,13 +8,31 @@ namespace Amsel.Data;
 internal interface ICardFilter
 {
     bool Apply(CardStats c);
+    // also must implement Equals
 }
 
-internal record NameFilter(string Name) : ICardFilter
+internal class NameFilter(string name) : ICardFilter
 {
+    private readonly string name = name.ToLowerInvariant();
+
     public bool Apply(CardStats s)
     {
-        return s.Info.Name.Contains(Name, StringComparison.OrdinalIgnoreCase);
+        return s.Info.Name.Contains(name, StringComparison.OrdinalIgnoreCase);
+    }
+
+    public override bool Equals(object? other)
+    {
+        if (other is not NameFilter fOther)
+        {
+            return false;
+        }
+
+        return name.Equals(fOther.name);
+    }
+
+    public override int GetHashCode()
+    {
+        return name.GetHashCode();
     }
 }
 
@@ -58,25 +77,61 @@ internal static class FilterOperatorExtension
     }
 }
 
-internal record RarityFilter(Rarity Rarity, FilterOperator Op) : ICardFilter
+internal class RarityFilter(Rarity rarity, FilterOperator op) : ICardFilter
 {
+    private readonly Rarity rarity = rarity;
+    private readonly FilterOperator op = op;
+
     public bool Apply(CardStats c)
     {
-        return Op.Apply((int)c.Info.Rarity, (int)Rarity);
+        return op.Apply((int)c.Info.Rarity, (int)rarity);
+    }
+
+    public override bool Equals(object? other)
+    {
+        if (other is not RarityFilter rOther)
+        {
+            return false;
+        }
+
+        return rarity == rOther.rarity && op == rOther.op;
+    }
+
+    public override int GetHashCode()
+    {
+        return HashCode.Combine(rarity, op);
     }
 }
 
-internal record QuantityFilter(int Amount, FilterOperator Op) : ICardFilter
+internal class QuantityFilter(int amount, FilterOperator op) : ICardFilter
 {
+    private readonly int amount = amount;
+    private readonly FilterOperator op = op;
+
     public bool Apply(CardStats c)
     {
-        return Op.Apply(c.Owned, Amount);
+        return op.Apply(c.Owned, amount);
+    }
+
+    public override bool Equals(object? other)
+    {
+        if (other is not QuantityFilter rOther)
+        {
+            return false;
+        }
+
+        return amount == rOther.amount && op == rOther.op;
+    }
+
+    public override int GetHashCode()
+    {
+        return HashCode.Combine(amount, op);
     }
 }
 
 public partial class TextSearch
 {
-    private readonly List<ICardFilter> filter;
+    private readonly FrozenSet<ICardFilter> filter;
 
     [GeneratedRegex("^R(<|<=|>|>=|=|!=)([LCURM])$", RegexOptions.IgnoreCase)]
     private static partial Regex RarityPattern { get; }
@@ -167,9 +222,9 @@ public partial class TextSearch
         return true;
     }
 
-    private TextSearch(List<ICardFilter> filter)
+    private TextSearch(IEnumerable<ICardFilter> filter)
     {
-        this.filter = filter;
+        this.filter = filter.ToFrozenSet();
     }
 
     public bool FilterCard(CardStats card)
@@ -180,5 +235,24 @@ public partial class TextSearch
             result &= f.Apply(card);
         }
         return result;
+    }
+
+    public override bool Equals(object? obj)
+    {
+        if (obj is not TextSearch tObj)
+        {
+            return false;
+        }
+        return filter.SetEquals(tObj.filter);
+    }
+
+    public override int GetHashCode()
+    {
+        HashCode hc = new();
+        foreach (var f in filter)
+        {
+            hc.Add(f);
+        }
+        return hc.ToHashCode();
     }
 }

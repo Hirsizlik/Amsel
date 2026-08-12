@@ -183,4 +183,25 @@ public class TextSearchTest
                 Is.False);
         }
     }
+
+    [Test]
+    public void TestEquals()
+    {
+        Assume.That(TextSearch.TryParse("my r>U q>2 test", out TextSearch tsOrig), Is.True);
+        Assume.That(TextSearch.TryParse("q>2 r>U test my", out TextSearch tsOtherOrder), Is.True);
+        Assume.That(TextSearch.TryParse("MY R>U Q>2 TEST", out TextSearch tsBlockCase), Is.True);
+        Assume.That(TextSearch.TryParse("q>=2 r>=U myr test", out TextSearch tsNotEqual1), Is.True);
+        Assume.That(TextSearch.TryParse("my test", out TextSearch tsNotEqual2), Is.True);
+        Assume.That(TextSearch.TryParse("my r>U q>2 test too", out TextSearch tsNotEqual3), Is.True);
+        Assume.That(TextSearch.TryParse("", out TextSearch tsEmpty), Is.True);
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(tsOrig, Is.EqualTo(tsOtherOrder));
+            Assert.That(tsOrig, Is.EqualTo(tsBlockCase));
+            Assert.That(tsOrig, Is.Not.EqualTo(tsNotEqual1));
+            Assert.That(tsOrig, Is.Not.EqualTo(tsNotEqual2));
+            Assert.That(tsOrig, Is.Not.EqualTo(tsNotEqual3));
+            Assert.That(tsOrig, Is.Not.EqualTo(tsEmpty));
+        }
+    }
 }
