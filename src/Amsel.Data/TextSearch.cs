@@ -66,7 +66,7 @@ internal static class FilterOperatorExtension
     {
         return s switch
         {
-            "=" => FilterOperator.Equal,
+            "=" or ":" => FilterOperator.Equal,
             "!=" => FilterOperator.NotEqual,
             ">" => FilterOperator.Higher,
             ">=" => FilterOperator.HigherEqual,
@@ -133,17 +133,76 @@ public partial class TextSearch
 {
     private readonly FrozenSet<ICardFilter> filter;
 
-    [GeneratedRegex("^R(<|<=|>|>=|=|!=)([LCURM])$", RegexOptions.IgnoreCase)]
+    [GeneratedRegex("^\\w+(<|<=|>|>=|=|:|!=)(.+)$")]
+    private static partial Regex GenericPattern { get; }
+    [GeneratedRegex("^R(<|<=|>|>=|=|:|!=)([LCURM])$", RegexOptions.IgnoreCase)]
     private static partial Regex RarityPattern { get; }
-    [GeneratedRegex("^Q(<|<=|>|>=|=|!=)(\\d+)$", RegexOptions.IgnoreCase)]
+    [GeneratedRegex("^Q(<|<=|>|>=|=|:|!=)(\\d+)$", RegexOptions.IgnoreCase)]
     private static partial Regex QuantityPattern { get; }
 
     public static bool TryParse(string raw, out TextSearch result)
     {
+        if (string.IsNullOrWhiteSpace(raw))
+        {
+            // empty search string is fine...
+            result = new TextSearch([]);
+            return true;
+        }
+        List<string> tokens = Tokenize(raw);
+        if (tokens.Count == 0)
+        {
+            // ...but having no tokens after parsing is not
+            result = new TextSearch([]);
+            return false;
+        }
+        return TryParseOptions(tokens, out result);
+    }
+
+    private static bool TryParseOptions(List<string> tokens, out TextSearch textSearch)
+    {
+        List<ICardFilter> filter = [];
+        foreach (string token in tokens)
+        {
+            if (GenericPattern.IsMatch(token))
+            {
+                if (RarityPattern.Match(token) is { Success: true } rarityMatch)
+                {
+                    var op = FilterOperatorExtension.FromString(rarityMatch.Groups[1].Value);
+                    char rarityChar = rarityMatch.Groups[2].Value[0];
+                    filter.Add(new RarityFilter(
+                        RarityExtension.FromChar(rarityChar),
+                        op
+                    ));
+                    continue;
+                }
+
+                if (QuantityPattern.Match(token) is { Success: true } quantityMatch)
+                {
+                    var op = FilterOperatorExtension.FromString(quantityMatch.Groups[1].Value);
+                    int quantity = int.Parse(quantityMatch.Groups[2].Value);
+                    filter.Add(new QuantityFilter(
+                        quantity,
+                        op
+                    ));
+                    continue;
+                }
+                textSearch = new TextSearch([]);
+                return false;
+            }
+            else
+            {
+                filter.Add(new NameFilter(token));
+            }
+        }
+        textSearch = new TextSearch(filter);
+        return true;
+    }
+
+    private static List<string> Tokenize(string raw)
+    {
         StringBuilder currentWord = new();
         bool inQuotes = false;
         List<string> words = [];
-        List<ICardFilter> filter = [];
         void AddCurrentWord()
         {
             if (currentWord.Length > 0)
@@ -186,40 +245,10 @@ public partial class TextSearch
         if (inQuotes)
         {
             // missing closing "
-            result = new TextSearch(filter);
-            return false;
+            return [];
         }
         AddCurrentWord(); // the last word if not already added
-
-        foreach (string word in words)
-        {
-            if (RarityPattern.Match(word) is { Success: true } rarityMatch)
-            {
-                var op = FilterOperatorExtension.FromString(rarityMatch.Groups[1].Value);
-                char rarityChar = rarityMatch.Groups[2].Value[0];
-                filter.Add(new RarityFilter(
-                    RarityExtension.FromChar(rarityChar),
-                    op
-                ));
-                continue;
-            }
-
-            if (QuantityPattern.Match(word) is { Success: true } quantityMatch)
-            {
-                var op = FilterOperatorExtension.FromString(quantityMatch.Groups[1].Value);
-                int quantity = int.Parse(quantityMatch.Groups[2].Value);
-                filter.Add(new QuantityFilter(
-                    quantity,
-                    op
-                ));
-                continue;
-            }
-
-            // else just a name filter
-            filter.Add(new NameFilter(word));
-        }
-        result = new TextSearch(filter);
-        return true;
+        return words;
     }
 
     private TextSearch(IEnumerable<ICardFilter> filter)

@@ -31,6 +31,19 @@ public class TextSearchTest
     }
 
     [Test]
+    public void TestNameWithColon()
+    {
+        Assert.That(TextSearch.TryParse("Protection:", out TextSearch ts1), Is.True);
+        Assert.That(TextSearch.TryParse(":", out TextSearch ts2), Is.True);
+        var c = WithName("Circle of Protection: Black");
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(ts1.FilterCard(c), Is.True);
+            Assert.That(ts2.FilterCard(c), Is.True);
+        }
+    }
+
+    [Test]
     public void TestNameInQuotes()
     {
         Assert.That(TextSearch.TryParse("\"My Test\"", out TextSearch ts), Is.True);
@@ -84,6 +97,12 @@ public class TextSearchTest
         AssertRarity("r=U", [Rarity.Uncommon]);
         AssertRarity("r=R", [Rarity.Rare]);
         AssertRarity("r=M", [Rarity.MythicRare]);
+
+        AssertRarity("r:L", [Rarity.Land]);
+        AssertRarity("r:C", [Rarity.Common]);
+        AssertRarity("r:U", [Rarity.Uncommon]);
+        AssertRarity("r:R", [Rarity.Rare]);
+        AssertRarity("r:M", [Rarity.MythicRare]);
     }
 
     [Test]
@@ -131,6 +150,7 @@ public class TextSearchTest
     public void TestQuantityEqual()
     {
         AssertQuantiy("q=2", false, true, false);
+        AssertQuantiy("q:2", false, true, false);
     }
 
     [Test]
@@ -203,5 +223,15 @@ public class TextSearchTest
             Assert.That(tsOrig, Is.Not.EqualTo(tsNotEqual3));
             Assert.That(tsOrig, Is.Not.EqualTo(tsEmpty));
         }
+    }
+
+    [Test]
+    public void TestInvalid()
+    {
+        Assert.That(TextSearch.TryParse("x=1", out TextSearch _), Is.False);
+        Assert.That(TextSearch.TryParse("xxx:1", out TextSearch _), Is.False);
+        Assert.That(TextSearch.TryParse("q:U", out TextSearch _), Is.False);
+        Assert.That(TextSearch.TryParse("qq:3", out TextSearch _), Is.False);
+        Assert.That(TextSearch.TryParse("r<7", out TextSearch _), Is.False);
     }
 }
