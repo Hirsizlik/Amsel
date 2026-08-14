@@ -1,0 +1,35 @@
+@using Amsel.Data
+
+<input type="text" placeholder="Search..." @bind-value="text" @onkeyup="OnKeyUp" class=@(ok ? "" : "search-error")>
+
+@code {
+
+    private string text = "";
+    private bool ok = true;
+    [Parameter]
+    public required TextSearch Value
+    {
+        get; set
+        {
+            if (field == null || !field.Equals(value))
+            {
+                field = value;
+                ValueChanged.InvokeAsync(value);
+            }
+        }
+    }
+
+    [Parameter]
+    public EventCallback<TextSearch> ValueChanged { get; set; }
+
+    private void OnKeyUp(KeyboardEventArgs e)
+    {
+        if (e.Code == "Enter")
+        {
+            if (ok = TextSearch.TryParse(text, out TextSearch t))
+            {
+                Value = t;
+            }
+        }
+    }
+}

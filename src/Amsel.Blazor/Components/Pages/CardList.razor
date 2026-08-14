@@ -15,10 +15,14 @@ else if (loading)
 }
 else
 {
-    <StringSelect Options="expansionSetCodes" @bind-Value="expansionFilter"
-                  @bind-Value:after="OnExpansionCodeFilterChanged" />
-    <StringSelect Options="digitalReleaseCodes" @bind-Value="digitalReleaseFilter"
-                  @bind-Value:after="OnDigitalReleaseCodeFilterChanged" />
+    <div>
+        <StringSelect Options="expansionSetCodes" @bind-Value="expansionFilter"
+                      @bind-Value:after="OnExpansionCodeFilterChanged" />
+        <StringSelect Options="digitalReleaseCodes" @bind-Value="digitalReleaseFilter"
+                      @bind-Value:after="OnDigitalReleaseCodeFilterChanged" />
+    </div>
+    <SearchField @bind-Value="textSearch" @bind-Value:after="OnTextSearchChanged" />
+
     <table>
         <thead>
             @foreach (Column c in GetColumns())
@@ -47,6 +51,7 @@ else
     private ImmutableArray<string> digitalReleaseCodes = [];
     private string? expansionFilter;
     private string? digitalReleaseFilter;
+    private TextSearch textSearch = TextSearch.Empty();
     private ImmutableArray<CardStats> filteredCards = [];
     private Virtualize<CardStats>? CardStatsContainer { get; set; }
 
@@ -101,6 +106,11 @@ else
         await SetFilteredCardsAsync();
     }
 
+    private async Task OnTextSearchChanged()
+    {
+        await SetFilteredCardsAsync();
+    }
+
     private object PickSortColumnValue(CardStats c)
     {
         return PickColumnValue(sortColumn.column, c, false);
@@ -124,17 +134,21 @@ else
     {
         var filteredCardsEnumerable = state.Cards.Where(c =>
         {
-            if (!string.IsNullOrEmpty(expansionFilter))
+            if (!textSearch.FilterCard(c))
             {
-                return c.Info.ExpansionCode == expansionFilter;
+                return false;
             }
-            if (!string.IsNullOrEmpty(digitalReleaseFilter))
+            if (!string.IsNullOrEmpty(expansionFilter) && c.Info.ExpansionCode != expansionFilter)
             {
-                return c.Info.DigitalReleaseSet == digitalReleaseFilter;
+                return false;
+            }
+            if (!string.IsNullOrEmpty(digitalReleaseFilter) && c.Info.DigitalReleaseSet != digitalReleaseFilter)
+            {
+                return false;
             }
             return true;
-
         });
+
         filteredCardsEnumerable = sortColumn.isDesc ?
             filteredCardsEnumerable.OrderByDescending(PickSortColumnValue) :
             filteredCardsEnumerable.OrderBy(PickSortColumnValue);

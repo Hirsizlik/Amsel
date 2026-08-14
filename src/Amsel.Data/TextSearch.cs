@@ -251,6 +251,11 @@ public partial class TextSearch
         return words;
     }
 
+    public static TextSearch Empty()
+    {
+        return new TextSearch([]);
+    }
+
     private TextSearch(IEnumerable<ICardFilter> filter)
     {
         this.filter = filter.ToFrozenSet();
