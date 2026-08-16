@@ -1,4 +1,5 @@
 using Amsel.Blazor.Components;
+using Xdg.Directories;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -6,7 +7,9 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
-builder.Services.AddScoped<ArenaState>();
+builder.Services
+    .AddSingleton<ArenaState>()
+    .AddSingleton(new AmselSettings(BaseDirectory.CacheFile("Amsel/CardCache.json.gz")));
 
 var app = builder.Build();
 
