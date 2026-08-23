@@ -1,0 +1,60 @@
+@page "/set-statistics"
+@rendermode InteractiveServer
+
+@using Amsel.Data;
+
+@inject ArenaState state
+
+
+@if (error)
+{
+    <h1>Set statistics could not be loaded!</h1>
+}
+else if (loading)
+{
+    <h1>Loading...</h1>
+}
+else
+{
+    <div class="set-statistics">
+        @foreach (var set in state.SetStatistics.Values)
+        {
+            <div class="set-statistic @(set.IsDigitalSet ? "digital-set" : "regular-set")">
+                <div>
+                    @set.SetCode
+                </div>
+                <div>
+                    1x: @set.TotalOwnedUnique / @set.CardCount
+                    (@((100.0 * set.TotalOwnedUnique / set.CardCount).ToString("0.#")) %)
+                </div>
+                <div>
+                    4x: @set.TotalOwned / @(set.CardCount * 4)
+                    (@((25.0 * set.TotalOwned / set.CardCount).ToString("0.#")) %)
+                </div>
+            </div>
+        }
+
+
+    </div>
+}
+
+@code {
+
+    private Virtualize<SetStatistic>? setStatisticsContainer { get; set; }
+    private bool error = false;
+    private bool loading = true;
+
+    protected async override Task OnInitializedAsync()
+    {
+        try
+        {
+            await state.LoadCardInfoAsync();
+            loading = false;
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e.ToString());
+            error = true;
+        }
+    }
+}

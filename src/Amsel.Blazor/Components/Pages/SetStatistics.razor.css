@@ -1,0 +1,21 @@
+.set-statistics {
+    display: flex;
+    flex-wrap: wrap;
+    width: 75%;
+    margin: auto;
+    padding: auto;
+}
+
+.set-statistic {
+    margin: 10px;
+    padding: 20px;
+    width: 12em;
+}
+
+.digital-set {
+    background-color: lightpink;
+}
+
+.regular-set {
+    background-color: lightcyan;
+}

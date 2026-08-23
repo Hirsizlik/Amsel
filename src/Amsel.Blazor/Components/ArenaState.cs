@@ -3,6 +3,7 @@ using System.Text.Json;
 using Amsel.ArenaConnect;
 using Amsel.Data;
 using System.IO.Compression;
+using System.Collections.Frozen;
 
 namespace Amsel.Blazor.Components;
 
@@ -13,6 +14,8 @@ public sealed class ArenaState(AmselSettings settings)
     public ImmutableArray<CardStats> Cards { get; private set; } = [];
     public bool FromCache { get; private set; } = false;
     public DateTime CardsLoadedTs { get; private set; }
+    public FrozenDictionary<string, SetStatistic> SetStatistics { get; private set; }
+        = FrozenDictionary.Create<string, SetStatistic>([]);
 
     private record CardCache(int Version, DateTime Timestamp, ImmutableArray<CardStats> Cards)
     {
@@ -36,6 +39,7 @@ public sealed class ArenaState(AmselSettings settings)
                 Console.WriteLine(e.ToString());
                 await LoadFromCache();
             }
+            SetStatistics = SetStatistic.CreateStatistics(Cards).ToFrozenDictionary();
         });
     }
 
