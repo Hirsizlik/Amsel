@@ -48,3 +48,18 @@ public record CardInfo(uint CardId, string Name, string ExpansionCode, string Di
     uint CollectorNumber, uint? CollectorMax, Rarity Rarity, bool IsPrimary);
 
 public record CardStats(CardInfo Info, int Owned);
+
+public enum Availability
+{
+    EternalOnly, // Paper sets out of Rotation
+    StandardNotAlchemy, // Sets in Standard, but not in Alchemy (3 Years)
+    Available, // Standard + Alchemy (2 Years) Sets
+    AlchemyNotStandard, // Current Alchemy sets
+    HistoricOnly, // Digital only sets not in Alchemy (PIO, SIR, rotated Alchemy sets)
+    RotatingOutSoonStandard, // Rotating from StandardNotAlchemy to EternalOnly
+    RotatingOutSoonAlchemy // Rotating from Alchemy to Standard or Historic
+}
+
+// Name and ParentCode are only set for related sub sets (IsMajorCardSet = false)
+public record SetMetadata(int CollationId, string Code, DateTime ReleaseDate, bool IsMajorCardSet,
+                          Availability Availability, string? Name, string? ParentCode);

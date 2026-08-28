@@ -23,4 +23,11 @@ public class MtgArenaConnectTest
         var s = mac.GetDatabasePath();
         Assert.That(s, Is.Not.Empty);
     }
+
+    [Test]
+    public void TestGetSetMetadata()
+    {
+        var s = mac.GetSetMetadata();
+        Assert.That(s, Is.Not.Empty);
+    }
 }

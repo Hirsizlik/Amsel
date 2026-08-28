@@ -6,4 +6,5 @@ public interface IMtgArenaConnect
 {
     Dictionary<uint, CardOwned> GetCardsOwnedFromInventory();
     string GetDatabasePath();
+    Dictionary<string, SetMetadata> GetSetMetadata();
 }

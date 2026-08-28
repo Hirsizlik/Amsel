@@ -125,4 +125,37 @@ public class MtgArenaConnect : IMtgArenaConnect
         }
     }
 
+    public Dictionary<string, SetMetadata> GetSetMetadata()
+    {
+        object[] collationsByMapping = assemblyImage["WrapperController"]
+            ["<Instance>k__BackingField"]
+            ["<SceneLoader>k__BackingField"]
+            ["_setMetadataProvider"]
+            ["_collationsByMapping"]
+            ["_entries"];
+        Dictionary<string, SetMetadata> result = [];
+        foreach (ManagedStructInstance m in collationsByMapping.Cast<ManagedStructInstance>())
+        {
+            int collationId = m.GetValue<int>("key");
+            if (collationId == 0)
+                continue;
+            ManagedClassInstance v = m.GetValue<ManagedClassInstance>("value");
+            ManagedClassInstance set = v["Set"];
+            string code = set["SetCode"];
+            Availability availability = (Availability)set["Availability"];
+            DateTime releaseDate = DateTime.FromBinary((long)set["ReleaseDate"]["_dateData"]);
+            SetMetadata sm = new(collationId, code, releaseDate, true, availability, null, null);
+            result[code] = sm;
+            foreach (ManagedClassInstance? related in set["RelatedSets"]["_items"])
+            {
+                if (related == null)
+                    continue;
+                string subCode = related["SetCode"];
+                string subName = related["SetName"];
+                Availability subAvailability = (Availability)related["Availability"];
+                result[subCode] = new SetMetadata(0, subCode, releaseDate, false, subAvailability, subName, code);
+            }
+        }
+        return result;
+    }
 }
