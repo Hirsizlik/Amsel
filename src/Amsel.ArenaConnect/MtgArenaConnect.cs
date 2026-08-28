@@ -83,16 +83,13 @@ public class MtgArenaConnect : IMtgArenaConnect
             ["InventoryServiceWrapper"]
             ["<Cards>k__BackingField"]
             ["_entries"];
-        for (int i = 0; i < cardEntries.Length; i++)
+        foreach (ManagedStructInstance cardInstance in cardEntries.Cast<ManagedStructInstance>())
         {
-            if (cardEntries[i] is ManagedStructInstance cardInstance)
+            int owned = cardInstance.GetValue<int>("value");
+            if (owned > 0)
             {
-                int owned = cardInstance.GetValue<int>("value");
-                if (owned > 0)
-                {
-                    uint groupId = cardInstance.GetValue<uint>("key");
-                    cards.Add(groupId, new CardOwned(groupId, owned));
-                }
+                uint groupId = cardInstance.GetValue<uint>("key");
+                cards.Add(groupId, new CardOwned(groupId, owned));
             }
         }
         return cards;

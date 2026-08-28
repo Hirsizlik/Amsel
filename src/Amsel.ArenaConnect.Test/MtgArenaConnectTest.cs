@@ -21,6 +21,6 @@ public class MtgArenaConnectTest
     public void TestGetConnectionString()
     {
         var s = mac.GetDatabasePath();
-        Assert.That(mac.GetDatabasePath(), Is.Not.Empty);
+        Assert.That(s, Is.Not.Empty);
     }
 }
