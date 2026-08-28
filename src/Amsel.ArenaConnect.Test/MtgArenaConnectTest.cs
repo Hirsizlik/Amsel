@@ -18,6 +18,13 @@ public class MtgArenaConnectTest
     }
 
     [Test]
+    public void TestGetClientLocalizationDatabasePath()
+    {
+        var s = mac.GetClientLocalizationDatabasePath();
+        Assert.That(s, Is.Not.Empty);
+    }
+
+    [Test]
     public void TestGetCardDatabasePath()
     {
         var s = mac.GetCardDatabasePath();

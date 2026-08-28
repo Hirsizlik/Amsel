@@ -104,9 +104,27 @@ public class MtgArenaConnect : IMtgArenaConnect
             ["_baseCardDataProvider"]
             ["_dbConnection"]
             ["_connectionString"];
-        string[] connectionParts = connectionString["Data Source=".Length..].Split(';');
 
-        string dbPath = connectionParts[0];
+        return ExtractDbPath(connectionString);
+    }
+
+    public string GetClientLocalizationDatabasePath()
+    {
+        string connectionString = assemblyImage["WrapperController"]
+            ["<Instance>k__BackingField"]
+            ["<SceneLoader>k__BackingField"]
+            ["_locManager"]
+            ["_nestedProviders"]
+            ["_items"]
+            [0]
+            ["_connectionString"];
+
+        return ExtractDbPath(connectionString);
+    }
+
+    private string ExtractDbPath(string connectionString)
+    {
+        string dbPath = connectionString["Data Source=".Length..].Split(';')[0];
         if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
         {
             return dbPath;
