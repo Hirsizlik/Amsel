@@ -3,11 +3,11 @@ using Amsel.Data;
 
 namespace Amsel.ArenaConnect;
 
-public sealed class MtgArenaDatabase : IMtgArenaDatabase
+public sealed class MtgArenaCardDatabase : IMtgArenaCardDatabase
 {
     private readonly SqliteConnection connection;
 
-    public MtgArenaDatabase(string path)
+    public MtgArenaCardDatabase(string path)
     {
         connection = new($"Data Source={path};Mode=ReadOnly");
         connection.Open();

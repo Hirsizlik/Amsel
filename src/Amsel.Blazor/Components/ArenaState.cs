@@ -47,7 +47,7 @@ public sealed class ArenaState(AmselSettings settings)
     {
         Console.WriteLine("Loading from MTG Arena");
         IMtgArenaConnect connect = new MtgArenaConnect();
-        using IMtgArenaDatabase db = new MtgArenaDatabase(connect.GetDatabasePath());
+        using IMtgArenaCardDatabase db = new MtgArenaCardDatabase(connect.GetCardDatabasePath());
         var loc = db.GetEnglishLocalization();
         Dictionary<uint, CardOwned> cardsOwned = connect.GetCardsOwnedFromInventory();
         Cards = db.GetAllCards(loc)

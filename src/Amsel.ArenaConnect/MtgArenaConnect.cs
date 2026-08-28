@@ -95,7 +95,7 @@ public class MtgArenaConnect : IMtgArenaConnect
         return cards;
     }
 
-    public string GetDatabasePath()
+    public string GetCardDatabasePath()
     {
         string connectionString = assemblyImage["WrapperController"]
             ["<Instance>k__BackingField"]

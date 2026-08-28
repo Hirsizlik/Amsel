@@ -1,14 +1,14 @@
 namespace Amsel.ArenaConnect.Test;
 
-public class MtgArenaDatabaseTest
+public class MtgArenaCardDatabaseTest
 {
-    private IMtgArenaDatabase mad;
+    private IMtgArenaCardDatabase mad;
 
     [OneTimeSetUp]
     public void Setup()
     {
         MtgArenaConnect connect = new();
-        mad = new MtgArenaDatabase(connect.GetDatabasePath());
+        mad = new MtgArenaCardDatabase(connect.GetCardDatabasePath());
     }
 
     [OneTimeTearDown]
