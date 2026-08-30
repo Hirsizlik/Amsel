@@ -9,7 +9,10 @@ builder.Services.AddRazorComponents()
 
 builder.Services
     .AddSingleton<ArenaState>()
-    .AddSingleton(new AmselSettings(BaseDirectory.CacheFile("Amsel/CardCache.json.gz")));
+    .AddSingleton(new AmselSettings(
+        BaseDirectory.CacheFile("Amsel/CardCache.json.gz"),
+        BaseDirectory.CacheFile("Amsel/SetCache.json.gz")
+    ));
 
 var app = builder.Build();
 
