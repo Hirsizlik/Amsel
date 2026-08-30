@@ -20,9 +20,35 @@ else
         @foreach (var set in state.SetStatistics.Values)
         {
             <div class="set-statistic @(set.IsDigitalSet ? "digital-set" : "regular-set")">
+                @if (state.SetLocalization.TryGetValue(set.SetCode, out string? name) && !string.IsNullOrWhiteSpace(name))
+                {
+                    <div>
+                        @name
+                    </div>
+                }
                 <div>
                     @set.SetCode
                 </div>
+                @if (state.SetMetadata.TryGetValue(set.SetCode, out SetMetadata? meta) && meta != null)
+                {
+                    <div>
+                        @meta.ReleaseDate.ToShortDateString()
+                    </div>
+                    <div>
+                        @(meta.Availability switch
+                        {
+                            Availability.AlchemyNotStandard => "Alchemy",
+                            Availability.Available => "Standard + Alchemy",
+                            Availability.EternalOnly => "Eternal",
+                            Availability.HistoricOnly => "Historic",
+                            Availability.RotatingOutSoonAlchemy => "Rotating out of Alchemy",
+                            Availability.RotatingOutSoonStandard => "Rotating out of Standard",
+                            Availability.StandardNotAlchemy => "Standard",
+                            _ => ""
+                        }
+                        )
+                    </div>
+                }
                 <div>
                     1x: @set.TotalOwnedUnique / @set.CardCount
                     (@((100.0 * set.TotalOwnedUnique / set.CardCount).ToString("0.#")) %)
