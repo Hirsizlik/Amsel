@@ -5,3 +5,23 @@
 .sort-asc:after {
     content: '⏶';
 }
+
+.name {
+    width: 30em;
+}
+
+.set {
+    width: 30em;
+}
+
+.digitalset {
+    width: 30em;
+}
+
+.rarity {
+    width: 2em;
+}
+
+.owned {
+    width: 2em;
+}

@@ -16,10 +16,10 @@ else if (loading)
 else
 {
     <div>
-        <StringSelect Options="expansionSetCodes" @bind-Value="expansionFilter"
-                      @bind-Value:after="OnExpansionCodeFilterChanged" />
-        <StringSelect Options="digitalReleaseCodes" @bind-Value="digitalReleaseFilter"
-                      @bind-Value:after="OnDigitalReleaseCodeFilterChanged" />
+        <SetSelect Options="expansionSetCodes" @bind-Value="expansionFilter"
+                   @bind-Value:after="OnExpansionCodeFilterChanged" />
+        <SetSelect Options="digitalReleaseCodes" @bind-Value="digitalReleaseFilter"
+                   @bind-Value:after="OnDigitalReleaseCodeFilterChanged" />
     </div>
     <SearchField @bind-Value="textSearch" @bind-Value:after="OnTextSearchChanged" />
 
@@ -116,14 +116,22 @@ else
         return PickColumnValue(sortColumn.column, c, false);
     }
 
-    private static object PickColumnValue(Column column, CardStats c, bool formatted = true)
+    private string GetSetName(string code)
+    {
+        if (state.SetLocalization.TryGetValue(code, out string? setName) && !string.IsNullOrWhiteSpace(setName))
+            return $"{setName} ({code})";
+        else
+            return code;
+    }
+
+    private object PickColumnValue(Column column, CardStats c, bool formatted = true)
     {
         return column switch
         {
             Column.None => "",
             Column.Name => c.Info.Name,
-            Column.Set => c.Info.ExpansionCode,
-            Column.DigitalSet => c.Info.DigitalReleaseSet,
+            Column.Set => formatted ? GetSetName(c.Info.ExpansionCode) : c.Info.ExpansionCode,
+            Column.DigitalSet => formatted ? GetSetName(c.Info.DigitalReleaseSet) : c.Info.DigitalReleaseSet,
             Column.Rarity => formatted ? c.Info.Rarity.ToChar() : c.Info.Rarity,
             Column.Owned => c.Owned,
             _ => throw new ArgumentOutOfRangeException($"Unknown Column {column} picked"),
@@ -191,14 +199,13 @@ else
 
     private string GetCssClassForColumn(Column column)
     {
+        string n = column.ToString().ToLowerInvariant();
+        string sort;
         if (column == sortColumn.column)
-        {
-            return sortColumn.isDesc ? "sort-desc" : "sort-asc";
-        }
+            sort = sortColumn.isDesc ? "sort-desc" : "sort-asc";
         else
-        {
-            return "";
-        }
+            sort = "";
+        return string.Join(' ', [n, sort]);
     }
 
     private static string GetNameForColumn(Column column)
