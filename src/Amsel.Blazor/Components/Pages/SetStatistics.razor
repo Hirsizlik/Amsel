@@ -35,38 +35,21 @@ else
                         @meta.ReleaseDate.ToShortDateString()
                     </div>
                     <div>
-                        @(meta.Availability switch
-                        {
-                            Availability.AlchemyNotStandard => "Alchemy",
-                            Availability.Available => "Standard + Alchemy",
-                            Availability.EternalOnly => "Eternal",
-                            Availability.HistoricOnly => "Historic",
-                            Availability.RotatingOutSoonAlchemy => "Rotating out of Alchemy",
-                            Availability.RotatingOutSoonStandard => "Rotating out of Standard",
-                            Availability.StandardNotAlchemy => "Standard",
-                            _ => ""
-                        }
-                        )
+                        @AvailabilityStringToString(meta.Availability)
                     </div>
                 }
                 <div>
-                    1x: @set.TotalOwnedUnique / @set.CardCount
-                    (@((100.0 * set.TotalOwnedUnique / set.CardCount).ToString("0.#")) %)
+                    @SetTotalString(set)
                 </div>
                 <div>
-                    4x: @set.TotalOwned / @(set.CardCount * 4)
-                    (@((25.0 * set.TotalOwned / set.CardCount).ToString("0.#")) %)
+                    @SetUniqueString(set)
                 </div>
             </div>
         }
-
-
     </div>
 }
 
 @code {
-
-    private Virtualize<SetStatistic>? setStatisticsContainer { get; set; }
     private bool error = false;
     private bool loading = true;
 
@@ -82,5 +65,40 @@ else
             Console.WriteLine(e.ToString());
             error = true;
         }
+    }
+
+    private static string AvailabilityStringToString(Availability a)
+    {
+        return a switch
+        {
+            Availability.AlchemyNotStandard => "Alchemy",
+            Availability.Available => "Standard + Alchemy",
+            Availability.EternalOnly => "Eternal",
+            Availability.HistoricOnly => "Historic",
+            Availability.RotatingOutSoonAlchemy => "Rotating out of Alchemy",
+            Availability.RotatingOutSoonStandard => "Rotating out of Standard",
+            Availability.StandardNotAlchemy => "Standard",
+            _ => ""
+        };
+    }
+
+    private static string SetUniqueString(SetStatistic set)
+    {
+        double percent = 100.0 * set.TotalOwnedUnique / set.CardCount;
+        return
+            $"""
+            1x: {set.TotalOwnedUnique} / {set.CardCount}
+            ({percent.ToString("0.#")} %)
+            """;
+    }
+
+    private static string SetTotalString(SetStatistic set)
+    {
+        double percent = 25.0 * set.TotalOwnedUnique / set.CardCount;
+        return
+            $"""
+            4x: {set.TotalOwned} / {set.CardCount * 4}
+            ({percent.ToString("0.#")} %)
+            """;
     }
 }
