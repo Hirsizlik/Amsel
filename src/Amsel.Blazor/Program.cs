@@ -1,7 +1,7 @@
 using Amsel.Blazor.Components;
 using Xdg.Directories;
 
-var builder = WebApplication.CreateBuilder(args);
+var builder = WebApplication.CreateEmptyBuilder(new WebApplicationOptions { Args = args });
 
 // Add services to the container.
 builder.Services.AddRazorComponents()
@@ -13,6 +13,9 @@ builder.Services
         BaseDirectory.CacheFile("Amsel/CardCache.json.gz"),
         BaseDirectory.CacheFile("Amsel/SetCache.json.gz")
     ));
+
+builder.Logging.AddConsole();
+builder.WebHost.UseKestrel();
 
 var app = builder.Build();
 
