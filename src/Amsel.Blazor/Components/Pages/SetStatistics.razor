@@ -16,6 +16,10 @@ else if (loading)
 }
 else
 {
+    <div class="set-statistic-options">
+        <SetStatisticOptions @bind-Options="options" @bind-Options:after="OnOptionsChanged" />
+    </div>
+
     <div class="set-statistics">
         @foreach (var set in state.SetStatistics.Values)
         {
@@ -52,6 +56,7 @@ else
 @code {
     private bool error = false;
     private bool loading = true;
+    private SetStatisticOptions.Values options;
 
     protected async override Task OnInitializedAsync()
     {
@@ -100,5 +105,10 @@ else
             4x: {set.TotalOwned} / {set.CardCount * 4}
             ({percent.ToString("0.#")} %)
             """;
+    }
+
+    private void OnOptionsChanged()
+    {
+        Console.WriteLine($"Options Changed {options}");
     }
 }

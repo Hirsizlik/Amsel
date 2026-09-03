@@ -1,0 +1,107 @@
+@using Amsel.Data
+
+<label for="sort">
+    Sort order
+</label>
+<div id="sort">
+    <select @onchange="SortChanged">
+        <option value=@Sort.Name>Name</option>
+        <option value=@Sort.SetCode>Set Code</option>
+        <option value=@Sort.ReleaseDate>Release Date</option>
+        <option value=@Sort.Completion1x>1x Completion</option>
+        <option value=@Sort.Completion4x>4x Completion</option>
+    </select>
+    <select @onchange="DirectionChanged">
+        <option value=@SortDirection.Ascending>Ascending</option>
+        <option value=@SortDirection.Descending>Descending</option>
+    </select>
+</div>
+<label for="filter">Filter</label>
+<div id="filter">
+    <div>
+        <input type="checkbox" id="withNoMetadata" @onchange="WithNoMetadataChanged" />
+        <label for="withNoMetadata">Include sets without metadata</label>
+    </div>
+    <div>
+        <input type="checkbox" id="withNoProgress" @onchange="WithNoProgressChanged" />
+        <label for="withNoProgress">Include sets without progress</label>
+    </div>
+    <div>
+        <input type="checkbox" id="withSubsets" @onchange="WithSubsetsChanged" />
+        <label for="withSubsets">Include subsets</label>
+    </div>
+</div>
+
+@code {
+
+
+    public readonly record struct Values(Filter Filter, Sort Sort, SortDirection SortDirection);
+    public readonly record struct Filter(bool WithNoMetadata, bool WithNoProgress, bool WithSubsets);
+
+    public enum Sort
+    {
+        Name,
+        SetCode,
+        ReleaseDate,
+        Completion1x,
+        Completion4x
+    }
+
+    public enum SortDirection
+    {
+        Ascending,
+        Descending
+    }
+
+
+    [Parameter]
+    public EventCallback<Values> OptionsChanged { get; set; }
+
+    [Parameter]
+    public Values Options { get; set; } = new Values
+    {
+        Filter = new Filter { WithNoMetadata = false, WithNoProgress = false, WithSubsets = false },
+        Sort = Sort.Name,
+        SortDirection = SortDirection.Ascending
+    };
+
+    private void SortChanged(ChangeEventArgs e)
+    {
+        if (e.Value == null)
+            return;
+        Options = Options with { Sort = Enum.Parse<Sort>((string)e.Value) };
+        OptionsChanged.InvokeAsync(Options);
+    }
+
+    private void DirectionChanged(ChangeEventArgs e)
+    {
+        if (e.Value == null)
+            return;
+        Options = Options with { SortDirection = Enum.Parse<SortDirection>((string)e.Value) };
+        OptionsChanged.InvokeAsync(Options);
+    }
+
+    private void WithNoMetadataChanged(ChangeEventArgs e)
+    {
+        if (e.Value == null)
+            return;
+        Options = Options with { Filter = Options.Filter with { WithNoMetadata = (bool)e.Value } };
+        OptionsChanged.InvokeAsync(Options);
+    }
+
+    private void WithNoProgressChanged(ChangeEventArgs e)
+    {
+        if (e.Value == null)
+            return;
+        Options = Options with { Filter = Options.Filter with { WithNoProgress = (bool)e.Value } };
+        OptionsChanged.InvokeAsync(Options);
+    }
+
+    private void WithSubsetsChanged(ChangeEventArgs e)
+    {
+        if (e.Value == null)
+            return;
+        Options = Options with { Filter = Options.Filter with { WithSubsets = (bool)e.Value } };
+        OptionsChanged.InvokeAsync(Options);
+    }
+}

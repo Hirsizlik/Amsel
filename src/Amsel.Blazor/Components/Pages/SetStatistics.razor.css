@@ -1,9 +1,6 @@
 .set-statistics {
     display: flex;
     flex-wrap: wrap;
-    width: 75%;
-    margin: auto;
-    padding: auto;
 }
 
 .set-statistic {
@@ -18,4 +15,8 @@
 
 .regular-set {
     background-color: lightcyan;
+}
+
+.set-statistic-options {
+    float: left;
 }
