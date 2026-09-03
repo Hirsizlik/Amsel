@@ -94,7 +94,7 @@ else
 
     private static string SetTotalString(SetStatistic set)
     {
-        double percent = 25.0 * set.TotalOwnedUnique / set.CardCount;
+        double percent = 25.0 * set.TotalOwned / set.CardCount;
         return
             $"""
             4x: {set.TotalOwned} / {set.CardCount * 4}
