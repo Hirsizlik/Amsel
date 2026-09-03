@@ -15,7 +15,8 @@ builder.Services
     ));
 
 builder.Logging.AddConsole();
-builder.WebHost.UseKestrel();
+builder.WebHost.UseKestrelCore();
+builder.WebHost.UseStaticWebAssets();
 
 var app = builder.Build();
 
