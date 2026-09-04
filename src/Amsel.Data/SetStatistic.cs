@@ -10,6 +10,8 @@ public class SetStatistic
     public int TotalOwned { get; private set; } = 0;
     public int TotalOwnedUnique { get; private set; } = 0;
     public int CardCount { get; private set; } = 0; // never 0 after CreateStatistics, empty sets aren't included
+    public double PercentOwnedUnique { get => 100.0 * TotalOwnedUnique / CardCount; }
+    public double PercentOwned { get => 25.0 * TotalOwned / CardCount; }
 
     public int GetAmountTotal(Rarity r) => amountByRarity[r];
     public int GetAmountUnique(Rarity r) => amountByRarityUnique[r];

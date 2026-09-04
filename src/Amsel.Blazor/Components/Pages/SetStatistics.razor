@@ -17,7 +17,7 @@ else if (loading)
 else
 {
     <div class="set-statistic-options">
-        <SetStatisticOptions @bind-Options="options" @bind-Options:after="OnOptionsChanged" />
+        <SetStatisticOptions @bind-Options="options" />
     </div>
 
     <div class="set-statistics">
@@ -58,10 +58,45 @@ else
     private bool loading = true;
     private SetStatisticOptions.Values options;
 
+    private static IComparable GetValueBySort(SetInformation s, SetStatisticOptions.Sort sort)
+    {
+        return sort switch
+        {
+            SetStatisticOptions.Sort.Name => s.Name ?? "",
+            SetStatisticOptions.Sort.SetCode => s.Code,
+            SetStatisticOptions.Sort.ReleaseDate => s.Metadata?.ReleaseDate ?? default(DateTime),
+            SetStatisticOptions.Sort.Completion1x => s.Statistic.PercentOwnedUnique,
+            SetStatisticOptions.Sort.Completion4x => s.Statistic.PercentOwned,
+            _ => throw new ArgumentException("Unknown Sort mode")
+        };
+    }
+
     private IEnumerable<SetInformation> SortAndFilterSets()
     {
-        // TODO
-        return state.SetInformation.Select(e => e.Value);
+        var result = state.SetInformation.Select(e => e.Value);
+        if (options.SortDirection == SetStatisticOptions.SortDirection.Ascending)
+        {
+            result = result.OrderBy(s => GetValueBySort(s, options.Sort));
+        }
+        else
+        {
+            result = result.OrderByDescending(s => GetValueBySort(s, options.Sort));
+        }
+
+        result = result.Where(s =>
+        {
+            if (!options.Filter.WithNoMetadata && s.Metadata == null)
+                return false;
+
+            if (!options.Filter.WithNoProgress && s.Statistic.TotalOwned == 0)
+                return false;
+
+            if (!options.Filter.WithSubsets && s.Metadata?.ParentCode != null)
+                return false;
+            return true;
+        });
+
+        return result;
     }
 
     protected async override Task OnInitializedAsync()
@@ -95,27 +130,20 @@ else
 
     private static string SetUniqueString(SetStatistic set)
     {
-        double percent = 100.0 * set.TotalOwnedUnique / set.CardCount;
         return
             $"""
             1x: {set.TotalOwnedUnique} / {set.CardCount}
-            ({percent.ToString("0.#")} %)
+            ({set.PercentOwnedUnique.ToString("0.#")} %)
             """;
     }
 
     private static string SetTotalString(SetStatistic set)
     {
-        double percent = 25.0 * set.TotalOwned / set.CardCount;
         return
             $"""
             4x: {set.TotalOwned} / {set.CardCount * 4}
-            ({percent.ToString("0.#")} %)
+            ({set.PercentOwned.ToString("0.#")} %)
             """;
-    }
-
-    private void OnOptionsChanged()
-    {
-        Console.WriteLine($"Options Changed {options}");
     }
 
     private string GetExtraCssForStatistic(SetInformation set)
