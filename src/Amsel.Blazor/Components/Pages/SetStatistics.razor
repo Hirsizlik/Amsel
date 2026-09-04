@@ -21,32 +21,32 @@ else
     </div>
 
     <div class="set-statistics">
-        @foreach (var set in state.SetStatistics.Values)
+        @foreach (var set in SortAndFilterSets())
         {
-            <div class="set-statistic @(set.IsDigitalSet ? "digital-set" : "regular-set")">
-                @if (state.SetLocalization.TryGetValue(set.SetCode, out string? name) && !string.IsNullOrWhiteSpace(name))
+            <div class="set-statistic @GetExtraCssForStatistic(set)">
+                @if (!string.IsNullOrWhiteSpace(set.Name))
                 {
                     <div>
-                        @name
+                        @set.Name
                     </div>
                 }
                 <div>
-                    @set.SetCode
+                    @set.Code
                 </div>
-                @if (state.SetMetadata.TryGetValue(set.SetCode, out SetMetadata? meta) && meta != null)
+                @if (set.Metadata != null)
                 {
                     <div>
-                        @meta.ReleaseDate.ToShortDateString()
+                        @set.Metadata.ReleaseDate.ToShortDateString()
                     </div>
                     <div>
-                        @AvailabilityStringToString(meta.Availability)
+                        @AvailabilityStringToString(set.Metadata.Availability)
                     </div>
                 }
                 <div>
-                    @SetTotalString(set)
+                    @SetTotalString(set.Statistic)
                 </div>
                 <div>
-                    @SetUniqueString(set)
+                    @SetUniqueString(set.Statistic)
                 </div>
             </div>
         }
@@ -57,6 +57,12 @@ else
     private bool error = false;
     private bool loading = true;
     private SetStatisticOptions.Values options;
+
+    private IEnumerable<SetInformation> SortAndFilterSets()
+    {
+        // TODO
+        return state.SetInformation.Select(e => e.Value);
+    }
 
     protected async override Task OnInitializedAsync()
     {
@@ -110,5 +116,29 @@ else
     private void OnOptionsChanged()
     {
         Console.WriteLine($"Options Changed {options}");
+    }
+
+    private string GetExtraCssForStatistic(SetInformation set)
+    {
+        List<string> list = [];
+        if (set.Metadata == null)
+        {
+            list.Add(set.Name != null ? "only-name-set" : "no-metadata-set");
+        }
+        else
+        {
+            list.Add(set.Metadata.ParentCode != null ? "sub-set" : "major-set");
+        }
+
+        if (set.Statistic.TotalOwned == set.Statistic.CardCount * 4)
+        {
+            list.Add("complete-4x");
+        }
+        else if (set.Statistic.TotalOwnedUnique == set.Statistic.CardCount)
+        {
+            list.Add("complete-1x");
+        }
+
+        return string.Join(' ', list);
     }
 }

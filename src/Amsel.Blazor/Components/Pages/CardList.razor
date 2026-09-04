@@ -118,8 +118,11 @@ else
 
     private string GetSetName(string code)
     {
-        if (state.SetLocalization.TryGetValue(code, out string? setName) && !string.IsNullOrWhiteSpace(setName))
-            return $"{setName} ({code})";
+        if (code == "")
+            return "";
+        var s = state.SetInformation[code];
+        if (!string.IsNullOrEmpty(s.Metadata?.Name))
+            return $"{s.Metadata.Name} ({code})";
         else
             return code;
     }

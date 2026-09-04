@@ -63,3 +63,6 @@ public enum Availability
 // Name and ParentCode are only set for related sub sets (IsMajorCardSet = false)
 public record SetMetadata(int CollationId, string Code, DateTime ReleaseDate, bool IsMajorCardSet,
                           Availability Availability, string? Name, string? ParentCode);
+
+public record SetInformation(SetStatistic Statistic, SetMetadata? Metadata,
+    string Code, string? Name);

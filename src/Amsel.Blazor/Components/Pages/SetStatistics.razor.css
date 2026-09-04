@@ -7,16 +7,35 @@
     margin: 10px;
     padding: 20px;
     width: 15em;
+    border-width: 2px;
+    border-style: solid;
+    border-color: silver;
 }
 
-.digital-set {
+.major-set {
+    background-color: lightcyan;
+}
+
+.sub-set {
     background-color: lightpink;
 }
 
-.regular-set {
-    background-color: lightcyan;
+.no-metadata-set {
+    background-color: lightgray;
+}
+
+.only-name-set {
+    background-color: lightgreen;
 }
 
 .set-statistic-options {
     float: left;
+}
+
+.complete-1x {
+    border-color: gold;
+}
+
+.complete-4x {
+    border-color: orangered;
 }

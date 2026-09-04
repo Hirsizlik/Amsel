@@ -14,12 +14,8 @@ public sealed class ArenaState(AmselSettings settings)
     public ImmutableArray<CardStats> Cards { get; private set; } = [];
     public bool FromCache { get; private set; } = false;
     public DateTime CardsLoadedTs { get; private set; }
-    public FrozenDictionary<string, SetStatistic> SetStatistics { get; private set; }
-        = FrozenDictionary.Create<string, SetStatistic>([]);
-    public FrozenDictionary<string, string> SetLocalization { get; private set; }
-        = FrozenDictionary.Create<string, string>([]);
-    public FrozenDictionary<string, SetMetadata> SetMetadata { get; private set; }
-        = FrozenDictionary.Create<string, SetMetadata>([]);
+    public FrozenDictionary<string, SetInformation> SetInformation { get; private set; }
+        = FrozenDictionary.Create<string, SetInformation>([]);
 
     private interface ICache
     {
@@ -33,7 +29,7 @@ public sealed class ArenaState(AmselSettings settings)
         public static int CurrentVersion { get => 0; }
     }
 
-    private record SetCache(int Version, DateTime Timestamp, Dictionary<string, string> SetLocalization,
+    private record SetCache(int Version, DateTime Timestamp, Dictionary<string, string?> SetLocalization,
         Dictionary<string, SetMetadata> SetMetadata) : ICache
     {
         public static int CurrentVersion { get => 0; }
@@ -56,8 +52,40 @@ public sealed class ArenaState(AmselSettings settings)
                 Console.WriteLine(e.ToString());
                 await LoadFromCache();
             }
-            SetStatistics = SetStatistic.CreateStatistics(Cards).ToFrozenDictionary();
         });
+    }
+
+    private static async ValueTask WriteCache(AmselSettings settings, ImmutableArray<CardStats> cards,
+        Dictionary<string, SetMetadata> metadata, Dictionary<string, string?> localization)
+    {
+        using var ccStream = new GZipStream(new FileStream(settings.CardsCacheFile, FileMode.Create),
+            CompressionLevel.Optimal);
+        using var scStream = new GZipStream(new FileStream(settings.SetCacheFile, FileMode.Create),
+            CompressionLevel.Optimal);
+        DateTime ts = DateTime.Now;
+        ValueTask cardCacheTask =
+            ccStream.WriteAsync(JsonSerializer.SerializeToUtf8Bytes(new CardCache(CardCache.CurrentVersion,
+            ts, cards)));
+        ValueTask setCacheTask =
+            scStream.WriteAsync(JsonSerializer.SerializeToUtf8Bytes(new SetCache(SetCache.CurrentVersion,
+            ts, localization, metadata)));
+        await cardCacheTask;
+        await setCacheTask;
+    }
+
+    private static FrozenDictionary<string, SetInformation> MergeIntoSetInformation(ImmutableArray<CardStats> cards,
+        Dictionary<string, SetMetadata> setMetadata, Dictionary<string, string?> localization)
+    {
+        var setStatistics = SetStatistic.CreateStatistics(cards);
+        return setStatistics
+            .LeftJoin(setMetadata, st => st.Key, sm => sm.Key,
+                     (st, sm) =>
+                     {
+                         localization.TryGetValue(st.Key, out string? name);
+                         return KeyValuePair.Create(st.Key,
+                            new SetInformation(st.Value, sm.Value, st.Key, name));
+                     })
+            .ToFrozenDictionary();
     }
 
     private async Task LoadFromArena()
@@ -71,34 +99,23 @@ public sealed class ArenaState(AmselSettings settings)
         Cards = cdb.GetAllCards(cloc)
             .LeftJoin(cardsOwned, c => c.Key, o => o.Key, (c, o) => new CardStats(c.Value, o.Value?.Amount ?? 0))
             .ToImmutableArray();
-        var SetLocalizationDb = ldb.GetEnglishSetLocalization();
+
+        var setLocalizationDb = ldb.GetEnglishSetLocalization();
         var setMetadata = connect.GetSetMetadata();
-        SetMetadata = setMetadata.ToFrozenDictionary();
         // use values from DB as base, and fill with Set Metadata Names if available
-        Dictionary<string, string> preparedSetLoc = new(SetLocalizationDb);
+        Dictionary<string, string?> preparedSetLoc = new(setLocalizationDb!);
         foreach (var m in setMetadata)
         {
             if (!preparedSetLoc.ContainsKey(m.Key))
             {
-                preparedSetLoc[m.Key] = m.Value.Name ?? m.Key;
+                preparedSetLoc[m.Key] = m.Value.Name;
             }
         }
-        SetLocalization = preparedSetLoc.ToFrozenDictionary();
         FromCache = false;
         CardsLoadedTs = DateTime.Now;
 
-        using var ccStream = new GZipStream(new FileStream(settings.CardsCacheFile, FileMode.Create),
-            CompressionLevel.Optimal);
-        using var scStream = new GZipStream(new FileStream(settings.SetCacheFile, FileMode.Create),
-            CompressionLevel.Optimal);
-        ValueTask cardCacheTask =
-            ccStream.WriteAsync(JsonSerializer.SerializeToUtf8Bytes(new CardCache(CardCache.CurrentVersion,
-            CardsLoadedTs, Cards)));
-        ValueTask setCacheTask =
-            scStream.WriteAsync(JsonSerializer.SerializeToUtf8Bytes(new SetCache(SetCache.CurrentVersion,
-            CardsLoadedTs, preparedSetLoc, setMetadata)));
-        await cardCacheTask;
-        await setCacheTask;
+        SetInformation = MergeIntoSetInformation(Cards, setMetadata, preparedSetLoc);
+        await WriteCache(settings, Cards, setMetadata, preparedSetLoc);
     }
 
     private string GetPathForType<T>() where T : ICache
@@ -136,8 +153,7 @@ public sealed class ArenaState(AmselSettings settings)
         SetCache setCache = LoadCache<SetCache>();
 
         Cards = cardCache.Cards;
-        SetLocalization = setCache.SetLocalization.ToFrozenDictionary();
-        SetMetadata = setCache.SetMetadata.ToFrozenDictionary();
+        SetInformation = MergeIntoSetInformation(Cards, setCache.SetMetadata, setCache.SetLocalization);
         CardsLoadedTs = DateTime.Now;
         FromCache = true;
     }

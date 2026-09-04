@@ -5,9 +5,10 @@
     <option value="" />
     @foreach (string option in Options)
     {
+        var s = state.SetInformation[option];
         string text;
-        if (state.SetLocalization.TryGetValue(option, out string? setName) && !string.IsNullOrWhiteSpace(setName))
-            text = $"{setName} ({option})";
+        if (s.Name != null)
+            text = $"{s.Name} ({option})";
         else
             text = option;
         <option value=@option>@text</option>

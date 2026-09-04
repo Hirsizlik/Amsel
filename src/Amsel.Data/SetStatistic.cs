@@ -4,8 +4,6 @@ namespace Amsel.Data;
 
 public class SetStatistic
 {
-    public string SetCode { get; init; }
-    public bool IsDigitalSet { get; init; }
     private readonly Dictionary<Rarity, int> amountByRarity = CreateEmptyDictWithRarity();
     private readonly Dictionary<Rarity, int> amountByRarityUnique = CreateEmptyDictWithRarity();
     private readonly Dictionary<Rarity, int> cardCountByRarity = CreateEmptyDictWithRarity();
@@ -16,12 +14,6 @@ public class SetStatistic
     public int GetAmountTotal(Rarity r) => amountByRarity[r];
     public int GetAmountUnique(Rarity r) => amountByRarityUnique[r];
     public int GetCardCount(Rarity r) => cardCountByRarity[r];
-
-    private SetStatistic(string setCode, bool isDigitalSet)
-    {
-        SetCode = setCode;
-        IsDigitalSet = isDigitalSet;
-    }
 
     private static Dictionary<Rarity, int> CreateEmptyDictWithRarity()
     {
@@ -41,20 +33,20 @@ public class SetStatistic
         Dictionary<string, SetStatistic> result = [];
         foreach (CardStats c in cards)
         {
-            AddToSetStatistic(c.Info.ExpansionCode, false, c, result);
-            AddToSetStatistic(c.Info.DigitalReleaseSet, true, c, result);
+            AddToSetStatistic(c.Info.ExpansionCode, c, result);
+            AddToSetStatistic(c.Info.DigitalReleaseSet, c, result);
         }
         return result;
     }
 
-    private static void AddToSetStatistic(string code, bool isDigital, CardStats cs,
+    private static void AddToSetStatistic(string code, CardStats cs,
         Dictionary<string, SetStatistic> result)
     {
         if (string.IsNullOrEmpty(code))
             return;
         if (!result.TryGetValue(code, out SetStatistic? current))
         {
-            current = new SetStatistic(code, isDigital);
+            current = new SetStatistic();
             result.Add(code, current);
         }
         int zeroOrOne = cs.Owned > 0 ? 1 : 0;
