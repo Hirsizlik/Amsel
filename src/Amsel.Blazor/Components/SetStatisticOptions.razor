@@ -23,6 +23,10 @@
         <label for="withNoMetadata">Include sets without metadata</label>
     </div>
     <div>
+        <input type="checkbox" id="withNoName" @onchange="WithNoNameChanged" />
+        <label for="withNoName">Include sets without name</label>
+    </div>
+    <div>
         <input type="checkbox" id="withNoProgress" @onchange="WithNoProgressChanged" />
         <label for="withNoProgress">Include sets without progress</label>
     </div>
@@ -36,7 +40,7 @@
 
 
     public readonly record struct Values(Filter Filter, Sort Sort, SortDirection SortDirection);
-    public readonly record struct Filter(bool WithNoMetadata, bool WithNoProgress, bool WithSubsets);
+    public readonly record struct Filter(bool WithNoMetadata, bool WithNoName, bool WithNoProgress, bool WithSubsets);
 
     public enum Sort
     {
@@ -86,6 +90,14 @@
         if (e.Value == null)
             return;
         Options = Options with { Filter = Options.Filter with { WithNoMetadata = (bool)e.Value } };
+        OptionsChanged.InvokeAsync(Options);
+    }
+
+    private void WithNoNameChanged(ChangeEventArgs e)
+    {
+        if (e.Value == null)
+            return;
+        Options = Options with { Filter = Options.Filter with { WithNoName = (bool)e.Value } };
         OptionsChanged.InvokeAsync(Options);
     }
 

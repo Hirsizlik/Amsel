@@ -88,6 +88,9 @@ else
             if (!options.Filter.WithNoMetadata && s.Metadata == null)
                 return false;
 
+            if (!options.Filter.WithNoName && s.Name == null)
+                return false;
+
             if (!options.Filter.WithNoProgress && s.Statistic.TotalOwned == 0)
                 return false;
 
