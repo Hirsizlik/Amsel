@@ -22,7 +22,7 @@ public class SetStatisticTest
     }
 
     [Test]
-    public void TestSingleSet()
+    public void TestSingleSetWithDigitalRelease()
     {
         var actualStatisticDict = SetStatistic.CreateStatistics([
             new CardStats(new CardInfo(1, "Card 1", "TEST", "DTEST", 1, 4, Rarity.Common, true, 1, []), 1),
@@ -74,6 +74,23 @@ public class SetStatisticTest
 
             AssertSetAndTotal(actualD2, 3, 1, 1);
             AssertRarity(actualD2, Rarity.Common, 3, 1, 1);
+        }
+    }
+
+    [Test]
+    public void TestBasicLandExclusion()
+    {
+        var actualStatisticDict = SetStatistic.CreateStatistics([
+            new CardStats(new CardInfo(1, "Card 1", "T1", "", 1, 1, Rarity.Common, true, 1, []), 1),
+            new CardStats(new CardInfo(2, "Land", "T1", "", 2, 3, Rarity.Land, true, 1, [1]), 2),
+        ]);
+        Assert.That(actualStatisticDict.Count, Is.EqualTo(1));
+        var actualT1 = actualStatisticDict["T1"];
+
+        using (Assert.EnterMultipleScope())
+        {
+            AssertSetAndTotal(actualT1, 1, 1, 1);
+            AssertRarity(actualT1, Rarity.Common, 1, 1, 1);
         }
     }
 }
