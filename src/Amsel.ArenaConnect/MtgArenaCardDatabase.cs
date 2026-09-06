@@ -53,11 +53,11 @@ public sealed class MtgArenaCardDatabase : IMtgArenaCardDatabase
         Dictionary<uint, CardInfo> result = [];
         while (reader.Read())
         {
-            uint id = (uint)reader.GetInt32(0);
             uint titleId = (uint)reader.GetInt32(1);
             if (titleId == 0)
                 continue;
-
+            uint id = (uint)reader.GetInt32(0);
+            int collectorMax = reader.GetInt32(5);
             result.Add(id, new CardInfo
             (
                 id,
@@ -65,7 +65,7 @@ public sealed class MtgArenaCardDatabase : IMtgArenaCardDatabase
                 reader.GetString(2),
                 reader.GetString(3),
                 (uint)reader.GetInt32(4),
-                reader.GetValue(5) as uint?,
+                collectorMax != 0 ? (uint?)collectorMax : null,
                 (Rarity)reader.GetInt32(6),
                 reader.GetBoolean(7)
             ));
