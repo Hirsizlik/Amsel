@@ -5,17 +5,17 @@ public class TextSearchTest
 
     private static CardStats WithName(string name)
     {
-        return new CardStats(new CardInfo(0, name, "", "", 0, null, Rarity.Unknown, true), 0);
+        return new CardStats(new CardInfo(0, name, "", "", 0, null, Rarity.Unknown, true, 0, []), 0);
     }
 
     private static CardStats WithRarity(Rarity rarity)
     {
-        return new CardStats(new CardInfo(0, "", "", "", 0, null, rarity, true), 0);
+        return new CardStats(new CardInfo(0, "", "", "", 0, null, rarity, true, 0, []), 0);
     }
 
     private static CardStats WithQuantity(int quantity)
     {
-        return new CardStats(new CardInfo(0, "", "", "", 0, null, Rarity.Unknown, true), quantity);
+        return new CardStats(new CardInfo(0, "", "", "", 0, null, Rarity.Unknown, true, 0, []), quantity);
     }
 
     [Test]
@@ -190,16 +190,20 @@ public class TextSearchTest
         using (Assert.EnterMultipleScope())
         {
             Assert.That(ts.FilterCard(
-                new CardStats(new CardInfo(0, "testing mythic rare myr", "", "", 0, null, Rarity.MythicRare, true), 3)),
+                new CardStats(new CardInfo(0, "testing mythic rare myr", "", "", 0, null,
+                Rarity.MythicRare, true, 1, []), 3)),
                 Is.True);
             Assert.That(ts.FilterCard(
-                new CardStats(new CardInfo(0, "testing common myr", "", "", 0, null, Rarity.Common, true), 3)),
+                new CardStats(new CardInfo(0, "testing common myr", "", "", 0, null,
+                Rarity.Common, true, 2, []), 3)),
                 Is.False);
             Assert.That(ts.FilterCard(
-                new CardStats(new CardInfo(0, "testing not enough myr", "", "", 0, null, Rarity.Common, true), 2)),
+                new CardStats(new CardInfo(0, "testing not enough myr", "", "", 0, null,
+                Rarity.Common, true, 3, []), 2)),
                 Is.False);
             Assert.That(ts.FilterCard(
-                new CardStats(new CardInfo(0, "test frog", "", "", 0, null, Rarity.Rare, true), 4)),
+                new CardStats(new CardInfo(0, "test frog", "", "", 0, null,
+                Rarity.Rare, true, 4, []), 4)),
                 Is.False);
         }
     }
