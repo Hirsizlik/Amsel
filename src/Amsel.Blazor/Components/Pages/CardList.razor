@@ -121,8 +121,8 @@ else
         if (code == "")
             return "";
         var s = state.SetInformation[code];
-        if (!string.IsNullOrEmpty(s.Metadata?.Name))
-            return $"{s.Metadata.Name} ({code})";
+        if (!string.IsNullOrEmpty(s.Name))
+            return $"{s.Name} ({code})";
         else
             return code;
     }
