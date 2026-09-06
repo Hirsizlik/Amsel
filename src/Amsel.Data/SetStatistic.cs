@@ -41,6 +41,11 @@ public class SetStatistic
         return result;
     }
 
+    private static bool IsBasicLand(CardStats cs)
+    {
+        return cs.Info.Supertypes.Contains(1); // see Enums Table in CardDatabase
+    }
+
     private static void AddToSetStatistic(string code, CardStats cs,
         Dictionary<string, SetStatistic> result)
     {
@@ -51,6 +56,9 @@ public class SetStatistic
             current = new SetStatistic();
             result.Add(code, current);
         }
+        if (IsBasicLand(cs))
+            return;
+
         int zeroOrOne = cs.Owned > 0 ? 1 : 0;
         current.amountByRarity[cs.Info.Rarity] += cs.Owned;
         current.amountByRarityUnique[cs.Info.Rarity] += zeroOrOne;
