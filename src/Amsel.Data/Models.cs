@@ -1,3 +1,5 @@
+using System.Collections.Immutable;
+
 namespace Amsel.Data;
 
 public enum Rarity
@@ -45,7 +47,8 @@ public static class RarityExtension
 public record CardOwned(uint CardId, int Amount);
 
 public record CardInfo(uint CardId, string Name, string ExpansionCode, string DigitalReleaseSet,
-    uint CollectorNumber, uint? CollectorMax, Rarity Rarity, bool IsPrimary);
+    uint CollectorNumber, uint? CollectorMax, Rarity Rarity, bool IsPrimary, uint TitleId,
+    ImmutableArray<uint> Supertypes);
 
 public record CardStats(CardInfo Info, int Owned);
 

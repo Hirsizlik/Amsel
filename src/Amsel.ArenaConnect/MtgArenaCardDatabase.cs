@@ -1,5 +1,6 @@
 using Microsoft.Data.Sqlite;
 using Amsel.Data;
+using System.Collections.Immutable;
 
 namespace Amsel.ArenaConnect;
 
@@ -42,7 +43,7 @@ public sealed class MtgArenaCardDatabase : IMtgArenaCardDatabase
         using var command = connection.CreateCommand();
         command.CommandText = """
         SELECT c.GrpId, c.TitleId, c.ExpansionCode, c.DigitalReleaseSet,
-            c.CollectorNumber, c.CollectorMax, c.Rarity, c.IsPrimaryCard
+            c.CollectorNumber, c.CollectorMax, c.Rarity, c.IsPrimaryCard, c.SuperTypes
         FROM Cards c
         """;
         if (onlyPrimary)
@@ -67,7 +68,11 @@ public sealed class MtgArenaCardDatabase : IMtgArenaCardDatabase
                 (uint)reader.GetInt32(4),
                 collectorMax != 0 ? (uint?)collectorMax : null,
                 (Rarity)reader.GetInt32(6),
-                reader.GetBoolean(7)
+                reader.GetBoolean(7),
+                titleId,
+                [.. reader.GetString(8).Split(",")
+                    .Where(s => !string.IsNullOrWhiteSpace(s))
+                    .Select(i => uint.Parse(i))]
             ));
         }
         return result;
