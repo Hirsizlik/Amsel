@@ -56,7 +56,10 @@ else
 @code {
     private bool error = false;
     private bool loading = true;
-    private SetStatisticOptions.Values options;
+    private SetStatisticOptions.Values options = new SetStatisticOptions.Values(
+        new SetStatisticOptions.Filter(false, false, false, true),
+        SetStatisticOptions.Sort.ReleaseDate,
+        SetStatisticOptions.SortDirection.Descending);
 
     private static IComparable GetValueBySort(SetInformation s, SetStatisticOptions.Sort sort)
     {

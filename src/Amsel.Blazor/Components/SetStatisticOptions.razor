@@ -4,14 +4,14 @@
     Sort order
 </label>
 <div id="sort">
-    <select @onchange="SortChanged">
+    <select @onchange="SortChanged" value="@Options.Sort">
+        <option value=@Sort.ReleaseDate>Release Date</option>
         <option value=@Sort.Name>Name</option>
         <option value=@Sort.SetCode>Set Code</option>
-        <option value=@Sort.ReleaseDate>Release Date</option>
         <option value=@Sort.Completion1x>1x Completion</option>
         <option value=@Sort.Completion4x>4x Completion</option>
     </select>
-    <select @onchange="DirectionChanged">
+    <select @onchange="DirectionChanged" value="@Options.SortDirection">
         <option value=@SortDirection.Ascending>Ascending</option>
         <option value=@SortDirection.Descending>Descending</option>
     </select>
@@ -19,19 +19,21 @@
 <label for="filter">Filter</label>
 <div id="filter">
     <div>
-        <input type="checkbox" id="withNoMetadata" @onchange="WithNoMetadataChanged" />
+        <input type="checkbox" id="withNoMetadata" @onchange="WithNoMetadataChanged"
+               checked="@Options.Filter.WithNoMetadata" />
         <label for="withNoMetadata">Include sets without metadata</label>
     </div>
     <div>
-        <input type="checkbox" id="withNoName" @onchange="WithNoNameChanged" />
+        <input type="checkbox" id="withNoName" @onchange="WithNoNameChanged" checked="@Options.Filter.WithNoName" />
         <label for="withNoName">Include sets without name</label>
     </div>
     <div>
-        <input type="checkbox" id="withNoProgress" @onchange="WithNoProgressChanged" />
+        <input type="checkbox" id="withNoProgress" @onchange="WithNoProgressChanged"
+               checked="@Options.Filter.WithNoProgress" />
         <label for="withNoProgress">Include sets without progress</label>
     </div>
     <div>
-        <input type="checkbox" id="withSubsets" @onchange="WithSubsetsChanged" />
+        <input type="checkbox" id="withSubsets" @onchange="WithSubsetsChanged" checked="@Options.Filter.WithSubsets" />
         <label for="withSubsets">Include subsets</label>
     </div>
 </div>
@@ -57,17 +59,11 @@
         Descending
     }
 
-
     [Parameter]
     public EventCallback<Values> OptionsChanged { get; set; }
 
     [Parameter]
-    public Values Options { get; set; } = new Values
-    {
-        Filter = new Filter { WithNoMetadata = false, WithNoProgress = false, WithSubsets = false },
-        Sort = Sort.Name,
-        SortDirection = SortDirection.Ascending
-    };
+    public Values Options { get; set; }
 
     private void SortChanged(ChangeEventArgs e)
     {
