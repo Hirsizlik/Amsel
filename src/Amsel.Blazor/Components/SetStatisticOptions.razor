@@ -24,7 +24,8 @@
         <label for="withNoMetadata">Include sets without metadata</label>
     </div>
     <div>
-        <input type="checkbox" id="withNoName" @onchange="WithNoNameChanged" checked="@Options.Filter.WithNoName" />
+        <input type="checkbox" id="withNoName" @onchange="WithNoNameChanged" checked="@Options.Filter.WithNoName"
+               disabled="@(!Options.Filter.WithNoMetadata)" />
         <label for="withNoName">Include sets without name</label>
     </div>
     <div>
