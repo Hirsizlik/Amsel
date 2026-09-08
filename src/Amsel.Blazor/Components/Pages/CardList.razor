@@ -1,4 +1,5 @@
 @page "/card-list"
+@page "/card-list/set/{SetParameter}"
 @rendermode InteractiveServer
 @inject ArenaState state
 
@@ -54,6 +55,8 @@ else
     private TextSearch textSearch = TextSearch.Empty();
     private ImmutableArray<CardStats> filteredCards = [];
     private Virtualize<CardStats>? CardStatsContainer { get; set; }
+    [Parameter]
+    public string? SetParameter { get; set; }
 
     private enum Column
     {
@@ -85,7 +88,18 @@ else
                 .Where(s => !string.IsNullOrEmpty(s))
                 .OrderBy(s => s)
                 .ToImmutableArray();
-            filteredCards = state.Cards.ToImmutableArray();
+            if (SetParameter != null)
+            {
+                if (expansionSetCodes.FirstOrDefault(e => e == SetParameter) is string foundExp)
+                {
+                    expansionFilter = foundExp;
+                }
+                else if (digitalReleaseCodes.FirstOrDefault(e => e == SetParameter) is string foundDig)
+                {
+                    digitalReleaseFilter = foundDig;
+                } // else invalid Set, ignored for now
+            }
+            await SetFilteredCardsAsync();
         }
         catch (Exception e)
         {
