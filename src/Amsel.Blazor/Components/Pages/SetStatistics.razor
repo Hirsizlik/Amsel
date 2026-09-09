@@ -23,32 +23,7 @@ else
     <div class="set-statistics">
         @foreach (var set in SortAndFilterSets())
         {
-            <div class="set-statistic @GetExtraCssForStatistic(set)">
-                @if (!string.IsNullOrWhiteSpace(set.Name))
-                {
-                    <div>
-                        @set.Name
-                    </div>
-                }
-                <div>
-                    @set.Code
-                </div>
-                @if (set.Metadata != null)
-                {
-                    <div>
-                        @set.Metadata.ReleaseDate.ToShortDateString()
-                    </div>
-                    <div>
-                        @AvailabilityStringToString(set.Metadata.Availability)
-                    </div>
-                }
-                <div>
-                    @SetTotalString(set.Statistic)
-                </div>
-                <div>
-                    @SetUniqueString(set.Statistic)
-                </div>
-            </div>
+            <SetStatisticTile SetInformation="set" />
         }
     </div>
 }
@@ -117,62 +92,5 @@ else
             Console.WriteLine(e.ToString());
             error = true;
         }
-    }
-
-    private static string AvailabilityStringToString(Availability a)
-    {
-        return a switch
-        {
-            Availability.AlchemyNotStandard => "Alchemy",
-            Availability.Available => "Standard + Alchemy",
-            Availability.EternalOnly => "Eternal",
-            Availability.HistoricOnly => "Historic",
-            Availability.RotatingOutSoonAlchemy => "Rotating out of Alchemy",
-            Availability.RotatingOutSoonStandard => "Rotating out of Standard",
-            Availability.StandardNotAlchemy => "Standard",
-            _ => ""
-        };
-    }
-
-    private static string SetUniqueString(SetStatistic set)
-    {
-        return
-            $"""
-            1x: {set.TotalOwnedUnique} / {set.CardCount}
-            ({set.PercentOwnedUnique.ToString("0.#")} %)
-            """;
-    }
-
-    private static string SetTotalString(SetStatistic set)
-    {
-        return
-            $"""
-            4x: {set.TotalOwned} / {set.CardCount * 4}
-            ({set.PercentOwned.ToString("0.#")} %)
-            """;
-    }
-
-    private string GetExtraCssForStatistic(SetInformation set)
-    {
-        List<string> list = [];
-        if (set.Metadata == null)
-        {
-            list.Add(set.Name != null ? "only-name-set" : "no-metadata-set");
-        }
-        else
-        {
-            list.Add(set.Metadata.ParentCode != null ? "sub-set" : "major-set");
-        }
-
-        if (set.Statistic.TotalOwned == set.Statistic.CardCount * 4)
-        {
-            list.Add("complete-4x");
-        }
-        else if (set.Statistic.TotalOwnedUnique == set.Statistic.CardCount)
-        {
-            list.Add("complete-1x");
-        }
-
-        return string.Join(' ', list);
     }
 }

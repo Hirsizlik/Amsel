@@ -42,3 +42,45 @@ h1:focus {
 input[type=checkbox]:disabled+label {
     color: #ccc;
 }
+
+.set-statistics {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.set-statistic {
+    margin: 10px;
+    padding: 20px;
+    width: 15em;
+    border-width: 2px;
+    border-style: solid;
+    border-color: silver;
+}
+
+.major-set {
+    background-color: lightcyan;
+}
+
+.sub-set {
+    background-color: lightpink;
+}
+
+.no-metadata-set {
+    background-color: lightgray;
+}
+
+.only-name-set {
+    background-color: lightgreen;
+}
+
+.set-statistic-options {
+    float: left;
+}
+
+.complete-1x {
+    border-color: gold;
+}
+
+.complete-4x {
+    border-color: orangered;
+}
