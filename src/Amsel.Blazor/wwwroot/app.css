@@ -84,3 +84,7 @@ input[type=checkbox]:disabled+label {
 .complete-4x {
     border-color: orangered;
 }
+
+.selected {
+    border-color: black;
+}

@@ -20,7 +20,7 @@ else
     <div class="set-statistics">
         @foreach (var set in SortAndFilterSets())
         {
-            <SetStatisticTile SetInformation="set" />
+            <SetStatisticTile SetInformation="set" Clicked="SelectSet" Selected=@(selectedSet?.Code == set.Code) />
         }
     </div>
 }
@@ -32,6 +32,7 @@ else
         new SetStatisticOptions.Filter(false, false, false, true),
         SetStatisticOptions.Sort.ReleaseDate,
         SetStatisticOptions.SortDirection.Descending);
+    private SetInformation? selectedSet;
 
     private static IComparable GetValueBySort(SetInformation s, SetStatisticOptions.Sort sort)
     {
@@ -89,5 +90,10 @@ else
             Console.WriteLine(e.ToString());
             error = true;
         }
+    }
+
+    private void SelectSet(SetInformation set)
+    {
+        selectedSet = set;
     }
 }

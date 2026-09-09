@@ -1,4 +1,4 @@
-<div class="set-statistic @GetExtraCssForStatistic(SetInformation)">
+<div class="set-statistic @GetExtraCssForStatistic()" @onclick="OnClick">
     @if (!string.IsNullOrWhiteSpace(SetInformation.Name))
     {
         <div>
@@ -29,6 +29,10 @@
 
     [Parameter]
     public required SetInformation SetInformation { get; set; }
+    [Parameter]
+    public EventCallback<SetInformation> Clicked { get; set; }
+    [Parameter]
+    public bool Selected { get; set; }
 
     private static string SetUniqueString(SetStatistic set)
     {
@@ -48,25 +52,30 @@
             """;
     }
 
-    private string GetExtraCssForStatistic(SetInformation set)
+    private string GetExtraCssForStatistic()
     {
         List<string> list = [];
-        if (set.Metadata == null)
+        if (SetInformation.Metadata == null)
         {
-            list.Add(set.Name != null ? "only-name-set" : "no-metadata-set");
+            list.Add(SetInformation.Name != null ? "only-name-set" : "no-metadata-set");
         }
         else
         {
-            list.Add(set.Metadata.ParentCode != null ? "sub-set" : "major-set");
+            list.Add(SetInformation.Metadata.ParentCode != null ? "sub-set" : "major-set");
         }
 
-        if (set.Statistic.TotalOwned == set.Statistic.CardCount * 4)
+        if (SetInformation.Statistic.TotalOwned == SetInformation.Statistic.CardCount * 4)
         {
             list.Add("complete-4x");
         }
-        else if (set.Statistic.TotalOwnedUnique == set.Statistic.CardCount)
+        else if (SetInformation.Statistic.TotalOwnedUnique == SetInformation.Statistic.CardCount)
         {
             list.Add("complete-1x");
+        }
+
+        if (Selected)
+        {
+            list.Add("selected");
         }
 
         return string.Join(' ', list);
@@ -85,5 +94,10 @@
             Availability.StandardNotAlchemy => "Standard",
             _ => ""
         };
+    }
+
+    private void OnClick(MouseEventArgs e)
+    {
+        Clicked.InvokeAsync(SetInformation);
     }
 }
