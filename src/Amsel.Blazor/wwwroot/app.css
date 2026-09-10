@@ -73,10 +73,6 @@ input[type=checkbox]:disabled+label {
     background-color: lightgreen;
 }
 
-.set-statistic-options {
-    float: left;
-}
-
 .complete-1x {
     border-color: gold;
 }
@@ -87,4 +83,13 @@ input[type=checkbox]:disabled+label {
 
 .selected {
     border-color: black;
+}
+
+.details-rarity {
+    padding-top: 0.5em;
+}
+
+.details-rarity-1x.complete,
+.details-rarity-4x.complete {
+    font-weight: bold;
 }

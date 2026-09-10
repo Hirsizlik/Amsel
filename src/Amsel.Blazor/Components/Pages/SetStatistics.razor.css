@@ -1,0 +1,17 @@
+.set-statistic-container {
+    display: grid;
+    grid-template-columns: 20em auto 20em;
+    align-items: start
+}
+
+.set-statistic-options {
+    position: sticky;
+    top: 1em;
+    padding: 1em;
+}
+
+.set-statistic-details {
+    position: sticky;
+    top: 1em;
+    padding: 1em;
+}

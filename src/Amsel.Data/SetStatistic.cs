@@ -16,6 +16,8 @@ public class SetStatistic
     public int GetAmountTotal(Rarity r) => amountByRarity[r];
     public int GetAmountUnique(Rarity r) => amountByRarityUnique[r];
     public int GetCardCount(Rarity r) => cardCountByRarity[r];
+    public double GetPercentTotal(Rarity r) => 25.0 * GetAmountTotal(r) / GetCardCount(r);
+    public double GetPercentUnique(Rarity r) => 100.0 * GetAmountUnique(r) / GetCardCount(r);
 
     private static Dictionary<Rarity, int> CreateEmptyDictWithRarity()
     {

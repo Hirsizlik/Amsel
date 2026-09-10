@@ -1,0 +1,58 @@
+@if (Selected != null)
+{
+    <h4>@(Selected.Name ?? Selected.Code)</h4>
+    @if (Selected.Metadata != null)
+    {
+        <div>Availability: @AvailabilityToString(Selected.Metadata.Availability)</div>
+        <div>Released on: @Selected.Metadata.ReleaseDate.ToShortDateString()</div>
+    }
+    foreach (Rarity rar in Enum.GetValues<Rarity>())
+    {
+        char c = rar.ToChar();
+        int count = Selected.Statistic.GetCardCount(rar);
+        int unique = Selected.Statistic.GetAmountUnique(rar);
+        int total = Selected.Statistic.GetAmountTotal(rar);
+        if (count > 0)
+        {
+            <div class="details-rarity">
+                <div class="details-rarity-1x @CssComplete(unique, count)">
+                    @c-1x: @unique / @count
+                    (@Selected.Statistic.GetPercentUnique(rar).ToString("0.#") %)
+                </div>
+                <div class="details-rarity-4x @CssComplete(total, count * 4)">
+                    @c-4x: @total / @(count * 4)
+                    (@Selected.Statistic.GetPercentTotal(rar).ToString("0.#") %)
+                </div>
+            </div>
+        }
+    }
+}
+
+@code {
+    [Parameter]
+    public SetInformation? Selected { get; set; }
+
+    private static string AvailabilityToString(Availability a)
+    {
+        return a switch
+        {
+            Availability.AlchemyNotStandard => "Alchemy",
+            Availability.Available => "Standard + Alchemy",
+            Availability.EternalOnly => "Eternal",
+            Availability.HistoricOnly => "Historic",
+            Availability.RotatingOutSoonAlchemy => "Rotating out of Alchemy",
+            Availability.RotatingOutSoonStandard => "Rotating out of Standard",
+            Availability.StandardNotAlchemy => "Standard",
+            _ => ""
+        };
+    }
+
+    private static string CssComplete(int amount, int total)
+    {
+        if (amount == total)
+        {
+            return "complete";
+        }
+        return "";
+    }
+}

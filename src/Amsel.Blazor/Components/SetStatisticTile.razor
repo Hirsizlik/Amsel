@@ -13,9 +13,6 @@
         <div>
             @SetInformation.Metadata.ReleaseDate.ToShortDateString()
         </div>
-        <div>
-            @AvailabilityStringToString(SetInformation.Metadata.Availability)
-        </div>
     }
     <div>
         @SetTotalString(SetInformation.Statistic)
@@ -79,21 +76,6 @@
         }
 
         return string.Join(' ', list);
-    }
-
-    private static string AvailabilityStringToString(Availability a)
-    {
-        return a switch
-        {
-            Availability.AlchemyNotStandard => "Alchemy",
-            Availability.Available => "Standard + Alchemy",
-            Availability.EternalOnly => "Eternal",
-            Availability.HistoricOnly => "Historic",
-            Availability.RotatingOutSoonAlchemy => "Rotating out of Alchemy",
-            Availability.RotatingOutSoonStandard => "Rotating out of Standard",
-            Availability.StandardNotAlchemy => "Standard",
-            _ => ""
-        };
     }
 
     private void OnClick(MouseEventArgs e)

@@ -13,14 +13,22 @@ else if (loading)
 }
 else
 {
-    <div class="set-statistic-options">
-        <SetStatisticOptions @bind-Options="options" />
-    </div>
+    <div class="set-statistic-container">
+        <div class="set-statistic-options">
+            <SetStatisticOptions @bind-Options="options" />
+        </div>
 
-    <div class="set-statistics">
-        @foreach (var set in SortAndFilterSets())
+        <div class="set-statistics">
+            @foreach (var set in SortAndFilterSets())
+            {
+                <SetStatisticTile SetInformation="set" Clicked="SelectSet" Selected=@(selectedSet?.Code == set.Code) />
+            }
+        </div>
+        @if (selectedSet != null)
         {
-            <SetStatisticTile SetInformation="set" Clicked="SelectSet" Selected=@(selectedSet?.Code == set.Code) />
+            <div class="set-statistic-details">
+                <SetStatisticDetails Selected="selectedSet" />
+            </div>
         }
     </div>
 }
