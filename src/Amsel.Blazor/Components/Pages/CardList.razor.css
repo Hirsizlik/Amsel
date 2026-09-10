@@ -23,5 +23,9 @@
 }
 
 .owned {
-    width: 2em;
+    width: 5em;
+}
+
+.ownedtitle {
+    width: 5em;
 }

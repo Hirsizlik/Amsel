@@ -64,6 +64,7 @@ else
         DigitalSet,
         Rarity,
         Owned,
+        OwnedTitle,
     }
     private record Sort(Column column, bool isDesc);
     private Sort sortColumn = new Sort(Column.None, false);
@@ -149,6 +150,7 @@ else
             Column.DigitalSet => formatted ? GetSetName(c.Info.DigitalReleaseSet) : c.Info.DigitalReleaseSet,
             Column.Rarity => formatted ? c.Info.Rarity.ToChar() : c.Info.Rarity,
             Column.Owned => c.Owned,
+            Column.OwnedTitle => state.OwnedPerTitle[c.Info.TitleId],
             _ => throw new ArgumentOutOfRangeException($"Unknown Column {column} picked"),
         };
     }
@@ -228,6 +230,8 @@ else
         return column switch
         {
             Column.DigitalSet => "Digital Set",
+            Column.Owned => "Owned (this set)",
+            Column.OwnedTitle => "Owned (overall)",
             _ => column.ToString()
         };
     }

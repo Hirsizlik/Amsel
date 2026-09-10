@@ -16,6 +16,7 @@ public sealed class ArenaState(AmselSettings settings)
     public DateTime CardsLoadedTs { get; private set; }
     public FrozenDictionary<string, SetInformation> SetInformation { get; private set; }
         = FrozenDictionary.Create<string, SetInformation>([]);
+    public FrozenDictionary<uint, int> OwnedPerTitle = FrozenDictionary.Create<uint, int>([]);
 
     private interface ICache
     {
@@ -88,6 +89,14 @@ public sealed class ArenaState(AmselSettings settings)
             .ToFrozenDictionary();
     }
 
+    private static FrozenDictionary<uint, int> CountOwnedPerTitleId(ImmutableArray<CardStats> cards)
+    {
+        return cards
+            .GroupBy(c => c.Info.TitleId)
+            .AggregateBy(g => g.Key, 0, (acc, rhs) => acc + rhs.Sum(c => c.Owned))
+            .ToFrozenDictionary();
+    }
+
     private async Task LoadFromArena()
     {
         Console.WriteLine("Loading from MTG Arena");
@@ -115,6 +124,7 @@ public sealed class ArenaState(AmselSettings settings)
         CardsLoadedTs = DateTime.Now;
 
         SetInformation = MergeIntoSetInformation(Cards, setMetadata, preparedSetLoc);
+        OwnedPerTitle = CountOwnedPerTitleId(Cards);
         await WriteCache(settings, Cards, setMetadata, preparedSetLoc);
     }
 
@@ -154,6 +164,7 @@ public sealed class ArenaState(AmselSettings settings)
 
         Cards = cardCache.Cards;
         SetInformation = MergeIntoSetInformation(Cards, setCache.SetMetadata, setCache.SetLocalization);
+        OwnedPerTitle = CountOwnedPerTitleId(Cards);
         CardsLoadedTs = DateTime.Now;
         FromCache = true;
     }
