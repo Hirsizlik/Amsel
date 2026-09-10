@@ -1,6 +1,8 @@
 @if (Selected != null)
 {
-    <h4>@(Selected.Name ?? Selected.Code)</h4>
+    <NavLink href=@("card-list/set/" + Selected.Code)>
+        <h4>@(Selected.Name ?? Selected.Code)</h4>
+    </NavLink>
     @if (Selected.Metadata != null)
     {
         <div>Availability: @AvailabilityToString(Selected.Metadata.Availability)</div>
