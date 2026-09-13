@@ -1,4 +1,24 @@
 <input type="text" placeholder="Search..." @bind-value="text" @onkeyup="OnKeyUp" class=@(ok ? "" : "search-error")>
+<button popovertarget=search-help-modal">?</button>
+
+<dialog id="search-help-modal" popover="manual">
+    Search cards by...
+    <ul>
+        <li>
+            Name, e.g. <code>"bolt"</code> for Lightning Bolt, Boltwave, ...
+        </li>
+        <li>
+            Owned with
+            <code>q &lt;operator&gt; &lt;number&gt;</code> (without spaces), e.g.
+            <code>"q&gt;0"</code> for cards you own one or more copies
+        </li>
+        <li>
+            Rarity with <code>r &lt;operator&gt; [LCURM]</code>,
+            e.g. <code>"q&lt;=U"</code> for all Commons and Uncommons
+        </li>
+    </ul>
+    <button popovertarget="search-help-modal" popovertargetaction="hide">Close</button>
+</dialog>
 
 @code {
 
