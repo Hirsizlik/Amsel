@@ -32,14 +32,14 @@ public static class RarityExtension
 
     public static Rarity FromChar(char c)
     {
-        return c switch
+        return char.ToUpperInvariant(c) switch
         {
             'L' => Rarity.Land,
             'C' => Rarity.Common,
             'U' => Rarity.Uncommon,
             'R' => Rarity.Rare,
             'M' => Rarity.MythicRare,
-            _ => Rarity.Uncommon
+            _ => throw new ArgumentException($"Unknown rarity char '{c}'")
         };
     }
 }

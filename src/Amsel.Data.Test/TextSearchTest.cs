@@ -121,6 +121,7 @@ public class TextSearchTest
     public void TestRarityLesser()
     {
         AssertRarity("r<U", [Rarity.Unknown, Rarity.Land, Rarity.Common]);
+        AssertRarity("r<r", [Rarity.Unknown, Rarity.Land, Rarity.Common, Rarity.Uncommon]);
     }
 
     [Test]
