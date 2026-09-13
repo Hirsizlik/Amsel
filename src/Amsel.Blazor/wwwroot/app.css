@@ -39,8 +39,12 @@ h1:focus {
     text-align: start;
 }
 
+:root {
+    color-scheme: light dark;
+}
+
 input[type=checkbox]:disabled+label {
-    color: #ccc;
+    color: light-dark(#ccc, #888);
 }
 
 .set-statistics {
@@ -58,19 +62,19 @@ input[type=checkbox]:disabled+label {
 }
 
 .major-set {
-    background-color: lightcyan;
+    background-color: light-dark(lightcyan, darkcyan);
 }
 
 .sub-set {
-    background-color: lightpink;
+    background-color: light-dark(lightpink, purple);
 }
 
 .no-metadata-set {
-    background-color: lightgray;
+    background-color: light-dark(lightgray, dimgray);
 }
 
 .only-name-set {
-    background-color: lightgreen;
+    background-color: light-dark(lightgreen, darkgreen);
 }
 
 .complete-1x {
@@ -81,14 +85,11 @@ input[type=checkbox]:disabled+label {
     border-color: orangered;
 }
 
-.selected {
-    border-color: black;
-}
-
 .details-rarity {
     padding-top: 0.5em;
 }
 
+.selected,
 .details-rarity-1x.complete,
 .details-rarity-4x.complete {
     font-weight: bold;
