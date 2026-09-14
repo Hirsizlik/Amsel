@@ -1,14 +1,12 @@
 using System.Collections.Immutable;
-using System.Text.Json;
 using Amsel.Data;
-using System.IO.Compression;
 using System.Collections.Frozen;
 
 namespace Amsel.ArenaConnect;
 
 public sealed class ArenaLoader(AmselSettings settings)
 {
-    private readonly AmselSettings settings = settings;
+    private readonly AmselCache cache = new(settings);
 
     public ImmutableArray<CardStats> Cards { get; private set; } = [];
     public bool FromCache { get; private set; } = false;
@@ -16,24 +14,6 @@ public sealed class ArenaLoader(AmselSettings settings)
     public FrozenDictionary<string, SetInformation> SetInformation { get; private set; }
         = FrozenDictionary.Create<string, SetInformation>([]);
     public FrozenDictionary<uint, int> OwnedPerTitle = FrozenDictionary.Create<uint, int>([]);
-
-    private interface ICache
-    {
-        public static abstract int CurrentVersion { get; }
-        public int Version { get; }
-        public DateTime Timestamp { get; }
-    }
-
-    private record CardCache(int Version, DateTime Timestamp, ImmutableArray<CardStats> Cards) : ICache
-    {
-        public static int CurrentVersion { get => 0; }
-    }
-
-    private record SetCache(int Version, DateTime Timestamp, Dictionary<string, string?> SetLocalization,
-        Dictionary<string, SetMetadata> SetMetadata) : ICache
-    {
-        public static int CurrentVersion { get => 0; }
-    }
 
     public async Task LoadCardInfoAsync()
     {
@@ -55,22 +35,14 @@ public sealed class ArenaLoader(AmselSettings settings)
         });
     }
 
-    private static async ValueTask WriteCache(AmselSettings settings, ImmutableArray<CardStats> cards,
-        Dictionary<string, SetMetadata> metadata, Dictionary<string, string?> localization)
+    private async Task LoadFromCache()
     {
-        using var ccStream = new GZipStream(new FileStream(settings.CardsCacheFile, FileMode.Create),
-            CompressionLevel.Optimal);
-        using var scStream = new GZipStream(new FileStream(settings.SetCacheFile, FileMode.Create),
-            CompressionLevel.Optimal);
-        DateTime ts = DateTime.Now;
-        ValueTask cardCacheTask =
-            ccStream.WriteAsync(JsonSerializer.SerializeToUtf8Bytes(new CardCache(CardCache.CurrentVersion,
-            ts, cards)));
-        ValueTask setCacheTask =
-            scStream.WriteAsync(JsonSerializer.SerializeToUtf8Bytes(new SetCache(SetCache.CurrentVersion,
-            ts, localization, metadata)));
-        await cardCacheTask;
-        await setCacheTask;
+        var (cardCache, setCache) = await cache.LoadCache();
+        Cards = cardCache.Cards;
+        SetInformation = MergeIntoSetInformation(Cards, setCache.SetMetadata, setCache.SetLocalization);
+        OwnedPerTitle = CountOwnedPerTitleId(Cards);
+        CardsLoadedTs = DateTime.Now;
+        FromCache = true;
     }
 
     private static FrozenDictionary<string, SetInformation> MergeIntoSetInformation(ImmutableArray<CardStats> cards,
@@ -124,47 +96,6 @@ public sealed class ArenaLoader(AmselSettings settings)
 
         SetInformation = MergeIntoSetInformation(Cards, setMetadata, preparedSetLoc);
         OwnedPerTitle = CountOwnedPerTitleId(Cards);
-        await WriteCache(settings, Cards, setMetadata, preparedSetLoc);
-    }
-
-    private string GetPathForType<T>() where T : ICache
-    {
-        var t = typeof(T);
-        if (t == typeof(CardCache))
-        {
-            return settings.CardsCacheFile;
-        }
-        else if (t == typeof(SetCache))
-        {
-            return settings.SetCacheFile;
-        }
-        throw new ArgumentException("Unknown Cache Type");
-    }
-
-    private T LoadCache<T>() where T : ICache
-    {
-        using var stream = new GZipStream(new FileStream(GetPathForType<T>(), FileMode.Open),
-            CompressionMode.Decompress);
-        T? cache = JsonSerializer.Deserialize<T>(stream);
-        if (cache != null)
-        {
-            return cache.Version == T.CurrentVersion ?
-                cache :
-                throw new ArgumentException($"Invalid cache version for {typeof(T)}");
-        }
-        else throw new ArgumentException("Could not load data from cache");
-    }
-
-    private async Task LoadFromCache()
-    {
-        Console.WriteLine("Loading from cache");
-        CardCache cardCache = LoadCache<CardCache>();
-        SetCache setCache = LoadCache<SetCache>();
-
-        Cards = cardCache.Cards;
-        SetInformation = MergeIntoSetInformation(Cards, setCache.SetMetadata, setCache.SetLocalization);
-        OwnedPerTitle = CountOwnedPerTitleId(Cards);
-        CardsLoadedTs = DateTime.Now;
-        FromCache = true;
+        await cache.WriteCache(Cards, setMetadata, preparedSetLoc);
     }
 }
