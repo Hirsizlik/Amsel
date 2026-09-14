@@ -18,9 +18,16 @@ public class MtgArenaClientLocalizationDatabaseTest
     }
 
     [Test]
-    public void TestGetAllCards()
+    public void TestGetEnglishSetLocalization()
     {
         var locs = macld.GetEnglishSetLocalization();
+        Assert.That(locs, Is.Not.Empty);
+    }
+
+    [Test]
+    public void TestGetEnglishFormatLocalization()
+    {
+        var locs = macld.GetEnglishFormatLocalization();
         Assert.That(locs, Is.Not.Empty);
     }
 }

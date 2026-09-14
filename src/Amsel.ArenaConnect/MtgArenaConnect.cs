@@ -5,6 +5,8 @@ using HackF5.UnitySpy;
 using HackF5.UnitySpy.Detail;
 using HackF5.UnitySpy.Offsets;
 using HackF5.UnitySpy.ProcessFacade;
+using System.Collections.Immutable;
+using System.Collections.Frozen;
 
 namespace Amsel.ArenaConnect;
 
@@ -175,5 +177,66 @@ public class MtgArenaConnect : IMtgArenaConnect
             }
         }
         return result;
+    }
+
+    private static IList<T> GatherValuesFromSlots<T>(dynamic o)
+    {
+        List<T> result = [];
+        if (o is null || o["_slots"] is null)
+            return result;
+        foreach (ManagedStructInstance i in o["_slots"])
+        {
+            if (typeof(T) == typeof(uint) && i["value"] != 0)
+                result.Add((T)i["value"]);
+        }
+        return result;
+    }
+
+    public ImmutableArray<FormatData> GetFormatData()
+    {
+        object[] rawFormats = assemblyImage["WrapperController"]
+            ["<Instance>k__BackingField"]
+            ["FormatManager"]
+            ["_formats"]
+            ["_items"];
+        List<FormatData> result = [];
+        foreach (ManagedClassInstance rawFormat in rawFormats.Cast<ManagedClassInstance>())
+        {
+            if (rawFormat == null)
+                continue;
+
+            // skip non evergreen formats (there are a lot due to Midweek Magic and Draft formats)
+            bool evergreen = rawFormat["IsEvergreen"];
+            if (!evergreen)
+                continue;
+            string name = rawFormat["_formatName"];
+            // skip Bo3 and Direct Game formats, should be mostly the same as Bo1
+            if (name.StartsWith("Traditional") || name.StartsWith("DirectGame"))
+                continue;
+            List<string> legalSets = GatherValuesFromSlots<string>(rawFormat["_legalSets"]);
+            List<uint> legalTitles = GatherValuesFromSlots<uint>(rawFormat["_legalTitleIds"]);
+            List<uint> bannedTitles = GatherValuesFromSlots<uint>(rawFormat["_bannedTitleIds"]);
+            List<uint> bannedAsCommander = GatherValuesFromSlots<uint>(rawFormat["_bannedAsCommanders"]);
+            List<KeyValuePair<uint, Quota>> restrictedTitles = [];
+            if (rawFormat["_restrictedTitleIds"] is not null && rawFormat["_restrictedTitleIds"]["_entries"] is not null)
+            {
+                foreach (ManagedStructInstance restrictedTitle in rawFormat["_restrictedTitleIds"]["_entries"])
+                {
+                    uint titleId = (uint)restrictedTitle["key"];
+                    uint max = (uint)restrictedTitle["value"]["Max"];
+                    restrictedTitles.Add(new(titleId, new Quota(max)));
+                }
+            }
+            result.Add(new FormatData
+            (
+                NameKey: name,
+                LegalSets: legalSets.ToFrozenSet(),
+                BannedTitleIds: bannedTitles.ToFrozenSet(),
+                RestrictedTitleIds: restrictedTitles.ToFrozenDictionary(),
+                BannedAsCommanderTitles: bannedAsCommander.ToFrozenSet(),
+                LegalTitleIds: legalTitles.ToFrozenSet()
+            ));
+        }
+        return result.ToImmutableArray();
     }
 }

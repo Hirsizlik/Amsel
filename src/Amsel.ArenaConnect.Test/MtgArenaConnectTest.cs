@@ -37,4 +37,11 @@ public class MtgArenaConnectTest
         var s = mac.GetSetMetadata();
         Assert.That(s, Is.Not.Empty);
     }
+
+    [Test]
+    public void TestGetFormatData()
+    {
+        var s = mac.GetFormatData();
+        Assert.That(s, Is.Not.Empty);
+    }
 }

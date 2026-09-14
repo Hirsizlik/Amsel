@@ -1,3 +1,4 @@
+using System.Collections.Frozen;
 using System.Collections.Immutable;
 
 namespace Amsel.Data;
@@ -69,3 +70,10 @@ public record SetMetadata(int CollationId, string Code, DateTime ReleaseDate, bo
 
 public record SetInformation(SetStatistic Statistic, SetMetadata? Metadata,
     string Code, string? Name);
+
+public readonly record struct Quota(uint Max);
+public record FormatData(string NameKey, FrozenSet<string> LegalSets, FrozenSet<uint> BannedTitleIds,
+    FrozenDictionary<uint, Quota> RestrictedTitleIds, FrozenSet<uint> BannedAsCommanderTitles,
+    FrozenSet<uint> LegalTitleIds);
+
+public record FormatInformation(FormatData Data, string Name);

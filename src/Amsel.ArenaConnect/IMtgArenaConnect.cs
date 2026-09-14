@@ -1,3 +1,4 @@
+using System.Collections.Immutable;
 using Amsel.Data;
 
 namespace Amsel.ArenaConnect;
@@ -8,4 +9,5 @@ public interface IMtgArenaConnect
     string GetCardDatabasePath();
     Dictionary<string, SetMetadata> GetSetMetadata();
     string GetClientLocalizationDatabasePath();
+    ImmutableArray<FormatData> GetFormatData();
 }

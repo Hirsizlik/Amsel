@@ -3,4 +3,5 @@ namespace Amsel.ArenaConnect;
 public interface IMtgArenaClientLocalizationDatabase : IDisposable
 {
     Dictionary<string, string> GetEnglishSetLocalization();
+    Dictionary<string, string> GetEnglishFormatLocalization();
 }
