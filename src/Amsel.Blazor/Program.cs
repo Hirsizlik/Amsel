@@ -1,3 +1,4 @@
+using Amsel.ArenaConnect;
 using Amsel.Blazor.Components;
 using Xdg.Directories;
 
@@ -8,7 +9,7 @@ builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
 builder.Services
-    .AddSingleton<ArenaState>()
+    .AddSingleton<ArenaLoader>()
     .AddSingleton(new AmselSettings(
         BaseDirectory.CacheFile("Amsel/CardCache.json.gz"),
         BaseDirectory.CacheFile("Amsel/SetCache.json.gz")

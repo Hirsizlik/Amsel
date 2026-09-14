@@ -1,13 +1,12 @@
 using System.Collections.Immutable;
 using System.Text.Json;
-using Amsel.ArenaConnect;
 using Amsel.Data;
 using System.IO.Compression;
 using System.Collections.Frozen;
 
-namespace Amsel.Blazor.Components;
+namespace Amsel.ArenaConnect;
 
-public sealed class ArenaState(AmselSettings settings)
+public sealed class ArenaLoader(AmselSettings settings)
 {
     private readonly AmselSettings settings = settings;
 
