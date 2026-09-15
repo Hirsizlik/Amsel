@@ -11,8 +11,7 @@ builder.Services.AddRazorComponents()
 builder.Services
     .AddSingleton<ArenaLoader>()
     .AddSingleton(new AmselSettings(
-        BaseDirectory.CacheFile("Amsel/CardCache.json.gz"),
-        BaseDirectory.CacheFile("Amsel/SetCache.json.gz")
+        BaseDirectory.CacheFile("Amsel/")
     ));
 
 builder.Logging.AddConsole();
