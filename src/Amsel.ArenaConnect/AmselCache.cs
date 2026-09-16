@@ -25,7 +25,8 @@ internal class AmselCache(AmselSettings settings)
         public static int CurrentVersion { get => 0; }
     }
 
-    internal record FormatCache(int Version, DateTime Timestamp, ImmutableArray<FormatInformation> FormatInfo) : ICache
+    internal record FormatCache(int Version, DateTime Timestamp,
+        ImmutableArray<FormatInformationThawed> FormatInfo) : ICache
     {
         public static int CurrentVersion { get => 0; }
     }
@@ -49,7 +50,7 @@ internal class AmselCache(AmselSettings settings)
             ts, localization, metadata)));
         ValueTask formatCacheTask =
             fStream.WriteAsync(JsonSerializer.SerializeToUtf8Bytes(new FormatCache(FormatCache.CurrentVersion,
-            ts, formatInfo)));
+            ts, [.. formatInfo.Select(f => f.Thaw())])));
         await cardCacheTask;
         await setCacheTask;
         await formatCacheTask;

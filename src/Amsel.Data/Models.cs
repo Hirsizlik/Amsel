@@ -74,6 +74,40 @@ public record SetInformation(SetStatistic Statistic, SetMetadata? Metadata,
 public readonly record struct Quota(uint Max);
 public record FormatData(string NameKey, FrozenSet<string> LegalSets, FrozenSet<uint> BannedTitleIds,
     FrozenDictionary<uint, Quota> RestrictedTitleIds, FrozenSet<uint> BannedAsCommanderTitles,
-    FrozenSet<uint> LegalTitleIds);
+    FrozenSet<uint> LegalTitleIds)
+{
+    public FormatDataThawed Thaw()
+    {
+        return new FormatDataThawed(NameKey, [.. LegalSets], [.. BannedTitleIds],
+            RestrictedTitleIds.ToDictionary(), [.. BannedAsCommanderTitles],
+            [.. LegalTitleIds]);
+    }
+}
 
-public record FormatInformation(FormatData Data, string Name);
+public record FormatDataThawed(string NameKey, HashSet<string> LegalSets, HashSet<uint> BannedTitleIds,
+    Dictionary<uint, Quota> RestrictedTitleIds, HashSet<uint> BannedAsCommanderTitles,
+    HashSet<uint> LegalTitleIds)
+{
+    public FormatData Freeze()
+    {
+        return new FormatData(NameKey, LegalSets.ToFrozenSet(), BannedTitleIds.ToFrozenSet(),
+            RestrictedTitleIds.ToFrozenDictionary(), BannedAsCommanderTitles.ToFrozenSet(),
+            LegalTitleIds.ToFrozenSet());
+    }
+}
+
+public record FormatInformation(FormatData Data, string Name)
+{
+    public FormatInformationThawed Thaw()
+    {
+        return new FormatInformationThawed(Data.Thaw(), Name);
+    }
+}
+
+public record FormatInformationThawed(FormatDataThawed Data, string Name)
+{
+    public FormatInformation Freeze()
+    {
+        return new FormatInformation(Data.Freeze(), Name);
+    }
+}

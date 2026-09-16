@@ -42,7 +42,7 @@ public sealed class ArenaLoader(AmselSettings settings)
         Cards = cardCache.Cards;
         SetInformation = MergeIntoSetInformation(Cards, setCache.SetMetadata, setCache.SetLocalization);
         OwnedPerTitle = CountOwnedPerTitleId(Cards);
-        FormatInfo = formatCache.FormatInfo;
+        FormatInfo = [.. formatCache.FormatInfo.Select(f => f.Freeze())];
         CardsLoadedTs = DateTime.Now;
         FromCache = true;
     }
