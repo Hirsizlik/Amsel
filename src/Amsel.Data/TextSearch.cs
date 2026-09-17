@@ -1,4 +1,5 @@
 using System.Collections.Frozen;
+using System.Collections.Immutable;
 using System.ComponentModel;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -129,6 +130,40 @@ internal class QuantityFilter(int amount, FilterOperator op) : ICardFilter
     }
 }
 
+internal class FormatFilter(FormatInformation format, FilterOperator op) : ICardFilter
+{
+    private readonly FormatInformation format = format;
+    private readonly FilterOperator op = op;
+
+    public bool Apply(CardStats c)
+    {
+        bool banned = format.Data.BannedTitleIds.Contains(c.Info.TitleId)
+            || format.Data.BannedAsCommanderTitles.Contains(c.Info.TitleId);
+        bool legal = format.Data.LegalTitleIds.Contains(c.Info.TitleId);
+        return op switch
+        {
+            FilterOperator.Equal => legal && !banned,
+            FilterOperator.NotEqual => !legal || banned,
+            _ => throw new InvalidOperationException("Unsupported Operation " + op)
+        };
+    }
+
+    public override bool Equals(object? other)
+    {
+        if (other is not FormatFilter fOther)
+        {
+            return false;
+        }
+
+        return format == fOther.format && op == fOther.op;
+    }
+
+    public override int GetHashCode()
+    {
+        return HashCode.Combine(format, op);
+    }
+}
+
 public partial class TextSearch
 {
     private readonly FrozenSet<ICardFilter> filter;
@@ -139,8 +174,10 @@ public partial class TextSearch
     private static partial Regex RarityPattern { get; }
     [GeneratedRegex("^Q(<|<=|>|>=|=|:|!=)(\\d+)$", RegexOptions.IgnoreCase)]
     private static partial Regex QuantityPattern { get; }
+    [GeneratedRegex("^F(=|:|!=)(\\w+)$", RegexOptions.IgnoreCase)]
+    private static partial Regex FormatPattern { get; }
 
-    public static bool TryParse(string raw, out TextSearch result)
+    public static bool TryParse(string raw, ImmutableArray<FormatInformation> formatInformation, out TextSearch result)
     {
         if (string.IsNullOrWhiteSpace(raw))
         {
@@ -155,10 +192,11 @@ public partial class TextSearch
             result = new TextSearch([]);
             return false;
         }
-        return TryParseOptions(tokens, out result);
+        return TryParseOptions(tokens, formatInformation, out result);
     }
 
-    private static bool TryParseOptions(List<string> tokens, out TextSearch textSearch)
+    private static bool TryParseOptions(List<string> tokens, ImmutableArray<FormatInformation> formatInformation,
+        out TextSearch textSearch)
     {
         List<ICardFilter> filter = [];
         foreach (string token in tokens)
@@ -184,6 +222,21 @@ public partial class TextSearch
                         quantity,
                         op
                     ));
+                    continue;
+                }
+
+                if (FormatPattern.Match(token) is { Success: true } formatMatch)
+                {
+                    string formatName = formatMatch.Groups[2].Value;
+                    FormatInformation? format = formatInformation
+                        .FirstOrDefault(f => f.Name.Equals(formatName, StringComparison.OrdinalIgnoreCase));
+                    if (format == null)
+                    {
+                        textSearch = new TextSearch([]);
+                        return false;
+                    }
+                    var op = FilterOperatorExtension.FromString(formatMatch.Groups[1].Value);
+                    filter.Add(new FormatFilter(format, op));
                     continue;
                 }
                 textSearch = new TextSearch([]);

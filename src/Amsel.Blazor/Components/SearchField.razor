@@ -1,3 +1,5 @@
+@inject ArenaLoader state
+
 <input type="text" placeholder="Search..." @bind-value="text" @onkeyup="OnKeyUp" class=@(ok ? "" : "search-error")>
 <button popovertarget=search-help-modal">?</button>
 
@@ -15,6 +17,10 @@
         <li>
             Rarity with <code>r &lt;operator&gt; [LCURM]</code>,
             e.g. <code>"q&lt;=U"</code> for all Commons and Uncommons
+        </li>
+        <li>
+            Format legality with <code>f &lt;:, =, !=&gt; &lt;format name&gt;</code>,
+            e.g. <code>"f=Standard"</code> for all Standard legal cards
         </li>
     </ul>
     <button popovertarget="search-help-modal" popovertargetaction="hide">Close</button>
@@ -44,7 +50,7 @@
     {
         if (e.Code == "Enter")
         {
-            if (ok = TextSearch.TryParse(text, out TextSearch t))
+            if (ok = TextSearch.TryParse(text, state.FormatInfo, out TextSearch t))
             {
                 Value = t;
             }
