@@ -186,8 +186,9 @@ public class MtgArenaConnect : IMtgArenaConnect
             return result;
         foreach (ManagedStructInstance i in o["_slots"])
         {
-            if (typeof(T) == typeof(uint) && i["value"] != 0)
-                result.Add((T)i["value"]);
+            if (typeof(T) == typeof(uint) && i["value"] == 0)
+                continue;
+            result.Add((T)i["value"]);
         }
         return result;
     }
