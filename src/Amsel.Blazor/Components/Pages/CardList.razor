@@ -37,7 +37,7 @@ else
                 <tr>
                     @foreach (Column c in GetColumns())
                     {
-                        <td> @PickColumnValue(c, card) </td>
+                        <td>@(new MarkupString(PickColumnValue(c, card).ToString() ?? ""))</td>
                     }
                 </tr>
             </Virtualize>
@@ -68,6 +68,7 @@ else
         Rarity,
         Owned,
         OwnedTitle,
+        FormatLegality,
     }
     private record Sort(Column column, bool isDesc);
     private Sort sortColumn = new Sort(Column.None, false);
@@ -143,6 +144,23 @@ else
             return code;
     }
 
+    private string GetFormatLegality(CardStats c)
+    {
+        List<string> result = [];
+        foreach (var f in state.FormatInfo)
+        {
+            if (f.Data.LegalTitleIds.Contains(c.Info.TitleId))
+                result.Add(f.Name);
+            if (f.Data.BannedTitleIds.Contains(c.Info.TitleId))
+                result.Add($"<del>{f.Name}</del>");
+            if (f.Data.BannedAsCommanderTitles.Contains(c.Info.TitleId))
+                result.Add($"<del>{f.Name} (as Commander)</del>");
+            if (f.Data.RestrictedTitleIds.TryGetValue(c.Info.TitleId, out Quota value))
+                result.Add($"{f.Name} (max. {value.Max})");
+        }
+        return string.Join(", ", result);
+    }
+
     private object PickColumnValue(Column column, CardStats c, bool formatted = true)
     {
         return column switch
@@ -154,6 +172,7 @@ else
             Column.Rarity => formatted ? c.Info.Rarity.ToChar() : c.Info.Rarity,
             Column.Owned => c.Owned,
             Column.OwnedTitle => state.OwnedPerTitle[c.Info.TitleId],
+            Column.FormatLegality => GetFormatLegality(c),
             _ => throw new ArgumentOutOfRangeException($"Unknown Column {column} picked"),
         };
     }
@@ -235,6 +254,7 @@ else
             Column.DigitalSet => "Digital Set",
             Column.Owned => "Owned (this set)",
             Column.OwnedTitle => "Owned (overall)",
+            Column.FormatLegality => "Format Legality",
             _ => column.ToString()
         };
     }
