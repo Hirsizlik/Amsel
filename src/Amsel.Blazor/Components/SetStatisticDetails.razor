@@ -1,3 +1,5 @@
+@inject ArenaLoader state
+
 @if (Selected != null)
 {
     <NavLink href=@("card-list/set/" + Selected.Code)>
@@ -5,8 +7,12 @@
     </NavLink>
     @if (Selected.Metadata != null)
     {
-        <div>Availability: @AvailabilityToString(Selected.Metadata.Availability)</div>
+        string formats = GetFormatsForSelected();
         <div>Released on: @Selected.Metadata.ReleaseDate.ToShortDateString()</div>
+        @if (formats != "")
+        {
+            <div>Legal in: @GetFormatsForSelected()</div>
+        }
     }
     foreach (Rarity rar in Enum.GetValues<Rarity>())
     {
@@ -34,21 +40,6 @@
     [Parameter]
     public SetInformation? Selected { get; set; }
 
-    private static string AvailabilityToString(Availability a)
-    {
-        return a switch
-        {
-            Availability.AlchemyNotStandard => "Alchemy",
-            Availability.Available => "Standard + Alchemy",
-            Availability.EternalOnly => "Eternal",
-            Availability.HistoricOnly => "Historic",
-            Availability.RotatingOutSoonAlchemy => "Rotating out of Alchemy",
-            Availability.RotatingOutSoonStandard => "Rotating out of Standard",
-            Availability.StandardNotAlchemy => "Standard",
-            _ => ""
-        };
-    }
-
     private static string CssComplete(int amount, int total)
     {
         if (amount == total)
@@ -56,5 +47,18 @@
             return "complete";
         }
         return "";
+    }
+
+    private string GetFormatsForSelected()
+    {
+        List<string> result = [];
+        foreach (FormatInformation f in state.FormatInfo)
+        {
+            if (f.Data.LegalSets.Contains(Selected!.Code))
+            {
+                result.Add(f.Name);
+            }
+        }
+        return string.Join(", ", result);
     }
 }
