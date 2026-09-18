@@ -43,50 +43,45 @@ public partial class TextSearch
         List<ICardFilter> filter = [];
         foreach (string token in tokens)
         {
-            if (GenericPattern.IsMatch(token))
+            if (!GenericPattern.IsMatch(token))
             {
-                if (RarityPattern.Match(token) is { Success: true } rarityMatch)
+                filter.Add(new NameFilter(token));
+            }
+            else if (RarityPattern.Match(token) is { Success: true } rarityMatch)
+            {
+                var op = FilterOperatorExtension.FromString(rarityMatch.Groups[1].Value);
+                char rarityChar = rarityMatch.Groups[2].Value[0];
+                filter.Add(new RarityFilter(
+                    RarityExtension.FromChar(rarityChar),
+                    op
+                ));
+            }
+            else if (QuantityPattern.Match(token) is { Success: true } quantityMatch)
+            {
+                var op = FilterOperatorExtension.FromString(quantityMatch.Groups[1].Value);
+                int quantity = int.Parse(quantityMatch.Groups[2].Value);
+                filter.Add(new QuantityFilter(
+                    quantity,
+                    op
+                ));
+            }
+            else if (FormatPattern.Match(token) is { Success: true } formatMatch)
+            {
+                string formatName = formatMatch.Groups[2].Value;
+                FormatInformation? format = formatInformation
+                    .FirstOrDefault(f => f.Name.Equals(formatName, StringComparison.OrdinalIgnoreCase));
+                if (format == null)
                 {
-                    var op = FilterOperatorExtension.FromString(rarityMatch.Groups[1].Value);
-                    char rarityChar = rarityMatch.Groups[2].Value[0];
-                    filter.Add(new RarityFilter(
-                        RarityExtension.FromChar(rarityChar),
-                        op
-                    ));
-                    continue;
+                    textSearch = new TextSearch([]);
+                    return false;
                 }
-
-                if (QuantityPattern.Match(token) is { Success: true } quantityMatch)
-                {
-                    var op = FilterOperatorExtension.FromString(quantityMatch.Groups[1].Value);
-                    int quantity = int.Parse(quantityMatch.Groups[2].Value);
-                    filter.Add(new QuantityFilter(
-                        quantity,
-                        op
-                    ));
-                    continue;
-                }
-
-                if (FormatPattern.Match(token) is { Success: true } formatMatch)
-                {
-                    string formatName = formatMatch.Groups[2].Value;
-                    FormatInformation? format = formatInformation
-                        .FirstOrDefault(f => f.Name.Equals(formatName, StringComparison.OrdinalIgnoreCase));
-                    if (format == null)
-                    {
-                        textSearch = new TextSearch([]);
-                        return false;
-                    }
-                    var op = FilterOperatorExtension.FromString(formatMatch.Groups[1].Value);
-                    filter.Add(new FormatFilter(format, op));
-                    continue;
-                }
-                textSearch = new TextSearch([]);
-                return false;
+                var op = FilterOperatorExtension.FromString(formatMatch.Groups[1].Value);
+                filter.Add(new FormatFilter(format, op));
             }
             else
             {
-                filter.Add(new NameFilter(token));
+                textSearch = new TextSearch([]);
+                return false;
             }
         }
         textSearch = new TextSearch(filter);
