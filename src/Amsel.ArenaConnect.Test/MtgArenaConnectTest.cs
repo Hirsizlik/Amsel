@@ -44,4 +44,11 @@ public class MtgArenaConnectTest
         var s = mac.GetFormatData();
         Assert.That(s, Is.Not.Empty);
     }
+
+    [Test]
+    public void TestGetDataDirPath()
+    {
+        var s = mac.GetDataDirPath();
+        Assert.That(s, Is.Not.Empty);
+    }
 }

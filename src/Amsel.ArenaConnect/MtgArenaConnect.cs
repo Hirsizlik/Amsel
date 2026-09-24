@@ -14,11 +14,16 @@ public class MtgArenaConnect : IMtgArenaConnect
 {
     private readonly Process mtgaProcess;
     private readonly IAssemblyImage assemblyImage;
-    private readonly string? gameExecutableFilePath; // always null on Windows, only needed for Wine/Proton
+    private readonly string? mtgaPrefix; // always null on Windows, only needed for Wine/Proton
     public MtgArenaConnect()
     {
         mtgaProcess = GetProcess();
-        (assemblyImage, gameExecutableFilePath) = CreateAssemblyImage(mtgaProcess);
+        string? exePath;
+        (assemblyImage, exePath) = CreateAssemblyImage(mtgaProcess);
+        if (exePath != null)
+        {
+            mtgaPrefix = exePath[..exePath.IndexOf("MTGA/")];
+        }
     }
 
     private static NotSupportedException PlatformNotSupported()
@@ -124,6 +129,16 @@ public class MtgArenaConnect : IMtgArenaConnect
         return ExtractDbPath(connectionString);
     }
 
+    private string MapWinePathToRealPath(string winePath)
+    {
+        if (mtgaPrefix == null)
+        {
+            throw new Exception("Executable has no file path");
+        }
+        string wineRelPath = winePath[winePath.IndexOf("MTGA/")..].Replace('\\', '/');
+        return mtgaPrefix + wineRelPath;
+    }
+
     private string ExtractDbPath(string connectionString)
     {
         string dbPath = connectionString["Data Source=".Length..].Split(';')[0];
@@ -133,11 +148,7 @@ public class MtgArenaConnect : IMtgArenaConnect
         }
         else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
         {
-            // Wine / Proton path must be mapped
-            string dbRelPath = dbPath[dbPath.IndexOf("MTGA/")..].Replace('\\', '/');
-            string mtgaPrefix = gameExecutableFilePath?[..gameExecutableFilePath.IndexOf("MTGA/")]
-                ?? throw new Exception("Executable has no file path");
-            return mtgaPrefix + dbRelPath;
+            return MapWinePathToRealPath(dbPath);
         }
         else
         {
@@ -239,5 +250,24 @@ public class MtgArenaConnect : IMtgArenaConnect
             ));
         }
         return result.ToImmutableArray();
+    }
+
+    public string GetDataDirPath()
+    {
+        string dataPath = assemblyImage["Wotc.Mtga.ClientPathUtilities"]
+            ["_storageContext"]
+            ["<LocalPersistedStoragePath>k__BackingField"];
+        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+        {
+            return dataPath;
+        }
+        else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+        {
+            return MapWinePathToRealPath(dataPath);
+        }
+        else
+        {
+            throw PlatformNotSupported();
+        }
     }
 }

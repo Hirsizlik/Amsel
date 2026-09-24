@@ -10,4 +10,5 @@ public interface IMtgArenaConnect
     Dictionary<string, SetMetadata> GetSetMetadata();
     string GetClientLocalizationDatabasePath();
     ImmutableArray<FormatData> GetFormatData();
+    string GetDataDirPath();
 }
