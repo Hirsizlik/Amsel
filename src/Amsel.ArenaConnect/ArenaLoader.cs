@@ -15,6 +15,7 @@ public sealed class ArenaLoader(AmselSettings settings)
         = FrozenDictionary.Create<string, SetInformation>([]);
     public FrozenDictionary<uint, int> OwnedPerTitle = FrozenDictionary.Create<uint, int>([]);
     public ImmutableArray<FormatInformation> FormatInfo = [];
+    public string? DataDir { get ; private set; }
 
     public async Task LoadCardInfoAsync()
     {
@@ -38,12 +39,13 @@ public sealed class ArenaLoader(AmselSettings settings)
 
     private async Task LoadFromCache()
     {
-        var (cardCache, setCache, formatCache) = await cache.LoadCache();
+        var (cardCache, setCache, formatCache, pathCache) = await cache.LoadCache();
         Cards = cardCache.Cards;
         SetInformation = MergeIntoSetInformation(Cards, setCache.SetMetadata, setCache.SetLocalization);
         OwnedPerTitle = CountOwnedPerTitleId(Cards);
         FormatInfo = [.. formatCache.FormatInfo.Select(f => f.Freeze())];
         CardsLoadedTs = DateTime.Now;
+        DataDir = pathCache.DataDirPath;
         FromCache = true;
     }
 
@@ -102,6 +104,7 @@ public sealed class ArenaLoader(AmselSettings settings)
             .ToImmutableArray();
         SetInformation = MergeIntoSetInformation(Cards, setMetadata, preparedSetLoc);
         OwnedPerTitle = CountOwnedPerTitleId(Cards);
-        await cache.WriteCache(Cards, setMetadata, preparedSetLoc, FormatInfo);
+        DataDir = connect.GetDataDirPath();
+        await cache.WriteCache(Cards, setMetadata, preparedSetLoc, FormatInfo, DataDir);
     }
 }

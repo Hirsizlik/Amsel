@@ -31,15 +31,22 @@ internal class AmselCache(AmselSettings settings)
         public static int CurrentVersion { get => 0; }
     }
 
+    internal record PathCache(int Version, DateTime Timestamp, string DataDirPath) : ICache
+    {
+        public static int CurrentVersion { get => 0; }
+    }
+
     internal async ValueTask WriteCache(ImmutableArray<CardStats> cards,
         Dictionary<string, SetMetadata> metadata, Dictionary<string, string?> localization,
-        ImmutableArray<FormatInformation> formatInfo)
+        ImmutableArray<FormatInformation> formatInfo, string dataDirPath)
     {
         using var ccStream = new GZipStream(new FileStream(settings.CardsCacheFile, FileMode.Create),
             CompressionLevel.Optimal);
         using var scStream = new GZipStream(new FileStream(settings.SetCacheFile, FileMode.Create),
             CompressionLevel.Optimal);
         using var fStream = new GZipStream(new FileStream(settings.FormatCacheFile, FileMode.Create),
+            CompressionLevel.Optimal);
+        using var pStream = new GZipStream(new FileStream(settings.PathCacheFile, FileMode.Create),
             CompressionLevel.Optimal);
         DateTime ts = DateTime.Now;
         ValueTask cardCacheTask =
@@ -51,9 +58,13 @@ internal class AmselCache(AmselSettings settings)
         ValueTask formatCacheTask =
             fStream.WriteAsync(JsonSerializer.SerializeToUtf8Bytes(new FormatCache(FormatCache.CurrentVersion,
             ts, [.. formatInfo.Select(f => f.Thaw())])));
+        ValueTask pathCacheTask = 
+            pStream.WriteAsync(JsonSerializer.SerializeToUtf8Bytes(new PathCache(PathCache.CurrentVersion, ts,
+            dataDirPath)));
         await cardCacheTask;
         await setCacheTask;
         await formatCacheTask;
+        await pathCacheTask;
     }
 
     private string GetPathForType<T>() where T : ICache
@@ -70,6 +81,9 @@ internal class AmselCache(AmselSettings settings)
         else if (t == typeof(FormatCache))
         {
             return settings.FormatCacheFile;
+        } else if (t == typeof(PathCache))
+        {
+            return settings.PathCacheFile;
         }
         throw new ArgumentException("Unknown Cache Type");
     }
@@ -88,12 +102,13 @@ internal class AmselCache(AmselSettings settings)
         else throw new ArgumentException("Could not load data from cache");
     }
 
-    internal async Task<(CardCache, SetCache, FormatCache)> LoadCache()
+    internal async Task<(CardCache, SetCache, FormatCache, PathCache)> LoadCache()
     {
         Console.WriteLine("Loading from cache");
         CardCache cardCache = LoadCache<CardCache>();
         SetCache setCache = LoadCache<SetCache>();
         FormatCache formatCache = LoadCache<FormatCache>();
-        return (cardCache, setCache, formatCache);
+        PathCache pathCache = LoadCache<PathCache>();
+        return (cardCache, setCache, formatCache, pathCache);
     }
 }

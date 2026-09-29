@@ -1,5 +1,6 @@
 using Amsel.ArenaConnect;
 using Amsel.Blazor.Components;
+using Amsel.Data;
 using Xdg.Directories;
 
 var builder = WebApplication.CreateEmptyBuilder(new WebApplicationOptions { Args = args });
@@ -12,7 +13,8 @@ builder.Services
     .AddSingleton<ArenaLoader>()
     .AddSingleton(new AmselSettings(
         BaseDirectory.CacheFile("Amsel/")
-    ));
+    ))
+    .AddSingleton<AssetLoader>();
 
 builder.Logging.AddConsole();
 builder.WebHost.UseKestrelCore();
@@ -33,6 +35,14 @@ app.UseHttpsRedirection();
 app.UseAntiforgery();
 
 app.MapStaticAssets();
+app.MapGet("/assets/expansion-symbol", async (AssetLoader assetLoader, string code, string rarity) =>
+{
+    if (!Enum.TryParse(rarity, out Rarity r))
+    {
+        return Results.NotFound();
+    }
+    return Results.File(await assetLoader.GetExpansionSymbol(code, r), "image/png");
+});
 app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode();
 

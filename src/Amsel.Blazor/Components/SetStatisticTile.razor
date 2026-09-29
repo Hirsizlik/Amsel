@@ -1,4 +1,6 @@
 <div class="set-statistic @GetExtraCssForStatistic()" @onclick="OnClick">
+    
+    <img src=@($"/assets/expansion-symbol?code={SetInformation.Code}&rarity=Common") />
     @if (!string.IsNullOrWhiteSpace(SetInformation.Name))
     {
         <div>
