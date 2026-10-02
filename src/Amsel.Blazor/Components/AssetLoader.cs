@@ -1,3 +1,4 @@
+using System.Collections.Concurrent;
 using System.Collections.Frozen;
 using Amsel.ArenaConnect;
 using Amsel.Data;
@@ -12,7 +13,7 @@ public class AssetLoader(ArenaLoader loader)
     private readonly record struct ExpansionSymbolCacheKey(string Code, Rarity Rarity);
 
     private MtgArenaAssets? arenaAssets;
-    private readonly Dictionary<ExpansionSymbolCacheKey, byte[]> symbolCache = [];
+    private readonly ConcurrentDictionary<ExpansionSymbolCacheKey, byte[]> symbolCache = [];
     private FrozenSet<string> ReverseSets = FrozenSet.Create(["FACE", "MAR", "LIST", "BRAWL"]);
 
     private string FixUpCode(string code)
