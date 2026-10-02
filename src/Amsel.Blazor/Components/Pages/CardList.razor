@@ -27,18 +27,66 @@ else
 
     <table>
         <thead>
-            @foreach (Column c in GetColumns())
-            {
-                <th @onclick="e => OnSort(c)" class=@GetCssClassForColumn(c)>@GetNameForColumn(c)</th>
-            }
+            <th @onclick="_ => OnSort(Column.Name)" class=@GetCssClassForColumn(Column.Name)>
+                @GetNameForColumn(Column.Name)
+            </th>
+            <th @onclick="_ => OnSort(Column.Set)" class=@GetCssClassForColumn(Column.Set)>
+                @GetNameForColumn(Column.Set)
+            </th>
+            <th @onclick="_ => OnSort(Column.DigitalSet)" class=@GetCssClassForColumn(Column.DigitalSet)>
+                @GetNameForColumn(Column.DigitalSet)
+            </th>
+            <th @onclick="_ => OnSort(Column.Rarity)" class=@GetCssClassForColumn(Column.Rarity)>
+                @GetNameForColumn(Column.Rarity)
+            </th>
+            <th @onclick="_ => OnSort(Column.Owned)" class=@GetCssClassForColumn(Column.Owned)>
+                @GetNameForColumn(Column.Owned)
+            </th>
+            <th @onclick="_ => OnSort(Column.OwnedTitle)" class=@GetCssClassForColumn(Column.OwnedTitle)>
+                @GetNameForColumn(Column.OwnedTitle)
+            </th>
+            <th class=@GetCssClassForColumn(Column.FormatLegality)>
+                @GetNameForColumn(Column.FormatLegality)
+            </th>
         </thead>
         <tbody>
             <Virtualize ItemsProvider="ProvideFilteredCards" Context="card" @ref="CardStatsContainer">
                 <tr>
-                    @foreach (Column c in GetColumns())
-                    {
-                        <td>@(new MarkupString(PickColumnValue(c, card).ToString() ?? ""))</td>
-                    }
+                    <td>@PickColumnValue(Column.Name, card)</td>
+                    <td>
+                        <div class="set">
+                            <div class="set-icon-container">
+                                <img src=@($"/assets/expansion-symbol?code={card.Info.ExpansionCode}&rarity={card.Info.Rarity}") />
+                            </div> 
+                            <div class="set-content">
+                                @PickColumnValue(Column.Set, card)
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="digitalset">
+                            @if (!string.IsNullOrEmpty(card.Info.DigitalReleaseSet))
+                            {
+                                <div class="set-icon-container">
+                                    <img src=@($"/assets/expansion-symbol?code={card.Info.DigitalReleaseSet}&rarity={card.Info.Rarity}") />
+                                </div>
+                            }
+                            <div class="digitalset-content">
+                                @PickColumnValue(Column.DigitalSet, card)
+                            </div>
+                        </div>
+                    </td>
+                    <td>@PickColumnValue(Column.Rarity, card)</td>
+                    <td>@PickColumnValue(Column.Owned, card)</td>
+                    <td>@PickColumnValue(Column.OwnedTitle, card)</td>
+                    <td>
+                        <div class="format-legality">
+                            @foreach(var f in GetFormatLegality(card))
+                            {
+                                <span class=@(f.Item2 ? "" : "banned")>@f.Item1</span>
+                            }
+                        </div>
+                    </td>
                 </tr>
             </Virtualize>
         </tbody>
@@ -144,21 +192,21 @@ else
             return code;
     }
 
-    private string GetFormatLegality(CardStats c)
+    private List<(string, bool)> GetFormatLegality(CardStats c)
     {
-        List<string> result = [];
+        List<(string, bool)> result = [];
         foreach (var f in state.FormatInfo)
         {
             if (f.Data.LegalTitleIds.Contains(c.Info.TitleId))
-                result.Add(f.Name);
+                result.Add((f.Name, true));
             if (f.Data.BannedTitleIds.Contains(c.Info.TitleId))
-                result.Add($"<del>{f.Name}</del>");
+                result.Add((f.Name, false));
             if (f.Data.BannedAsCommanderTitles.Contains(c.Info.TitleId))
-                result.Add($"<del>{f.Name} (as Commander)</del>");
+                result.Add(($"{f.Name} (as Commander)", false));
             if (f.Data.RestrictedTitleIds.TryGetValue(c.Info.TitleId, out Quota value))
-                result.Add($"{f.Name} (max. {value.Max})");
+                result.Add(($"{f.Name} (max. {value.Max})", true));
         }
-        return string.Join(", ", result);
+        return result;
     }
 
     private object PickColumnValue(Column column, CardStats c, bool formatted = true)
@@ -172,7 +220,6 @@ else
             Column.Rarity => formatted ? c.Info.Rarity.ToChar() : c.Info.Rarity,
             Column.Owned => c.Owned,
             Column.OwnedTitle => state.OwnedPerTitle[c.Info.TitleId],
-            Column.FormatLegality => GetFormatLegality(c),
             _ => throw new ArgumentOutOfRangeException($"Unknown Column {column} picked"),
         };
     }

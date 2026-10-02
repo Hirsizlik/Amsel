@@ -29,3 +29,33 @@
 .ownedtitle {
     width: 5em;
 }
+
+td .set,
+td .digitalset {
+    height: 2em;
+    max-height: 2em;
+    align-items: center;
+    display: flex;
+}
+
+img {
+    max-height: 2em;
+}
+
+.set-icon-container {
+    width: 4em;
+    text-align: center;
+}
+
+.set-content,
+.digitalset-content {
+    text-align: center;
+}
+
+.format-legality > span { 
+    padding-right: 0.5em;
+}
+
+.banned {
+    text-decoration: line-through;
+}
