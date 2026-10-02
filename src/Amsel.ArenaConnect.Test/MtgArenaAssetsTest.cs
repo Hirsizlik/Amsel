@@ -19,6 +19,7 @@ public class MtgArenaAssetsTest
     {
         var t1 = aa.GetExpansionSymbol("WOE", Rarity.Common);
         Assert.That(t1.Bgra32, Is.Not.Empty);
+        Assert.That(t1.Crop, Is.Null);
     }
 
     [Test]
@@ -27,5 +28,6 @@ public class MtgArenaAssetsTest
         // MID and PRM have different logic...
         var t1 = aa.GetExpansionSymbol("MID", Rarity.Common);
         Assert.That(t1.Bgra32, Is.Not.Empty);
+        Assert.That(t1.Crop, Is.Not.Null);
     }
 }

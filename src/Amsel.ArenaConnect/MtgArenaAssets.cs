@@ -97,7 +97,7 @@ public partial class MtgArenaAssets : IMtgArenaAssets
     {
         byte[] raw = texture.FillPictureData(af);
         byte[] decoded = texture.DecodeTextureRaw(raw);
-        return new TextureData(decoded, texture.m_Width, texture.m_Height, false, 0, 0, 0, 0);
+        return new TextureData(decoded, texture.m_Width, texture.m_Height, null);
     }
 
     private int GetSpriteIndex(AssetTypeValueField spriteNames, string path)
@@ -144,11 +144,12 @@ public partial class MtgArenaAssets : IMtgArenaAssets
 
                 var texRect = spriteAtlasData["textureRect"];
                 return texDataUncut with { // actual cropping is done later
-                    Crop = true,
-                    CropX = texRect["x"].AsInt,
-                    CropY = texRect["y"].AsInt,
-                    CropWidth = texRect["width"].AsInt,
-                    CropHeight = texRect["height"].AsInt
+                    Crop = new Rect(
+                        texRect["x"].AsInt,
+                        texRect["y"].AsInt,
+                        texRect["width"].AsInt,
+                        texRect["height"].AsInt
+                    )
                 };
             } else
             {

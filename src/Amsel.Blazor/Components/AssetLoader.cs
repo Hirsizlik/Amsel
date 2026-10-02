@@ -58,9 +58,10 @@ public class AssetLoader(ArenaLoader loader)
         {
             TextureData tex = arenaAssets.GetExpansionSymbol(code, rarity);
             var image = Image.LoadPixelData<Bgra32>(tex.Bgra32, tex.Width, tex.Height);
-            if (tex.Crop)
+            if (tex.Crop != null)
             {
-                image.Mutate(i => i.Crop(new Rectangle(tex.CropX, tex.CropY, tex.CropWidth, tex.CropHeight)));
+                var c = tex.Crop.Value;
+                image.Mutate(i => i.Crop(new Rectangle(c.X, c.Y, c.Width, c.Height)));
             }
             image.Mutate(i => i.Flip(FlipMode.Vertical));
             MemoryStream ms = new();
