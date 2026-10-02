@@ -23,7 +23,6 @@ public partial class MtgArenaAssets : IMtgArenaAssets
     [GeneratedRegex("Images/ExpansionSymbols?_(\\w{3,})_ ?(Common|Uncommon|Rare|Mythic)\\.png$")]
     private static partial Regex ExpansionSymbolPathPattern { get; }
 
-    private FrozenDictionary<string, ManifestEntry> assetBundleByName;
     private FrozenDictionary<ExpansionCodeRarityKey, ExpansionCodeRarityValue> expansionCodeRarityToBundleName;
     private readonly FrozenDictionary<string, object> bundleLocks;
     private readonly AssetsManager manager = new();
@@ -31,12 +30,11 @@ public partial class MtgArenaAssets : IMtgArenaAssets
     private readonly ConcurrentDictionary<string, BundleFileInstance> openBundleFiles = [];
     private readonly ConcurrentDictionary<string, FrozenDictionary<long, string>> bundleNameToPathIdMappings = [];
 
-    private MtgArenaAssets(FrozenDictionary<string, ManifestEntry> assetBundleByName,
+    private MtgArenaAssets(
         FrozenDictionary<ExpansionCodeRarityKey, ExpansionCodeRarityValue> expansionCodeRarityToBundleName,
         FrozenDictionary<string, object> bundleLocks,
         string downloadsDir)
     {
-        this.assetBundleByName = assetBundleByName;
         this.expansionCodeRarityToBundleName = expansionCodeRarityToBundleName;
         this.bundleLocks = bundleLocks;
         this.downloadsDir = downloadsDir;
@@ -73,13 +71,11 @@ public partial class MtgArenaAssets : IMtgArenaAssets
         Manifest manifest = JsonSerializer.Deserialize<Manifest>(
             File.ReadAllText(GetManifestPath(downloadsDir)))
             ?? throw new Exception("Manifest null");
-        Dictionary<string, ManifestEntry> assetBundleByName = [];
         Dictionary<ExpansionCodeRarityKey, ExpansionCodeRarityValue> expansionCodeRarityToBundleName = [];
         Dictionary<string, object> bundleLocks = [];
 
         foreach (var entry in manifest.Assets)
         {
-            assetBundleByName[entry.Name] = entry;
             bundleLocks[entry.Name] = new object();
             foreach (var asset in entry.IndexedAssets)
             {
@@ -92,8 +88,7 @@ public partial class MtgArenaAssets : IMtgArenaAssets
             }
         }
 
-        return new MtgArenaAssets(assetBundleByName.ToFrozenDictionary(),
-            expansionCodeRarityToBundleName.ToFrozenDictionary(),
+        return new MtgArenaAssets(expansionCodeRarityToBundleName.ToFrozenDictionary(),
             bundleLocks.ToFrozenDictionary(),
             downloadsDir);
     }
