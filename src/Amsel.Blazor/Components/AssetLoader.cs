@@ -54,6 +54,7 @@ public class AssetLoader(ArenaLoader loader)
             arenaAssets ??= MtgArenaAssets.Init(loader.DataDir ?? throw new Exception("No data dir"));
         }
         code = FixUpCode(code);
+        rarity = rarity == Rarity.Land ? Rarity.Common : rarity;
         var key = new ExpansionSymbolCacheKey(code, rarity);
         if (!symbolCache.TryGetValue(key, out byte[]? result))
         {
