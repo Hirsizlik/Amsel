@@ -24,15 +24,16 @@ public class AssetLoader(ArenaLoader loader)
         }
         return code switch
         {
-            "SLD" or "APRM" or "EXTRALIFE2025" or "EUROLANDS" or "APACLANDS" or "PLANECATION" => "PRM", // Secred lair and other Promos
+            // Secred lair and other Promos
+            "SLD" or "APRM" or "EXTRALIFE2025" or "EUROLANDS" or "APACLANDS" or "PLANECATION" => "PRM",
             "G18" => "M19", // M19 gift pack
             "MAR" => "MSC", // MAR logo is not included (because red and usually not visible?)
             "AEFA" => "MH2", // MH2 Fetch Lands
             "YECL" => "LRW", // Lorwyn Eclipsed (use Lorwyn logo)
             "CONF" => "CON", // Conflux
             "SUMMER" => "INR", // "SUMMER-51.0", Land Promos from Innistrad Remastered
-            // Alpha, Arena Beginner, Elspeth vs Ashiok, Cube cards
-            "LEA" or "ANA" or "ANB" or "TGA19" or "CUBE" => "ARENA",
+            // Alpha, Arena Beginner, Elspeth vs Ashiok, Cube cards, Momir
+            "LEA" or "ANA" or "ANB" or "TGA19" or "CUBE" or "MOMIR" => "ARENA",
             // Arena Historic Anthologies
             string c when c.StartsWith("AHA") => "ARENA",
             // Arena, Explorer, Pioneer Anthologies
@@ -40,6 +41,17 @@ public class AssetLoader(ArenaLoader loader)
                 && char.IsDigit(c[2]) => "ARENA",
             _ => code
         };
+    }
+
+    private Rarity FixUpRarity(string code, Rarity rarity)
+    {
+        // Lands use the common symbol
+        // Mirage has no separate symbols for Uncommon/Rare
+        if (rarity == Rarity.Land || code == "MIR")
+        {
+            return Rarity.Common;
+        }
+        return rarity;
     }
 
     public async Task<byte[]> GetExpansionSymbol(string code, Rarity rarity)
@@ -54,7 +66,7 @@ public class AssetLoader(ArenaLoader loader)
             arenaAssets ??= MtgArenaAssets.Init(loader.DataDir ?? throw new Exception("No data dir"));
         }
         code = FixUpCode(code);
-        rarity = rarity == Rarity.Land ? Rarity.Common : rarity;
+        rarity = FixUpRarity(code, rarity);
         var key = new ExpansionSymbolCacheKey(code, rarity);
         if (!symbolCache.TryGetValue(key, out byte[]? result))
         {
