@@ -13,9 +13,9 @@ public class AssetLoader(ArenaLoader loader)
 
     private MtgArenaAssets? arenaAssets;
     private readonly ConcurrentDictionary<ExpansionSymbolCacheKey, byte[]> symbolCache = [];
-    private FrozenSet<string> ReverseSets = FrozenSet.Create(["FACE", "MAR", "LIST", "BRAWL"]);
+    private static readonly FrozenSet<string> ReverseSets = FrozenSet.Create(["FACE", "MAR", "LIST", "BRAWL"]);
 
-    private string FixUpCode(string code)
+    private static string FixUpCode(string code)
     {
         if (code.Split('-') is [var first, var second, ..])
         {
@@ -42,7 +42,7 @@ public class AssetLoader(ArenaLoader loader)
         };
     }
 
-    private Rarity FixUpRarity(string code, Rarity rarity)
+    private static Rarity FixUpRarity(string code, Rarity rarity)
     {
         // Lands use the common symbol
         // Mirage has no separate symbols for Uncommon/Rare
