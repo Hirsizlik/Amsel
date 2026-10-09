@@ -1,10 +1,9 @@
 using System.Collections.Concurrent;
 using System.Collections.Frozen;
+using System.Runtime.InteropServices;
 using Amsel.ArenaConnect;
 using Amsel.Data;
-using SixLabors.ImageSharp;
-using SixLabors.ImageSharp.PixelFormats;
-using SixLabors.ImageSharp.Processing;
+using SkiaSharp;
 
 namespace Amsel.Blazor.Components;
 
@@ -54,6 +53,15 @@ public class AssetLoader(ArenaLoader loader)
         return rarity;
     }
 
+    private static SKBitmap LoadTexture(TextureData tex)
+    {
+        var source = new SKBitmap();
+        var gcHandle = GCHandle.Alloc(tex.Bgra32, GCHandleType.Pinned);
+        var info = new SKImageInfo(tex.Width, tex.Height, SKImageInfo.PlatformColorType, SKAlphaType.Unpremul);
+        source.InstallPixels(info, gcHandle.AddrOfPinnedObject(), info.RowBytes, delegate { gcHandle.Free(); });
+        return source;
+    }
+
     public async Task<byte[]> GetExpansionSymbol(string code, Rarity rarity)
     {
         if (arenaAssets == null)
@@ -71,19 +79,38 @@ public class AssetLoader(ArenaLoader loader)
         if (!symbolCache.TryGetValue(key, out byte[]? result))
         {
             TextureData tex = arenaAssets.GetExpansionSymbol(code, rarity);
-            var image = Image.LoadPixelData<Bgra32>(tex.Bgra32, tex.Width, tex.Height);
-            if (tex.Crop != null)
-            {
-                var c = tex.Crop.Value;
-                image.Mutate(i => i.Crop(new Rectangle(c.X, c.Y, c.Width, c.Height)));
-            }
-            image.Mutate(i => i.Flip(FlipMode.Vertical));
-            MemoryStream ms = new();
-            await image.SaveAsPngAsync(ms);
-            result = ms.ToArray();
+
+            SKBitmap source = LoadTexture(tex);
+            Rect rect = GetDimensions(tex);
+            SKBitmap destination = new(rect.Width, rect.Height);
+            FlipCrop(source, destination, rect);
+            SKImage image = SKImage.FromBitmap(destination);
+            var data = image.Encode(SKEncodedImageFormat.Png, 100);
+            result = data.ToArray();
             symbolCache[key] = result;
         }
 
         return result;
+    }
+
+    private static Rect GetDimensions(TextureData tex)
+    {
+        if (tex.Crop is { } c)
+        {
+            return c;
+        }
+        else
+        {
+            return new Rect(0, 0, tex.Width, tex.Height);
+        }
+    }
+
+    private static void FlipCrop(SKBitmap source, SKBitmap destination, Rect rect)
+    {
+        using SKCanvas canvas = new(destination);
+        canvas.RotateDegrees(180, rect.Width / 2, rect.Height / 2);
+        canvas.Translate(rect.Width, 0);
+        canvas.Scale(-1, 1);
+        canvas.DrawBitmap(source, rect.X, -rect.Y, SKSamplingOptions.Default);
     }
 }
