@@ -1,17 +1,21 @@
 using System.Collections.Concurrent;
 using System.Collections.Frozen;
 using System.Collections.Immutable;
+using System.Runtime.InteropServices;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 using Amsel.Data;
 using AssetsTools.NET;
 using AssetsTools.NET.Extra;
 using AssetsTools.NET.Texture;
+using SkiaSharp;
 
 namespace Amsel.ArenaConnect;
 
 public partial class MtgArenaAssets : IMtgArenaAssets
 {
+    private readonly record struct Rect(int X, int Y, int Width, int Height);
+    private readonly record struct TextureData(byte[] Bgra32, int Width, int Height, Rect? Crop);
     private record Manifest(ImmutableArray<ManifestEntry> Assets);
     private record ManifestEntry(string Name, int Length, int Priority, string sha256, string crc,
         ImmutableArray<string> IndexedAssets);
@@ -116,7 +120,7 @@ public partial class MtgArenaAssets : IMtgArenaAssets
 
     private TextureData LoadTexture(string bundleName, string path)
     {
-        lock(bundleLocks[bundleName])
+        lock (bundleLocks[bundleName])
         {
             openBundleFiles.TryGetValue(bundleName, out var bundleFile);
             if (bundleFile == null)
@@ -135,7 +139,7 @@ public partial class MtgArenaAssets : IMtgArenaAssets
                 AssetTypeValueField bf = manager.GetBaseField(af, atlasInfo);
                 AssetTypeValueField spriteNames = bf["m_PackedSpriteNamesToIndex.Array"];
                 int index = GetSpriteIndex(spriteNames, path);
-    
+
                 AssetTypeValueField spriteAtlasData = bf["m_RenderDataMap.Array"][index]["second"];
                 var extAsset = manager.GetExtAsset(af, spriteAtlasData["texture"]);
                 AssetTypeValueField texBf = manager.GetBaseField(extAsset.file, extAsset.info);
@@ -143,7 +147,8 @@ public partial class MtgArenaAssets : IMtgArenaAssets
                 TextureData texDataUncut = LoadTextureData(extAsset.file, texture);
 
                 var texRect = spriteAtlasData["textureRect"];
-                return texDataUncut with { // actual cropping is done later
+                return texDataUncut with
+                { // actual cropping is done later
                     Crop = new Rect(
                         texRect["x"].AsInt,
                         texRect["y"].AsInt,
@@ -151,7 +156,8 @@ public partial class MtgArenaAssets : IMtgArenaAssets
                         texRect["height"].AsInt
                     )
                 };
-            } else
+            }
+            else
             {
                 foreach (AssetFileInfo assetInfo in af.file.GetAssetsOfType(AssetClassID.Texture2D))
                 {
@@ -188,7 +194,7 @@ public partial class MtgArenaAssets : IMtgArenaAssets
         return mappings;
     }
 
-    public TextureData GetExpansionSymbol(string expansionCode, Rarity rarity)
+    private TextureData GetExpansionSymbol(string expansionCode, Rarity rarity)
     {
         var key = new ExpansionCodeRarityKey(expansionCode, rarity);
         if (!expansionCodeRarityToBundleName.TryGetValue(key, out ExpansionCodeRarityValue? bundle) || bundle == null)
@@ -197,5 +203,47 @@ public partial class MtgArenaAssets : IMtgArenaAssets
         }
 
         return LoadTexture(bundle.BundleName, bundle.Path);
+    }
+
+    public byte[] GetExpansionSymbolPng(ExpansionSymbolKey key)
+    {
+        TextureData tex = GetExpansionSymbol(key.Code, key.Rarity);
+        SKBitmap source = LoadTextureBitmap(tex);
+        Rect rect = GetDimensions(tex);
+        SKBitmap destination = new(rect.Width, rect.Height);
+        FlipCrop(source, destination, rect);
+        SKImage image = SKImage.FromBitmap(destination);
+        var data = image.Encode(SKEncodedImageFormat.Png, 100);
+        return data.ToArray();
+    }
+
+    private static Rect GetDimensions(TextureData tex)
+    {
+        if (tex.Crop is { } c)
+        {
+            return c;
+        }
+        else
+        {
+            return new Rect(0, 0, tex.Width, tex.Height);
+        }
+    }
+
+    private static void FlipCrop(SKBitmap source, SKBitmap destination, Rect rect)
+    {
+        using SKCanvas canvas = new(destination);
+        canvas.RotateDegrees(180, rect.Width / 2, rect.Height / 2);
+        canvas.Translate(rect.Width, 0);
+        canvas.Scale(-1, 1);
+        canvas.DrawBitmap(source, rect.X, -rect.Y, SKSamplingOptions.Default);
+    }
+
+    private static SKBitmap LoadTextureBitmap(TextureData tex)
+    {
+        var source = new SKBitmap();
+        var gcHandle = GCHandle.Alloc(tex.Bgra32, GCHandleType.Pinned);
+        var info = new SKImageInfo(tex.Width, tex.Height, SKImageInfo.PlatformColorType, SKAlphaType.Unpremul);
+        source.InstallPixels(info, gcHandle.AddrOfPinnedObject(), info.RowBytes, delegate { gcHandle.Free(); });
+        return source;
     }
 }

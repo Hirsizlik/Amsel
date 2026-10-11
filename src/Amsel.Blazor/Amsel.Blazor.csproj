@@ -6,11 +6,6 @@
 
   <ItemGroup>
     <PackageReference Include="Xdg.Directories" Version="0.2.0" />
-    <PackageReference Include="SkiaSharp" Version="4.153.1" />
-    <PackageReference Include="SkiaSharp.NativeAssets.Linux" Version="4.153.1"
-      Condition="$([MSBuild]::IsOsPlatform('Linux'))" />
-    <PackageReference Include="SkiaSharp.NativeAssets.Win32" Version="4.153.1"
-      Condition="$([MSBuild]::IsOsPlatform('Windows'))" />
   </ItemGroup>
 
   <PropertyGroup>

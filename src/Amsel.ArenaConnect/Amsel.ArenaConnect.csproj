@@ -16,6 +16,11 @@
     <PackageReference Include="AssetsTools.NET.Texture" Version="3.0.2" />
     <PackageReference Include="Microsoft.Data.Sqlite.Core" Version="10.0.10" />
     <PackageReference Include="SQLitePCLRaw.bundle_e_sqlite3" Version="3.0.5" />
+    <PackageReference Include="SkiaSharp" Version="4.153.1" />
+    <PackageReference Include="SkiaSharp.NativeAssets.Linux" Version="4.153.1"
+      Condition="$([MSBuild]::IsOsPlatform('Linux'))" />
+    <PackageReference Include="SkiaSharp.NativeAssets.Win32" Version="4.153.1"
+      Condition="$([MSBuild]::IsOsPlatform('Windows'))" />
   </ItemGroup>
 
 </Project>

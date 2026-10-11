@@ -3,11 +3,40 @@ using System.Collections.Frozen;
 
 namespace Amsel.Data;
 
-public static class SetRaritySymbolFixup
+public readonly struct ExpansionSymbolKey(string code, Rarity rarity) : IEquatable<ExpansionSymbolKey>
+{
+    public string Code { get; } = SetRaritySymbolFixup.FixUpCode(code);
+    public Rarity Rarity { get; } = SetRaritySymbolFixup.FixUpRarity(code, rarity);
+
+    public static bool operator ==(ExpansionSymbolKey lhs, ExpansionSymbolKey rhs) {
+        return lhs.Code == rhs.Code && lhs.Rarity == rhs.Rarity;
+    }
+
+    public static bool operator !=(ExpansionSymbolKey lhs, ExpansionSymbolKey rhs) {
+        return !(lhs == rhs);
+    }
+
+    public bool Equals(ExpansionSymbolKey other)
+    {
+        return this == other;
+    }
+
+    public override bool Equals(object? obj)
+    {
+        return obj is ExpansionSymbolKey other && this == other;
+    }
+
+    public override int GetHashCode()
+    {
+        return HashCode.Combine(Code, Rarity);
+    }
+}
+
+internal static class SetRaritySymbolFixup
 {
     private static readonly FrozenSet<string> ReverseSets = FrozenSet.Create(["FACE", "MAR", "LIST", "BRAWL"]);
 
-    public static string FixUpCode(string code)
+    internal static string FixUpCode(string code)
     {
         if (code.Split('-') is [var first, var second, ..])
         {
@@ -34,7 +63,7 @@ public static class SetRaritySymbolFixup
         };
     }
 
-    public static Rarity FixUpRarity(string code, Rarity rarity)
+    internal static Rarity FixUpRarity(string code, Rarity rarity)
     {
         // Lands use the common symbol
         // Mirage has no separate symbols for Uncommon/Rare
