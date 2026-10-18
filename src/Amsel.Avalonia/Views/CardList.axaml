@@ -2,7 +2,26 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="using:Amsel.Avalonia.ViewModels"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
-             x:Class="Amsel.Avalonia.Views.CardList">
-  Card list TODO
+             x:Class="Amsel.Avalonia.Views.CardList"
+             x:DataType="vm:CardListViewModel">
+  
+<ComboBox ItemsSource="{Binding Sets}"
+          SelectedItem="{Binding SetWithSymbol}"
+          HorizontalAlignment="Stretch">
+    <ComboBox.ItemTemplate>
+        <DataTemplate x:DataType="vm:SetInformationWithSymbol">
+            <StackPanel Orientation="Horizontal">
+                <Panel Width="80">
+                    <Image Source="{Binding CommonSymbol}" Height="32" ></Image>
+                </Panel>
+                <StackPanel>
+                    <TextBlock Text="{Binding Set.Code}" />
+                    <TextBlock Text="{Binding Set.Name}" />
+                </StackPanel>
+            </StackPanel>
+        </DataTemplate>
+    </ComboBox.ItemTemplate>
+</ComboBox>
 </ContentPage>

@@ -3,6 +3,9 @@ using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
 using Amsel.Avalonia.ViewModels;
 using Amsel.Avalonia.Views;
+using Amsel.ArenaConnect;
+using Microsoft.Extensions.DependencyInjection;
+using Xdg.Directories;
 
 namespace Amsel.Avalonia;
 
@@ -15,11 +18,22 @@ public partial class App : Application
 
     public override void OnFrameworkInitializationCompleted()
     {
+        var serviceCollection = new ServiceCollection();
+        serviceCollection
+            .AddSingleton<ArenaLoader>()
+            .AddSingleton(new AmselSettings(
+                BaseDirectory.CacheFile("Amsel/")
+            ))
+            .AddSingleton<CardListViewModel>()
+            .AddSingleton<MainViewModel>()
+            .AddSingleton<MtgArenaAssetsFactory>();
+        
+        var services = serviceCollection.BuildServiceProvider();
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
             desktop.MainWindow = new MainWindow
             {
-                DataContext = new MainViewModel(),
+                DataContext = services.GetRequiredService<MainViewModel>()
             };
         }
 
