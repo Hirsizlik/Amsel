@@ -2,8 +2,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 
 namespace Amsel.Avalonia.ViewModels;
 
-public partial class MainViewModel : ViewModelBase
+public class MainViewModel : ViewModelBase
 {
-    [ObservableProperty]
-    public partial string Greeting { get; set; } = "Welcome to Avalonia!";
+    public int ActiveTabIndex { get; set; } = 0;
 }
