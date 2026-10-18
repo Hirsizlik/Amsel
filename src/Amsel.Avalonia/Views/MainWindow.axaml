@@ -10,17 +10,11 @@
         Icon="/Assets/avalonia-logo.ico"
         Title="Amsel.Avalonia">
 
-    <Design.DataContext>
-        <!-- This only sets the DataContext for the previewer in an IDE,
-             to set the actual DataContext for runtime, set the DataContext property in code (look at App.axaml.cs) -->
-        <vm:MainViewModel />
-    </Design.DataContext>
-
     <TabControl SelectedIndex="{Binding ActiveTabIndex}">
         <TabItem Header="Set statistics">
             <local:SetStatistics />
         </TabItem>
-        <TabItem Header="Card list">
+        <TabItem Header="Card list" DataContext="{Binding CardListViewModel}">
             <local:CardList />
         </TabItem>
     </TabControl>
