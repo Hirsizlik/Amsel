@@ -8,11 +8,13 @@ public readonly struct ExpansionSymbolKey(string code, Rarity rarity) : IEquatab
     public string Code { get; } = SetRaritySymbolFixup.FixUpCode(code);
     public Rarity Rarity { get; } = SetRaritySymbolFixup.FixUpRarity(code, rarity);
 
-    public static bool operator ==(ExpansionSymbolKey lhs, ExpansionSymbolKey rhs) {
+    public static bool operator ==(ExpansionSymbolKey lhs, ExpansionSymbolKey rhs)
+    {
         return lhs.Code == rhs.Code && lhs.Rarity == rhs.Rarity;
     }
 
-    public static bool operator !=(ExpansionSymbolKey lhs, ExpansionSymbolKey rhs) {
+    public static bool operator !=(ExpansionSymbolKey lhs, ExpansionSymbolKey rhs)
+    {
         return !(lhs == rhs);
     }
 
@@ -35,6 +37,9 @@ public readonly struct ExpansionSymbolKey(string code, Rarity rarity) : IEquatab
 internal static class SetRaritySymbolFixup
 {
     private static readonly FrozenSet<string> ReverseSets = FrozenSet.Create(["FACE", "MAR", "LIST", "BRAWL"]);
+    // All non core sets before Exodus have only a "Common" Symbol (Core sets before 6ED have none)
+    private static readonly FrozenSet<string> CommonOnlySets = FrozenSet.Create(["ARN", "ATQ", "LEG", "DRK", "FEM",
+        "ICE", "HML", "ALL", "MIR", "VIS", "POR", "WTH", "TMP", "STH", ]);
 
     internal static string FixUpCode(string code)
     {
@@ -45,7 +50,7 @@ internal static class SetRaritySymbolFixup
         return code switch
         {
             // Secred lair and other Promos
-            "SLD" or "APRM" or "EXTRALIFE2025" or "EUROLANDS" or "APACLANDS" or "PLANECATION" => "PRM",
+            "SLD" or "SLC" or "APRM" or "EXTRALIFE2025" or "EUROLANDS" or "APACLANDS" or "PLANECATION" => "PRM",
             "G18" => "M19", // M19 gift pack
             "MAR" => "MSC", // MAR logo is not included (because red and usually not visible?)
             "AEFA" => "MH2", // MH2 Fetch Lands
@@ -66,8 +71,7 @@ internal static class SetRaritySymbolFixup
     internal static Rarity FixUpRarity(string code, Rarity rarity)
     {
         // Lands use the common symbol
-        // Mirage has no separate symbols for Uncommon/Rare
-        if (rarity == Rarity.Land || code == "MIR")
+        if (rarity == Rarity.Land || CommonOnlySets.Contains(code))
         {
             return Rarity.Common;
         }
