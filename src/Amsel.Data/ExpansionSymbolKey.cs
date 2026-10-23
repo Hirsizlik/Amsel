@@ -75,6 +75,7 @@ internal static class SetRaritySymbolFixup
         {
             return Rarity.Common;
         }
+        // Note: M3C currently has a mythic-red symbol in place of the common symbol
         return rarity;
     }
 }
