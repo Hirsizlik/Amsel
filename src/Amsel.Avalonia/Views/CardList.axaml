@@ -1,27 +1,123 @@
 <ContentPage xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:local="using:Amsel.Avalonia.Views"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:models="using:Amsel.Avalonia.Models"
              xmlns:vm="using:Amsel.Avalonia.ViewModels"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="Amsel.Avalonia.Views.CardList"
              x:DataType="vm:CardListViewModel">
-  
-<ComboBox ItemsSource="{Binding Sets}"
-          SelectedItem="{Binding SetWithSymbol}"
-          HorizontalAlignment="Stretch">
-    <ComboBox.ItemTemplate>
-        <DataTemplate x:DataType="vm:SetInformationWithSymbol">
-            <StackPanel Orientation="Horizontal">
-                <Panel Width="80">
-                    <Image Source="{Binding CommonSymbol}" Height="32" ></Image>
-                </Panel>
-                <StackPanel>
-                    <TextBlock Text="{Binding Set.Code}" />
-                    <TextBlock Text="{Binding Set.Name}" />
-                </StackPanel>
-            </StackPanel>
-        </DataTemplate>
-    </ComboBox.ItemTemplate>
-</ComboBox>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="60"></RowDefinition>
+            <RowDefinition Height="*"></RowDefinition>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+        <ComboBox ItemsSource="{Binding Sets, Mode=OneWay}" Grid.Row="0"
+                  SelectedItem="{Binding SetWithSymbol, Mode=OneWay}"
+                  HorizontalAlignment="Stretch">
+            <ComboBox.ItemTemplate>
+                <DataTemplate x:DataType="models:DecoratedSetInformation">
+                    <local:SetEntryElement SetName="{Binding Set.Name}"
+                                           Code="{Binding Set.Code}"
+                                           Symbol="{Binding CommonSymbol}" />
+                </DataTemplate>
+            </ComboBox.ItemTemplate>
+        </ComboBox>
+        <TableView ItemsSource="{Binding Cards, Mode=OneWay}" Grid.Row="1">
+            <TableView.Columns>
+                <TableViewColumn Header="Name"
+                                 x:DataType="models:DecoratedCardStats"
+                                 Binding="{Binding CardStats.Info.Name}" />
+                <TableViewColumn Header="Set" >
+                    <TableViewColumn.CellTemplate>
+                        <DataTemplate x:DataType="models:DecoratedCardStats">
+                            <local:SetEntryElement SetName="{Binding SetName}"
+                                                   Code="{Binding CardStats.Info.ExpansionCode}"
+                                                   Symbol="{Binding SetSymbol}" />
+                        </DataTemplate>
+                    </TableViewColumn.CellTemplate>
+                </TableViewColumn>
+                <TableViewColumn Header="Digital Set" >
+                    <TableViewColumn.CellTemplate>
+                        <DataTemplate x:DataType="models:DecoratedCardStats">
+                            <local:SetEntryElement SetName="{Binding DigitalSetName}"
+                                                   Code="{Binding CardStats.Info.DigitalReleaseSet}"
+                                                   Symbol="{Binding DigitalSetSymbol}" />
+                        </DataTemplate>
+                    </TableViewColumn.CellTemplate>
+                </TableViewColumn>
+                <TableViewColumn Header="Rarity"
+                                 x:DataType="models:DecoratedCardStats"
+                                 Binding="{Binding RarityCode }"
+                                 Width="60" />
+                <TableViewColumn x:DataType="models:DecoratedCardStats"
+                                 Binding="{Binding CardStats.Owned }"
+                                 Width="80">
+                    <TableViewColumn.HeaderTemplate>
+                        <DataTemplate>
+                            <StackPanel>
+                                <TextBlock Text="Owned" />
+                                <TextBlock Text="(this set)" />
+                            </StackPanel>
+                        </DataTemplate>
+                    </TableViewColumn.HeaderTemplate>
+                </TableViewColumn>
+                <TableViewColumn x:DataType="models:DecoratedCardStats"
+                                 Binding="{Binding OwnedOverall }"
+                                 Width="80">
+                    <TableViewColumn.HeaderTemplate>
+                        <DataTemplate>
+                            <StackPanel>
+                                <TextBlock Text="Owned" />
+                                <TextBlock Text="(overall)" />
+                            </StackPanel>
+                        </DataTemplate>
+                    </TableViewColumn.HeaderTemplate>
+                </TableViewColumn>
+                <TableViewColumn Header="Format legalities">
+                    <TableViewColumn.CellTemplate>
+                        <DataTemplate x:DataType="models:DecoratedCardStats">
+                            <ItemsControl ItemsSource="{Binding FormatLegalities}">
+                                <ItemsControl.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <WrapPanel Orientation="Horizontal" />
+                                    </ItemsPanelTemplate>
+                                </ItemsControl.ItemsPanel>
+                                <ItemsControl.Styles>
+                                    <Style Selector="TextBlock.banned">
+                                        <Setter Property="TextDecorations">
+                                            <TextDecorationCollection>
+                                                <TextDecoration
+                                                    Location="Strikethrough"
+                                                    StrokeThickness="0.1"
+                                                    StrokeThicknessUnit="FontRenderingEmSize" />
+                                            </TextDecorationCollection>
+                                        </Setter>
+                                    </Style>
+                                    <Style Selector="TextBlock.comment">
+                                        <Setter Property="FontStyle" Value="Italic" />
+                                    </Style>
+                                </ItemsControl.Styles>
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate x:DataType="models:FormatLegality">
+                                        <TextBlock Text="{Binding FormatName}"
+                                            Padding="3" 
+                                            Classes.banned="{Binding Banned}"
+                                            Classes.comment="{Binding HasComment}"
+                                            ToolTip.Tip="{Binding Comment}">
+                                        </TextBlock>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </DataTemplate>
+                    </TableViewColumn.CellTemplate>
+                </TableViewColumn>
+            </TableView.Columns>
+        </TableView>
+    </Grid>
 </ContentPage>

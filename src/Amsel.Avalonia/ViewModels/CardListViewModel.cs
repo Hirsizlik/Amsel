@@ -1,29 +1,10 @@
 using Amsel.ArenaConnect;
-using Amsel.Data;
-using Avalonia;
-using Avalonia.Media;
-using Avalonia.Media.Imaging;
-using Avalonia.Platform;
+using Amsel.Avalonia.Models;
 using CommunityToolkit.Mvvm.ComponentModel;
-using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 
 namespace Amsel.Avalonia.ViewModels;
-
-public class SetInformationWithSymbol(SetInformation set, IMtgArenaAssets assets)
-{
-    public SetInformation Set { get; init; } = set;
-    public IImage CommonSymbol
-    {
-        get
-        {
-            var key = new ExpansionSymbolKey(Set.Code, Rarity.Common);
-            var png = assets.GetExpansionSymbolPng(key);
-            return new Bitmap(new MemoryStream(png));
-        }
-    }
-}
 
 public partial class CardListViewModel : ViewModelBase
 {
@@ -31,12 +12,15 @@ public partial class CardListViewModel : ViewModelBase
     private IMtgArenaAssets? arenaAssets;
     private readonly MtgArenaAssetsFactory arenaAssetsFactory;
 
-    public SetInformationWithSymbol? SetWithSymbol { get; set; }
+    public DecoratedSetInformation? SetWithSymbol { get; set; }
 
     public string Search { get; set; } = "";
 
     [ObservableProperty]
-    public partial SetInformationWithSymbol[]? Sets { get; set; }
+    public partial DecoratedSetInformation[]? Sets { get; set; }
+
+    [ObservableProperty]
+    public partial DecoratedCardStats[]? Cards { get; set; }
 
     public CardListViewModel(ArenaLoader loader, MtgArenaAssetsFactory arenaAssetsFactory)
     {
@@ -48,8 +32,17 @@ public partial class CardListViewModel : ViewModelBase
     {
         arenaAssets = arenaAssetsFactory.Create();
         Sets = loader.SetInformation
-            .Select(s => new SetInformationWithSymbol(s.Value, arenaAssets))
+            .Select(s => new DecoratedSetInformation(s.Value, arenaAssets))
             .OrderBy(s => s.Set.Code)
+            .ToArray();
+        Cards = loader.Cards
+            .Select(c => new DecoratedCardStats(
+                c,
+                loader.SetInformation.First(s => s.Key == c.Info.ExpansionCode).Value,
+                loader.SetInformation.FirstOrDefault(s => s.Key == c.Info.DigitalReleaseSet).Value,
+                arenaAssets,
+                loader.OwnedPerTitle,
+                loader.FormatInfo))
             .ToArray();
         return Task.CompletedTask;
     }

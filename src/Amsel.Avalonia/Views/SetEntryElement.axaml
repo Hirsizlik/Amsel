@@ -1,0 +1,14 @@
+<UserControl xmlns="https://github.com/avaloniaui" 
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="Amsel.Avalonia.Views.SetEntryElement"
+             x:Name="root">
+    <StackPanel Orientation="Horizontal">
+        <Panel Width="80">
+            <Image Source="{Binding #root.Symbol, Mode=OneWay}" Height="32" ></Image>
+        </Panel>
+        <StackPanel>
+            <TextBlock Text="{Binding #root.Code, Mode=OneWay}" />
+            <TextBlock Text="{Binding #root.SetName, Mode=OneWay}" />
+        </StackPanel>
+    </StackPanel>
+</UserControl>
