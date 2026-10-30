@@ -13,7 +13,8 @@ public class MtgArenaAssetsFactory
 
     public IMtgArenaAssets Create()
     {
-        return arenaAssets ?? new MtgArenaAssetsConcurrentCache(
+        arenaAssets ??= new MtgArenaAssetsConcurrentCache(
             MtgArenaAssets.Init(loader.DataDir ?? throw new ArgumentNullException("No DataDir")));
+        return arenaAssets;
     }
 }
