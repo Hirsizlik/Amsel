@@ -31,8 +31,15 @@
                 </DataTemplate>
             </ComboBox.ItemTemplate>
         </ComboBox>
-
-        <TextBox Text="{Binding Search}" Grid.Row="1" Grid.Column="0" KeyUp="OnSearchKeyUp" />
+        <Grid.Styles>
+            <Style Selector="TextBox.error">
+                <Setter Property="Foreground">#FF0000</Setter>
+            </Style>
+        </Grid.Styles>
+        <TextBox Text="{Binding Search}"
+            Grid.Row="1" Grid.Column="0"
+            KeyUp="OnSearchKeyUp"
+            Classes.error="{Binding SearchError}" />
         <Button Grid.Row="1" Grid.Column="1" Content="?" Click="OnSearchHelpClicked" />
         
         <TableView ItemsSource="{Binding Cards, Mode=OneWay}" Grid.Row="2" Grid.ColumnSpan="2">
