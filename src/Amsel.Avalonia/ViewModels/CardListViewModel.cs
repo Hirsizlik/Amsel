@@ -29,6 +29,9 @@ public partial class CardListViewModel : ViewModelBase
     [ObservableProperty]
     public partial DecoratedCardStats[]? Cards { get; set; }
 
+    [ObservableProperty]
+    public partial bool SearchError { get; set; } = false;
+
     public CardListViewModel(ArenaLoader loader, MtgArenaAssetsFactory arenaAssetsFactory)
     {
         this.loader = loader;
@@ -80,10 +83,11 @@ public partial class CardListViewModel : ViewModelBase
     {
         if (TextSearch.TryParse(Search, loader.FormatInfo, out var result))
         {
+            SearchError = false;
             textSearch = result;
         } else
         {
-            // TODO error
+            SearchError = true;
             textSearch = TextSearch.Empty();
         }
         Cards = FilterCards();
