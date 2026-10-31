@@ -17,8 +17,9 @@
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="auto" />
         </Grid.ColumnDefinitions>
-        <ComboBox ItemsSource="{Binding Sets, Mode=OneWay}" Grid.Row="0"
+        <ComboBox ItemsSource="{Binding Sets, Mode=OneWay}" Grid.Row="0" Grid.ColumnSpan="2"
                   SelectedItem="{Binding SetWithSymbol}"
                   HorizontalAlignment="Stretch"
                   Height="50">
@@ -30,8 +31,11 @@
                 </DataTemplate>
             </ComboBox.ItemTemplate>
         </ComboBox>
-        <TextBox Text="{Binding Search}" Grid.Row="1" KeyUp="OnSearchKeyUp" />
-        <TableView ItemsSource="{Binding Cards, Mode=OneWay}" Grid.Row="2">
+
+        <TextBox Text="{Binding Search}" Grid.Row="1" Grid.Column="0" KeyUp="OnSearchKeyUp" />
+        <Button Grid.Row="1" Grid.Column="1" Content="?" Click="OnSearchHelpClicked" />
+        
+        <TableView ItemsSource="{Binding Cards, Mode=OneWay}" Grid.Row="2" Grid.ColumnSpan="2">
             <TableView.Columns>
                 <TableViewColumn Header="Name"
                                  x:DataType="models:DecoratedCardStats"
