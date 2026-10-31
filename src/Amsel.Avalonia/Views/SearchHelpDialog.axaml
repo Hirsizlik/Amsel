@@ -1,0 +1,49 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="Amsel.Avalonia.Views.SearchHelpDialog"
+        Title="Search Help"
+        Width="800"
+        Height="300">
+    <StackPanel>
+        <TextBlock Text="Search cards by..." Margin="5,10,0,10" />
+        <StackPanel Grid.Row="1">
+            <StackPanel.Styles>
+                <Style Selector="TextBlock">
+                    <Setter Property="Margin">
+                        15,0,0,15
+                    </Setter>
+                    <Setter Property="TextWrapping">
+                        <TextWrapping>Wrap</TextWrapping>
+                    </Setter>
+                </Style>
+                <Style Selector="Span">
+                    <Setter Property="FontFamily">
+                        <FontFamily>Monospace</FontFamily>
+                    </Setter>
+                    <Setter Property="FontStyle">
+                        <FontStyle>Italic</FontStyle>
+                    </Setter>
+                    <Setter Property="FontWeight">
+                        <FontWeight>Bold</FontWeight>
+                    </Setter>
+                </Style>
+            </StackPanel.Styles>
+            <TextBlock>
+                Name, e.g. <Span>bolt</Span> for Lightning Bolt, Boltwave, ...
+            </TextBlock>
+            <TextBlock>
+                Owned with
+                <Span>q &lt;operator&gt; &lt;number&gt;</Span> (without spaces),
+                e.g. <Span>q&gt;0</Span> for cards you own one or more copies.
+            </TextBlock>
+            <TextBlock>
+                Rarity with <Span>r &lt;operator&gt; [LCURM]</Span>,
+                e.g. <Span>q&lt;=U</Span> for all Commons and Uncommons.
+            </TextBlock>
+            <TextBlock>
+                Format legality with <Span>f &lt;:, =, !=&gt; &lt;format name&gt;</Span>,
+                e.g. <Span>f=Standard</Span> for all Standard legal cards.
+            </TextBlock>
+        </StackPanel>
+    </StackPanel>
+</Window>

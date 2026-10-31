@@ -1,10 +1,8 @@
 using System;
 using Amsel.Avalonia.ViewModels;
-using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
-using Avalonia.Markup.Xaml;
 
 namespace Amsel.Avalonia.Views;
 
@@ -18,7 +16,8 @@ public partial class CardList : ContentPage
     protected override void OnLoaded(RoutedEventArgs e)
     {
         base.OnLoaded(e);
-        var cardListViewModel = DataContext as CardListViewModel ?? throw new ArgumentNullException("No CardListViewModel");
+        var cardListViewModel = DataContext as CardListViewModel 
+            ?? throw new ArgumentNullException("No CardListViewModel");
         var _ = cardListViewModel.LoadAsync();
     }
 
@@ -33,5 +32,11 @@ public partial class CardList : ContentPage
             e.Handled = true;
             (DataContext as CardListViewModel)?.OnSearchClear();
         }
+    }
+
+    private void OnSearchHelpClicked(object? source, RoutedEventArgs e)
+    {
+        var help = new SearchHelpDialog();
+        help.Show();
     }
 }
