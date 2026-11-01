@@ -1,14 +1,90 @@
-<UserControl xmlns="https://github.com/avaloniaui" 
+<UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              x:Class="Amsel.Avalonia.Views.SetStatisticTile"
              x:Name="root">
-    <StackPanel>
-        <Panel Width="80">
-            <Image Source="{Binding #root.SetInformation.CommonSymbol, Mode=OneWay}" Height="32" ></Image>
-        </Panel>
-        <StackPanel>
-            <TextBlock Text="{Binding #root.SetInformation.Set.Code, Mode=OneWay}" />
-            <TextBlock Text="{Binding #root.SetInformation.Set.Name, Mode=OneWay}" />
-        </StackPanel>
-    </StackPanel>
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.ThemeDictionaries>
+                <ResourceDictionary x:Key='Light'>
+                    <SolidColorBrush x:Key='Gray'>LightGray</SolidColorBrush>
+                    <SolidColorBrush x:Key='Green'>LightGreen</SolidColorBrush>
+                    <SolidColorBrush x:Key='Purple'>LightPink</SolidColorBrush>
+                    <SolidColorBrush x:Key='Cyan'>Cyan</SolidColorBrush>
+                    <SolidColorBrush x:Key='Silver'>LightBlue</SolidColorBrush>
+                    <SolidColorBrush x:Key='Gold'>Gold</SolidColorBrush>
+                    <SolidColorBrush x:Key='Orange'>OrangeRed</SolidColorBrush>
+                </ResourceDictionary>
+                <ResourceDictionary x:Key='Dark'>
+                    <SolidColorBrush x:Key='Gray'>DimGray</SolidColorBrush>
+                    <SolidColorBrush x:Key='Green'>DarkGreen</SolidColorBrush>
+                    <SolidColorBrush x:Key='Purple'>Purple</SolidColorBrush>
+                    <SolidColorBrush x:Key='Cyan'>DarkCyan</SolidColorBrush>
+                    <SolidColorBrush x:Key='Silver'>SteelBlue</SolidColorBrush>
+                    <SolidColorBrush x:Key='Gold'>DarkGoldenrod</SolidColorBrush>
+                    <SolidColorBrush x:Key='Orange'>OrangeRed</SolidColorBrush>
+                </ResourceDictionary>
+            </ResourceDictionary.ThemeDictionaries>
+        </ResourceDictionary>
+    </UserControl.Resources>
+    <UserControl.Styles>
+        <Style Selector="Grid.nometadata">
+            <Setter Property="Background" Value="{DynamicResource Gray}" />
+        </Style>
+        <Style Selector="Grid.onlyname">
+            <Setter Property="Background" Value="{DynamicResource Green}" />
+        </Style>
+        <Style Selector="Grid.subset">
+            <Setter Property="Background" Value="{DynamicResource Purple}" />
+        </Style>
+        <Style Selector="Grid.majorset">
+            <Setter Property="Background" Value="{DynamicResource Cyan}" />
+        </Style>
+
+        <Style Selector="Border#tileborder">
+            <Setter Property="BorderBrush" Value="{DynamicResource Silver}" />
+        </Style>
+        <Style Selector="Border.completed1x">
+            <Setter Property="BorderBrush" Value="{DynamicResource Gold}" />
+        </Style>
+        <Style Selector="Border.completed4x">
+            <Setter Property="BorderBrush" Value="{DynamicResource Orange}" />
+        </Style>
+        <Style Selector="ProgressBar">
+            <Setter Property="Height">23</Setter>
+            <Setter Property="ClipToBounds">False</Setter>
+            <Setter Property="ShowProgressText">True</Setter>
+            <Setter Property="ProgressTextFormat">{0}/{3} ({1:0}%)</Setter>
+        </Style>
+    </UserControl.Styles>
+    <Border Name="tileborder"
+            Classes.completed1x="{Binding #root.SetInformation.Completed1x}"
+            Classes.completed4x="{Binding #root.SetInformation.Completed4x}"
+            BorderThickness="2"
+            Margin="5">
+        <Grid Classes.nometadata="{Binding #root.SetInformation.HasNoMetadataNoName}"
+              Classes.onlyname="{Binding #root.SetInformation.HasOnlyName}"
+              Classes.subset="{Binding #root.SetInformation.IsSubSet}"
+              Classes.majorset="{Binding #root.SetInformation.IsMajorSet}">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*" />
+                <RowDefinition Height="24" />
+                <RowDefinition Height="24" />
+            </Grid.RowDefinitions>
+            <StackPanel Grid.Row="0">
+                <Image Source="{Binding #root.SetInformation.CommonSymbol, Mode=OneWay}" Height="32" />
+                <TextBlock Text="{Binding #root.SetInformation.Set.Code, Mode=OneWay}" />
+                <TextBlock Text="{Binding #root.SetInformation.Set.Name, Mode=OneWay}" TextWrapping="Wrap" />
+                <TextBlock Text="{Binding #root.SetInformation.ReleaseDateString}"
+                           IsVisible="{Binding #root.SetInformation.HasMetadata}" />
+            </StackPanel>
+            <ProgressBar Grid.Row="1"
+                         Value="{Binding #root.SetInformation.Set.Statistic.TotalOwnedUnique}"
+                         Maximum="{Binding #root.SetInformation.Set.Statistic.CardCount}"
+                         Foreground="{DynamicResource Silver}" />
+            <ProgressBar Grid.Row="2"
+                         Value="{Binding #root.SetInformation.Set.Statistic.TotalOwned}"
+                         Maximum="{Binding #root.SetInformation.CardCount4x}"
+                         Foreground="{DynamicResource Gold}" />
+        </Grid>
+    </Border>
 </UserControl>
