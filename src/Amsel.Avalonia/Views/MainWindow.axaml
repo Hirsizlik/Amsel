@@ -7,13 +7,20 @@
         Icon="/Assets/avalonia-logo.ico"
         Title="Amsel.Avalonia">
 
-    <TabControl SelectedIndex="{Binding ActiveTabIndex}">
-        <TabItem Header="Set statistics">
-            <local:SetStatistics />
-        </TabItem>
-        <TabItem Header="Card list" DataContext="{Binding CardListViewModel}">
-            <local:CardList />
-        </TabItem>
-    </TabControl>
+    <Panel>
+        <TabControl SelectedIndex="{Binding ActiveTabIndex}" IsVisible="{Binding Ready}">
+            <TabItem Header="Set statistics">
+                <local:SetStatistics DataContext="{Binding SetStatisticViewModel}" />
+            </TabItem>
+            <TabItem Header="Card list">
+                <local:CardList DataContext="{Binding CardListViewModel}" />
+            </TabItem>
+        </TabControl>
+        <TextBlock Text="Loading..."
+                   IsVisible="{Binding !Ready}"
+                   FontSize="32"
+                   HorizontalAlignment="Center"
+                   VerticalAlignment="Center" />
+    </Panel>
 
 </Window>

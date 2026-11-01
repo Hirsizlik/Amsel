@@ -25,6 +25,7 @@ public partial class App : Application
                 BaseDirectory.CacheFile("Amsel/")
             ))
             .AddSingleton<CardListViewModel>()
+            .AddSingleton<SetStatisticViewModel>()
             .AddSingleton<MainViewModel>()
             .AddSingleton<MtgArenaAssetsFactory>();
         

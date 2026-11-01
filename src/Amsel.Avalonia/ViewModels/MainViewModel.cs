@@ -5,21 +5,24 @@ using CommunityToolkit.Mvvm.ComponentModel;
 
 namespace Amsel.Avalonia.ViewModels;
 
-public class MainViewModel : ViewModelBase
+public partial class MainViewModel(
+    ArenaLoader loader,
+    CardListViewModel cardListViewModel,
+    SetStatisticViewModel setStatisticViewModel)
+        : ViewModelBase
 {
-    private readonly ArenaLoader loader;
+    private readonly ArenaLoader loader = loader;
 
-    public CardListViewModel CardListViewModel { get; init; }
+    public CardListViewModel CardListViewModel { get; init; } = cardListViewModel;
+    public SetStatisticViewModel SetStatisticViewModel { get; init; } = setStatisticViewModel;
 
-    public MainViewModel(ArenaLoader loader, CardListViewModel cardListViewModel)
-    {
-        this.loader = loader;
-        CardListViewModel = cardListViewModel;
-    }
+    [ObservableProperty]
+    public partial bool Ready { get; set; }= false;
 
     public async Task LoadAsync()
     {
         await loader.LoadCardInfoAsync();
+        Ready = true;
     }
 
     public int ActiveTabIndex { get; set; } = 0;
