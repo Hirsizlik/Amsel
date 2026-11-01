@@ -1,5 +1,18 @@
 <ContentPage xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             x:Class="Amsel.Avalonia.Views.SetStatistics">
-  Set statistics TODO
+             xmlns:m="using:Amsel.Avalonia.Models"
+             xmlns:v="using:Amsel.Avalonia.Views"
+             xmlns:vm="using:Amsel.Avalonia.ViewModels"
+             x:Class="Amsel.Avalonia.Views.SetStatistics"
+             x:DataType="vm:SetStatisticViewModel">
+    <WrapPanel>
+        <ItemsControl ItemsSource="{Binding Sets}">
+            <ItemsControl.ItemTemplate>
+                <DataTemplate x:DataType="m:DecoratedSetInformation">
+                    <v:SetStatisticTile
+                        SetInformation="{Binding}" />
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+        </ItemsControl>
+    </WrapPanel>
 </ContentPage>
