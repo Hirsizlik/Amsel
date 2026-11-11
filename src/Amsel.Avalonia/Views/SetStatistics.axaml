@@ -5,20 +5,26 @@
              xmlns:vm="using:Amsel.Avalonia.ViewModels"
              x:Class="Amsel.Avalonia.Views.SetStatistics"
              x:DataType="vm:SetStatisticViewModel">
-
-    <ScrollViewer>
-        <ItemsControl ItemsSource="{Binding Sets}">
-            <ItemsControl.ItemsPanel>
-                <ItemsPanelTemplate>
-                    <WrapPanel ItemSpacing="15" LineSpacing="15" ItemWidth="220" />
-                </ItemsPanelTemplate>
-            </ItemsControl.ItemsPanel>
-            <ItemsControl.ItemTemplate>
-                <DataTemplate x:DataType="m:DecoratedSetInformation">
-                    <v:SetStatisticTile SetInformation="{Binding}" />
-                </DataTemplate>
-            </ItemsControl.ItemTemplate>
-        </ItemsControl>
-    </ScrollViewer>
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="250" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+        <v:SetStatisticOptions Grid.Column="0" />
+        <ScrollViewer Grid.Column="1">
+            <ItemsControl ItemsSource="{Binding Sets}">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <WrapPanel ItemSpacing="15" LineSpacing="15" ItemWidth="220" />
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate x:DataType="m:DecoratedSetInformation">
+                        <v:SetStatisticTile SetInformation="{Binding}" />
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </ScrollViewer>
+    </Grid>
 
 </ContentPage>
