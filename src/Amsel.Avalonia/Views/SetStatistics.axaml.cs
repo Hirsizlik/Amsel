@@ -19,4 +19,11 @@ public partial class SetStatistics : ContentPage
             ?? throw new ArgumentNullException("No SetStatisticViewModel");
         var _ = viewModel.LoadAsync();
     }
+
+    private void OnSetStatisticOptionsChanged(object? sender, RoutedEventArgs e)
+    {
+        var options = (OptionsChangedEventArgs) e;
+        var viewModel = DataContext as SetStatisticViewModel;
+        viewModel?.ReloadSetsFiltered(options);
+    }
 }

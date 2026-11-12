@@ -3,6 +3,7 @@ using System;
 using System.ComponentModel;
 using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Interactivity;
 
 namespace Amsel.Avalonia.Views;
 
@@ -27,6 +28,23 @@ public enum Direction
     Descending
 }
 
+public class OptionsChangedEventArgs : RoutedEventArgs
+{
+    public Filter Filter { get; }
+    public Sort Sort { get; }
+    public Direction Direction { get; }
+
+    public OptionsChangedEventArgs(RoutedEvent routedEvent, Filter Filter, Sort Sort, Direction Direction)
+        : base(routedEvent)
+    {
+        this.Filter = Filter;
+        this.Sort = Sort;
+        this.Direction = Direction;
+    }
+}
+
+public readonly record struct Filter(bool WithoutMetadata, bool WithoutName, bool WithoutProgress, bool WithSubsets);
+
 public partial class SetStatisticOptions : UserControl
 {
     public static readonly StyledProperty<Sort> SortProperty =
@@ -42,6 +60,9 @@ public partial class SetStatisticOptions : UserControl
         AvaloniaProperty.Register<SetStatisticOptions, bool>(nameof(WithoutProgress));
     public static readonly StyledProperty<bool> WithSubsetsProperty =
         AvaloniaProperty.Register<SetStatisticOptions, bool>(nameof(WithSubsets));
+
+    public static readonly RoutedEvent<RoutedEventArgs> OptionsChangedEvent =
+        RoutedEvent.Register<SetStatisticOptions, RoutedEventArgs>(nameof(OptionsChanged), RoutingStrategies.Direct);
 
     public Sort[] Sorts { get; } = Enum.GetValues<Sort>();
 
@@ -83,8 +104,71 @@ public partial class SetStatisticOptions : UserControl
         set => SetValue(WithSubsetsProperty, value);
     }
 
+    public event EventHandler<RoutedEventArgs> OptionsChanged
+    {
+        add => AddHandler(OptionsChangedEvent, value);
+        remove => RemoveHandler(OptionsChangedEvent, value);
+    }
+
     public SetStatisticOptions()
     {
         InitializeComponent();
+    }
+
+    private void OnSortChanged(object? sender, SelectionChangedEventArgs e)
+    {
+        var args = new OptionsChangedEventArgs(OptionsChangedEvent,
+            new Filter(WithoutMetadata, WithoutName, WithoutProgress, WithSubsets),
+            (Sort)e.AddedItems[0]!,
+            Direction);
+        RaiseEvent(args);
+    }
+
+    private void OnDirectionChanged(object? sender, SelectionChangedEventArgs e)
+    {
+        var args = new OptionsChangedEventArgs(OptionsChangedEvent,
+            new Filter(WithoutMetadata, WithoutName, WithoutProgress, WithSubsets),
+            Sort,
+            (Direction)e.AddedItems[0]!);
+        RaiseEvent(args);
+    }
+
+    private void OnWithoutMetadataChanged(object? sender, RoutedEventArgs e)
+    {
+        var newChecked = (e.Source as CheckBox)?.IsChecked ?? false;
+        var args = new OptionsChangedEventArgs(OptionsChangedEvent,
+            new Filter(newChecked, WithoutName, WithoutProgress, WithSubsets),
+            Sort,
+            Direction);
+        RaiseEvent(args);
+    }
+
+    private void OnWithoutNameChanged(object? sender, RoutedEventArgs e)
+    {
+        var newChecked = (e.Source as CheckBox)?.IsChecked ?? false;
+        var args = new OptionsChangedEventArgs(OptionsChangedEvent,
+                new Filter(WithoutMetadata, newChecked, WithoutProgress, WithSubsets),
+                Sort,
+                Direction);
+        RaiseEvent(args);
+    }
+    private void OnWithoutProgressChanged(object? sender, RoutedEventArgs e)
+    {
+        var newChecked = (e.Source as CheckBox)?.IsChecked ?? false;
+        var args = new OptionsChangedEventArgs(OptionsChangedEvent,
+            new Filter(WithoutMetadata, WithoutName, newChecked, WithSubsets),
+            Sort,
+            Direction);
+        RaiseEvent(args);
+    }
+
+    private void OnWithSubsetsChanged(object? sender, RoutedEventArgs e)
+    {
+        var newChecked = (e.Source as CheckBox)?.IsChecked ?? false;
+        var args = new OptionsChangedEventArgs(OptionsChangedEvent,
+            new Filter(WithoutMetadata, WithoutName, WithoutProgress, newChecked),
+            Sort,
+            Direction);
+        RaiseEvent(args);
     }
 }
