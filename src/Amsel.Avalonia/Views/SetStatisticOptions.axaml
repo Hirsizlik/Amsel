@@ -12,8 +12,8 @@
     <StackPanel>
         <StackPanel Orientation="Horizontal">
             <ComboBox x:DataType="v:Sort" ItemsSource="{Binding #root.Sorts}"
-                SelectedIndex="0" 
-                SelectedValueBinding="{Binding #root.Sort}" >
+                      SelectedValue="{Binding #root.Sort}"
+                      SelectionChanged="OnSortChanged" >
                 <ComboBox.ItemTemplate>
                     <DataTemplate>
                         <TextBlock Text="{Binding Converter={StaticResource EnumConverter}}" />
@@ -21,8 +21,8 @@
                 </ComboBox.ItemTemplate>
             </ComboBox>
             <ComboBox x:DataType="v:Direction" ItemsSource="{Binding #root.Directions}"
-                SelectedIndex="0" 
-                SelectedValueBinding="{Binding #root.Direction}" >
+                      SelectedValue="{Binding #root.Direction}"
+                      SelectionChanged="OnDirectionChanged" >
                 <ComboBox.ItemTemplate>
                     <DataTemplate>
                         <TextBlock Text="{Binding Converter={StaticResource EnumConverter}}" />
@@ -30,9 +30,22 @@
                 </ComboBox.ItemTemplate>
             </ComboBox>
         </StackPanel>
-        <CheckBox IsChecked="{Binding #root.WithoutMetadata}">Include sets without metadata</CheckBox>
-        <CheckBox IsChecked="{Binding #root.WithoutName}" IsEnabled="{Binding #root.WithoutMetadata}">Include sets without name</CheckBox>
-        <CheckBox IsChecked="{Binding #root.WithoutProgress}">Include sets without progress</CheckBox>
-        <CheckBox IsChecked="{Binding #root.WithSubsets}">Include subsets</CheckBox>
+        <CheckBox IsChecked="{Binding #root.WithoutMetadata}"
+                  IsCheckedChanged="OnWithoutMetadataChanged">
+            Include sets without metadata
+        </CheckBox>
+        <CheckBox IsChecked="{Binding #root.WithoutName}"
+                  IsEnabled="{Binding #root.WithoutMetadata}"
+                  IsCheckedChanged="OnWithoutNameChanged">
+            Include sets without name
+        </CheckBox>
+        <CheckBox IsChecked="{Binding #root.WithoutProgress}"
+                  IsCheckedChanged="OnWithoutProgressChanged">
+            Include sets without progress
+        </CheckBox>
+        <CheckBox IsChecked="{Binding #root.WithSubsets}"
+                  IsCheckedChanged="OnWithSubsetsChanged">
+            Include subsets
+        </CheckBox>
     </StackPanel>
 </UserControl>

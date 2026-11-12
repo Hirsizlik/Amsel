@@ -10,7 +10,11 @@
             <ColumnDefinition Width="250" />
             <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
-        <v:SetStatisticOptions Grid.Column="0" />
+        <v:SetStatisticOptions Grid.Column="0"
+                               OptionsChanged="OnSetStatisticOptionsChanged"
+                               Sort="ReleaseDate"
+                               Direction="Descending"
+                               WithSubsets="True" />
         <ScrollViewer Grid.Column="1">
             <ItemsControl ItemsSource="{Binding Sets}">
                 <ItemsControl.ItemsPanel>
