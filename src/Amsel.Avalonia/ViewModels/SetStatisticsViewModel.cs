@@ -1,6 +1,7 @@
 using Amsel.ArenaConnect;
 using Amsel.Avalonia.Models;
 using Amsel.Avalonia.Views;
+using Amsel.Avalonia.Views.UserControls;
 using CommunityToolkit.Mvvm.ComponentModel;
 using System;
 using System.Linq;

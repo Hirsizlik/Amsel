@@ -3,7 +3,7 @@ using Amsel.Avalonia.ViewModels;
 using Avalonia.Controls;
 using Avalonia.Interactivity;
 
-namespace Amsel.Avalonia.Views;
+namespace Amsel.Avalonia.Views.Windows;
 
 public partial class MainWindow : Window
 {

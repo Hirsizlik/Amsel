@@ -1,10 +1,11 @@
 using System;
 using Amsel.Avalonia.ViewModels;
+using Amsel.Avalonia.Views.Windows;
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
 
-namespace Amsel.Avalonia.Views;
+namespace Amsel.Avalonia.Views.ContentPages;
 
 public partial class CardList : ContentPage
 {

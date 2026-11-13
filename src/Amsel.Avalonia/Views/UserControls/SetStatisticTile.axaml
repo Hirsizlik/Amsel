@@ -1,6 +1,6 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             x:Class="Amsel.Avalonia.Views.SetStatisticTile"
+             x:Class="Amsel.Avalonia.Views.UserControls.SetStatisticTile"
              x:Name="root">
     <UserControl.Resources>
         <ResourceDictionary>

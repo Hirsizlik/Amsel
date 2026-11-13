@@ -1,9 +1,9 @@
 <ContentPage xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:m="using:Amsel.Avalonia.Models"
-             xmlns:v="using:Amsel.Avalonia.Views"
+             xmlns:v="using:Amsel.Avalonia.Views.UserControls"
              xmlns:vm="using:Amsel.Avalonia.ViewModels"
-             x:Class="Amsel.Avalonia.Views.SetStatistics"
+             x:Class="Amsel.Avalonia.Views.ContentPages.SetStatistics"
              x:DataType="vm:SetStatisticViewModel">
     <Grid>
         <Grid.ColumnDefinitions>
