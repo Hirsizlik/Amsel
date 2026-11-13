@@ -1,8 +1,8 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:v="using:Amsel.Avalonia.Views"
+             xmlns:v="using:Amsel.Avalonia.Views.UserControls"
              xmlns:c="using:Amsel.Avalonia.Converters"
-             x:Class="Amsel.Avalonia.Views.SetStatisticOptions"
+             x:Class="Amsel.Avalonia.Views.UserControls.SetStatisticOptions"
              x:Name="root">
     <UserControl.Resources>
         <ResourceDictionary>

@@ -1,6 +1,6 @@
 <UserControl xmlns="https://github.com/avaloniaui" 
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             x:Class="Amsel.Avalonia.Views.SetEntryElement"
+             x:Class="Amsel.Avalonia.Views.UserControls.SetEntryElement"
              x:Name="root">
     <StackPanel Orientation="Horizontal">
         <Panel Width="80">

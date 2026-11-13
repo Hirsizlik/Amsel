@@ -2,7 +2,7 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Media;
 
-namespace Amsel.Avalonia.Views;
+namespace Amsel.Avalonia.Views.UserControls;
 
 public partial class SetEntryElement : UserControl
 {

@@ -1,9 +1,9 @@
 <ContentPage xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:local="using:Amsel.Avalonia.Views"
+             xmlns:local="using:Amsel.Avalonia.Views.UserControls"
              xmlns:models="using:Amsel.Avalonia.Models"
              xmlns:vm="using:Amsel.Avalonia.ViewModels"
-             x:Class="Amsel.Avalonia.Views.CardList"
+             x:Class="Amsel.Avalonia.Views.ContentPages.CardList"
              x:DataType="vm:CardListViewModel">
 
     <Grid>

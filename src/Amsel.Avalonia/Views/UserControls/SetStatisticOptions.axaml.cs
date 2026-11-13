@@ -5,7 +5,7 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Interactivity;
 
-namespace Amsel.Avalonia.Views;
+namespace Amsel.Avalonia.Views.UserControls;
 
 public enum Sort
 {

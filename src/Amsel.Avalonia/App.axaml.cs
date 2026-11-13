@@ -2,10 +2,10 @@ using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
 using Amsel.Avalonia.ViewModels;
-using Amsel.Avalonia.Views;
 using Amsel.ArenaConnect;
 using Microsoft.Extensions.DependencyInjection;
 using Xdg.Directories;
+using Amsel.Avalonia.Views.Windows;
 
 namespace Amsel.Avalonia;
 

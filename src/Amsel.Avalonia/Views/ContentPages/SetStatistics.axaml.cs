@@ -1,9 +1,10 @@
 using System;
 using Amsel.Avalonia.ViewModels;
+using Amsel.Avalonia.Views.UserControls;
 using Avalonia.Controls;
 using Avalonia.Interactivity;
 
-namespace Amsel.Avalonia.Views;
+namespace Amsel.Avalonia.Views.ContentPages;
 
 public partial class SetStatistics : ContentPage
 {
