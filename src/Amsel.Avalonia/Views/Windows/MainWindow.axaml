@@ -8,9 +8,9 @@
         Title="Amsel.Avalonia">
 
     <Panel>
-        <TabControl SelectedIndex="{Binding ActiveTabIndex}" IsVisible="{Binding Ready}">
+        <TabControl Name="MainTabControl" IsVisible="{Binding Ready}">
             <TabItem Header="Set statistics">
-                <local:SetStatistics DataContext="{Binding SetStatisticViewModel}" />
+                <local:SetStatistics DataContext="{Binding SetStatisticViewModel}" DetailsButtonClicked="OnSetStatisticsDetailButtonClicked" />
             </TabItem>
             <TabItem Header="Card list">
                 <local:CardList DataContext="{Binding CardListViewModel}" />
