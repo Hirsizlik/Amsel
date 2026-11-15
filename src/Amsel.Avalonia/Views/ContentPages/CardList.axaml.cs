@@ -14,14 +14,6 @@ public partial class CardList : ContentPage
         InitializeComponent();
     }
 
-    protected override void OnLoaded(RoutedEventArgs e)
-    {
-        base.OnLoaded(e);
-        var cardListViewModel = DataContext as CardListViewModel 
-            ?? throw new ArgumentNullException("No CardListViewModel");
-        var _ = cardListViewModel.LoadAsync();
-    }
-
     private void OnSearchKeyUp(object? source, KeyEventArgs e)
     {
         if (e.Key == Key.Enter)

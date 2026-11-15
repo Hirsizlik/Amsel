@@ -3,22 +3,133 @@
              xmlns:v="using:Amsel.Avalonia.Views.UserControls"
              x:Class="Amsel.Avalonia.Views.UserControls.SetStatisticDetails"
              x:Name="root">
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.ThemeDictionaries>
+                <ResourceDictionary x:Key='Light'>
+                    <SolidColorBrush x:Key='Silver'>LightBlue</SolidColorBrush>
+                    <SolidColorBrush x:Key='Gold'>Gold</SolidColorBrush>
+                </ResourceDictionary>
+                <ResourceDictionary x:Key='Dark'>
+                    <SolidColorBrush x:Key='Silver'>SteelBlue</SolidColorBrush>
+                    <SolidColorBrush x:Key='Gold'>DarkGoldenrod</SolidColorBrush>
+                </ResourceDictionary>
+            </ResourceDictionary.ThemeDictionaries>
+        </ResourceDictionary>
+    </UserControl.Resources>
+    <UserControl.Styles>
+        <Style Selector="ProgressBar">
+            <Setter Property="Height">23</Setter>
+            <Setter Property="ClipToBounds">False</Setter>
+            <Setter Property="ShowProgressText">True</Setter>
+            <Setter Property="ProgressTextFormat">{0}/{3} ({1:0}%)</Setter>
+        </Style>
+        <Style Selector="ProgressBar:horizontal">
+            <Setter Property="MinWidth">0</Setter>
+        </Style>
+    </UserControl.Styles>
+
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*" />
             <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
-            <RowDefinition>auto</RowDefinition>
-            <RowDefinition>auto</RowDefinition>
-            <RowDefinition>auto</RowDefinition>
+            <RowDefinition Height="50" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
 
-        <TextBlock Grid.Column="0" Grid.Row="1" Text="{Binding #root.SetInformation.Set.Name}" TextWrapping="Wrap" />
-        <Button Grid.Column="1" Grid.Row="1" Content="Go to List" />
+        <Button Grid.ColumnSpan="2" Grid.Row="0" Content="{Binding #root.SetInformation.Set.Code}" Click="OnDetailsButtonClicked" />
+        <TextBlock Grid.ColumnSpan="2" Grid.Row="1" Text="{Binding #root.SetInformation.Set.Name}" TextWrapping="Wrap" />
 
-        <TextBlock Grid.Column="0" Grid.Row="2" Text="Released on" />
-        <TextBlock Grid.Column="1" Grid.Row="2" Text="{Binding #root.SetInformation.ReleaseDateString}" />
-        
+        <TextBlock Grid.Column="0" Grid.Row="2"
+                   Text="Released on"
+                   IsVisible="{Binding #root.SetInformation.HasMetadata}" />
+        <TextBlock Grid.Column="1" Grid.Row="2"
+                   Text="{Binding #root.SetInformation.ReleaseDateString}"
+                   IsVisible="{Binding #root.SetInformation.HasMetadata}" />
+
+        <TextBlock Grid.Column="0" Grid.Row="3"
+                   Text="Legal in"
+                   IsVisible="{Binding #root.SetInformation.HasFormatLegalities}" />
+        <v:FormatLegalityList Grid.Column="1" Grid.Row="3"
+                              FormatLegalities="{Binding #root.SetInformation.FormatLegalities}"
+                              IsVisible="{Binding #root.SetInformation.HasFormatLegalities}" />
+
+        <Grid Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="4">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+            <Image Grid.Column="0" Grid.Row="0"
+                   Source="{Binding #root.SetInformation.CommonSymbol, Mode=OneWay}"
+                   Height="32"
+                   IsVisible="{Binding #root.SetInformation.HasCommons}" />
+            <ProgressBar Grid.Column="1" Grid.Row="0"
+                         Value="{Binding #root.SetInformation.CommonOwnedUnique}"
+                         Maximum="{Binding #root.SetInformation.CommonCardCount}"
+                         Foreground="{DynamicResource Silver}"
+                         IsVisible="{Binding #root.SetInformation.HasCommons}" />
+            <ProgressBar Grid.Column="2" Grid.Row="0"
+                         Value="{Binding #root.SetInformation.CommonOwned}"
+                         Maximum="{Binding #root.SetInformation.CommonCardCount4x}"
+                         Foreground="{DynamicResource Gold}"
+                         IsVisible="{Binding #root.SetInformation.HasCommons}" />
+
+            <Image Grid.Column="0" Grid.Row="1"
+                   Source="{Binding #root.SetInformation.UncommonSymbol, Mode=OneWay}"
+                   Height="32"
+                   IsVisible="{Binding #root.SetInformation.HasUncommons}" />
+            <ProgressBar Grid.Column="1" Grid.Row="1"
+                         Value="{Binding #root.SetInformation.UncommonOwnedUnique}"
+                         Maximum="{Binding #root.SetInformation.UncommonCardCount}"
+                         Foreground="{DynamicResource Silver}"
+                         IsVisible="{Binding #root.SetInformation.HasUncommons}" />
+            <ProgressBar Grid.Column="2" Grid.Row="1"
+                         Value="{Binding #root.SetInformation.UncommonOwned}"
+                         Maximum="{Binding #root.SetInformation.UncommonCardCount4x}"
+                         Foreground="{DynamicResource Gold}"
+                         IsVisible="{Binding #root.SetInformation.HasUncommons}" />
+
+            <Image Grid.Column="0" Grid.Row="2"
+                   Source="{Binding #root.SetInformation.RareSymbol, Mode=OneWay}"
+                   Height="32"
+                   IsVisible="{Binding #root.SetInformation.HasRares}" />
+            <ProgressBar Grid.Column="1" Grid.Row="2"
+                         Value="{Binding #root.SetInformation.RareOwnedUnique}"
+                         Maximum="{Binding #root.SetInformation.RareCardCount}"
+                         Foreground="{DynamicResource Silver}"
+                         IsVisible="{Binding #root.SetInformation.HasRares}" />
+            <ProgressBar Grid.Column="2" Grid.Row="2"
+                         Value="{Binding #root.SetInformation.RareOwned}"
+                         Maximum="{Binding #root.SetInformation.RareCardCount4x}"
+                         Foreground="{DynamicResource Gold}"
+                         IsVisible="{Binding #root.SetInformation.HasRares}" />
+
+            <Image Grid.Column="0" Grid.Row="3"
+                   Source="{Binding #root.SetInformation.MythicSymbol, Mode=OneWay}"
+                   Height="32"
+                   IsVisible="{Binding #root.SetInformation.HasMythics}" />
+            <ProgressBar Grid.Column="1" Grid.Row="3"
+                         Value="{Binding #root.SetInformation.MythicRareOwnedUnique}"
+                         Maximum="{Binding #root.SetInformation.MythicRareCardCount}"
+                         Foreground="{DynamicResource Silver}"
+                         IsVisible="{Binding #root.SetInformation.HasMythics}" />
+            <ProgressBar Grid.Column="2" Grid.Row="3"
+                         Value="{Binding #root.SetInformation.MythicRareOwned}"
+                         Maximum="{Binding #root.SetInformation.MythicRareCardCount4x}"
+                         Foreground="{DynamicResource Gold}"
+                         IsVisible="{Binding #root.SetInformation.HasMythics}" />
+        </Grid>
     </Grid>
 </UserControl>

@@ -45,7 +45,7 @@ public partial class SetStatisticViewModel : ViewModelBase
             Direction.Descending);
 
         var result = loader.SetInformation
-            .Select(s => new DecoratedSetInformation(s.Value, arenaAssets));
+            .Select(s => new DecoratedSetInformation(s.Value, arenaAssets, loader.FormatInfo));
 
         Func<DecoratedSetInformation, IComparable?> getValue = s => options.Sort switch
         {

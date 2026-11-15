@@ -66,7 +66,7 @@ public partial class CardListViewModel : ViewModelBase
     {
         arenaAssets = arenaAssetsFactory.Create();
         Sets = loader.SetInformation
-            .Select(s => new DecoratedSetInformation(s.Value, arenaAssets))
+            .Select(s => new DecoratedSetInformation(s.Value, arenaAssets, loader.FormatInfo))
             .OrderBy(s => s.Set.Code)
             .Prepend(DecoratedSetInformation.Empty)
             .ToArray();

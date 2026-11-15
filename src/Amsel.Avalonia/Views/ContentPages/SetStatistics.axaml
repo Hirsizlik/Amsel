@@ -9,7 +9,7 @@
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="250" />
             <ColumnDefinition Width="*" />
-            <ColumnDefinition Width="300" />
+            <ColumnDefinition Width="350" />
         </Grid.ColumnDefinitions>
         <v:SetStatisticOptions Grid.Column="0"
                                OptionsChanged="OnSetStatisticOptionsChanged"
@@ -30,7 +30,10 @@
                 </ListBox.ItemTemplate>
             </ListBox>
         </ScrollViewer>
-        <v:SetStatisticDetails Grid.Column="2" SetInformation="{Binding SelectedSet}" IsVisible="{Binding !!SelectedSet}" />
+        <v:SetStatisticDetails Grid.Column="2"
+                               SetInformation="{Binding SelectedSet}"
+                               IsVisible="{Binding !!SelectedSet}"
+                               DetailsButtonClicked="OnDetailsButtonClicked" />
     </Grid>
 
 </ContentPage>

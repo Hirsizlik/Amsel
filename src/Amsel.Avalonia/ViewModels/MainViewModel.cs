@@ -1,6 +1,5 @@
 using System.Threading.Tasks;
 using Amsel.ArenaConnect;
-using Amsel.Avalonia.Views;
 using CommunityToolkit.Mvvm.ComponentModel;
 
 namespace Amsel.Avalonia.ViewModels;
@@ -24,6 +23,4 @@ public partial class MainViewModel(
         await loader.LoadCardInfoAsync();
         Ready = true;
     }
-
-    public int ActiveTabIndex { get; set; } = 0;
 }
