@@ -19,6 +19,9 @@ public partial class SetStatisticViewModel : ViewModelBase
     [ObservableProperty]
     public partial DecoratedSetInformation[]? Sets { get; set; }
 
+    [ObservableProperty]
+    public partial DecoratedSetInformation? SelectedSet { get; set; }
+
     public SetStatisticViewModel(ArenaLoader loader, MtgArenaAssetsFactory arenaAssetsFactory)
     {
         this.loader = loader;
