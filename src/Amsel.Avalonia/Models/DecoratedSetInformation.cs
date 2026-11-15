@@ -1,8 +1,6 @@
-using System.Globalization;
 using System.IO;
 using Amsel.ArenaConnect;
 using Amsel.Data;
-using Avalonia.Controls;
 using Avalonia.Media;
 using Avalonia.Media.Imaging;
 
@@ -10,7 +8,7 @@ namespace Amsel.Avalonia.Models;
 
 public class DecoratedSetInformation(SetInformation set, IMtgArenaAssets assets)
 {
-    public static DecoratedSetInformation Empty = new(
+    public static readonly DecoratedSetInformation Empty = new(
         new SetInformation(new SetStatistic(), null, "", null), null!);
 
     public SetInformation Set { get; init; } = set;
