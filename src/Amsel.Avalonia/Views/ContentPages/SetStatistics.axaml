@@ -9,6 +9,7 @@
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="250" />
             <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="300" />
         </Grid.ColumnDefinitions>
         <v:SetStatisticOptions Grid.Column="0"
                                OptionsChanged="OnSetStatisticOptionsChanged"
@@ -16,19 +17,20 @@
                                Direction="Descending"
                                WithSubsets="True" />
         <ScrollViewer Grid.Column="1">
-            <ItemsControl ItemsSource="{Binding Sets}">
-                <ItemsControl.ItemsPanel>
+            <ListBox ItemsSource="{Binding Sets}" SelectionChanged="OnSelectionChanged">
+                <ListBox.ItemsPanel>
                     <ItemsPanelTemplate>
-                        <WrapPanel ItemSpacing="15" LineSpacing="15" ItemWidth="220" />
+                        <WrapPanel ItemWidth="240" />
                     </ItemsPanelTemplate>
-                </ItemsControl.ItemsPanel>
-                <ItemsControl.ItemTemplate>
+                </ListBox.ItemsPanel>
+                <ListBox.ItemTemplate>
                     <DataTemplate x:DataType="m:DecoratedSetInformation">
                         <v:SetStatisticTile SetInformation="{Binding}" />
                     </DataTemplate>
-                </ItemsControl.ItemTemplate>
-            </ItemsControl>
+                </ListBox.ItemTemplate>
+            </ListBox>
         </ScrollViewer>
+        <v:SetStatisticDetails Grid.Column="2" SetInformation="{Binding SelectedSet}" IsVisible="{Binding !!SelectedSet}" />
     </Grid>
 
 </ContentPage>

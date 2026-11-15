@@ -1,0 +1,24 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:v="using:Amsel.Avalonia.Views.UserControls"
+             x:Class="Amsel.Avalonia.Views.UserControls.SetStatisticDetails"
+             x:Name="root">
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition>auto</RowDefinition>
+            <RowDefinition>auto</RowDefinition>
+            <RowDefinition>auto</RowDefinition>
+        </Grid.RowDefinitions>
+
+        <TextBlock Grid.Column="0" Grid.Row="1" Text="{Binding #root.SetInformation.Set.Name}" TextWrapping="Wrap" />
+        <Button Grid.Column="1" Grid.Row="1" Content="Go to List" />
+
+        <TextBlock Grid.Column="0" Grid.Row="2" Text="Released on" />
+        <TextBlock Grid.Column="1" Grid.Row="2" Text="{Binding #root.SetInformation.ReleaseDateString}" />
+        
+    </Grid>
+</UserControl>
