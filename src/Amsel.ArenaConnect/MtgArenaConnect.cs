@@ -173,9 +173,9 @@ public class MtgArenaConnect : IMtgArenaConnect
             ManagedClassInstance v = m.GetValue<ManagedClassInstance>("value");
             ManagedClassInstance set = v["Set"];
             string code = set["SetCode"];
-            Availability availability = (Availability)set["Availability"];
+
             DateTime releaseDate = DateTime.FromBinary((long)set["ReleaseDate"]["_dateData"]);
-            SetMetadata sm = new(collationId, code, releaseDate, true, availability, null, null);
+            SetMetadata sm = new(collationId, code, releaseDate, true, null, null);
             result[code] = sm;
             foreach (ManagedClassInstance? related in set["RelatedSets"]["_items"])
             {
@@ -183,8 +183,7 @@ public class MtgArenaConnect : IMtgArenaConnect
                     continue;
                 string subCode = related["SetCode"];
                 string subName = related["SetName"];
-                Availability subAvailability = (Availability)related["Availability"];
-                result[subCode] = new SetMetadata(0, subCode, releaseDate, false, subAvailability, subName, code);
+                result[subCode] = new SetMetadata(0, subCode, releaseDate, false, subName, code);
             }
         }
         return result;
