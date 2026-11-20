@@ -49,7 +49,7 @@ jobs:
         dotnet publish -c Release -r ${{ matrix.config.os }} --output publish --self-contained true
     - name: Test
       run: |
-        cd src/Amsel.Data.Tests
+        cd src/Amsel.Data.Test
         dotnet test --no-restore
     - name: Publish
       run: dotnet publish 
