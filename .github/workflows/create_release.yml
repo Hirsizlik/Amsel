@@ -1,0 +1,41 @@
+name: Create Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: Checkout submodules
+      run: git submodule update --init --recursive
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: 10.0.x
+    - name: Build
+      run: |
+        cd src/Amsel.Avalonia
+        dotnet build --configuration Release -p:TreatWarningsAsErrors=false 
+        dotnet publish -c Release -r linux-x64 --output ../../Amsel-linux-x64 --self-contained true
+        dotnet publish -c Release -r win-x64 --output ../../Amsel-win-x64 --self-contained true
+    - name: Test
+      run: |
+        cd src/Amsel.Data.Test
+        dotnet test
+    - name: Create archives
+      run: |
+        tar -cf Amsel-linux-x64.tar.xz Amsel-linux-x64/*
+        zip Amsel-win-x64.zip Amsel-win-x64/*
+    - name: Create Release
+      uses: softprops/action-gh-release@v3
+      with:
+        files: |
+          Amsel-linux-x64.tar.xz
+          Amsel-win-x64.zip
+        generate_release_notes: true
