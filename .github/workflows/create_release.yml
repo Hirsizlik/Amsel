@@ -2,7 +2,7 @@ name: Create Release
 
 on:
   push:
-    branches: [ "test-github-actions" ]
+    branches: [ "github-actions" ]
 
 jobs:
   create_release:
