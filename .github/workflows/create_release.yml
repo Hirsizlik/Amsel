@@ -51,8 +51,6 @@ jobs:
       run: |
         cd src/Amsel.Data.Test
         dotnet test --no-restore
-    - name: Publish
-      run: dotnet publish 
     - name: Upload release assets
       uses: nanoufo/action-upload-artifacts-and-release-assets@main
       env:
