@@ -12,7 +12,7 @@ jobs:
       upload_url: ${{ steps.create_release.outputs.upload_url }}
     steps:
       - name: Set current date as env variable
-        run: echo "{date}={$(date +'%Y-%m-%d')}" >> $GITHUB_STATE
+        run: echo "{date}={$(date +'%Y-%m-%d')}" >> $GITHUB_OUTPUT
       - name: Create release
         id: create_release
         uses: ncipollo/release-action@v1.21.0
