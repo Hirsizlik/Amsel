@@ -5,7 +5,9 @@
         x:Class="Amsel.Avalonia.Views.Windows.MainWindow"
         x:DataType="vm:MainViewModel"
         Icon="/Assets/Amsel.ico"
-        Title="Amsel">
+        Title="Amsel"
+        Width="1920"
+        Height="1080">
 
     <Panel>
         <TabControl Name="MainTabControl" IsVisible="{Binding Ready}">
