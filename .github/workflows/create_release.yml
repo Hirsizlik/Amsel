@@ -55,7 +55,9 @@ jobs:
       run: tar -cf Amsel-linux-x64.tar.xz publish/bin/Release/net10.0/linux-x64/
       if: matrix.config.os == 'linux-x64'
     - name: Create zip
-      run: zip Amsel-win-x64.zip publish/bin/release/net10.0/win-x64/
+      run: |
+        tree
+        zip Amsel-win-x64.zip publish/bin/release/net10.0/win-x64/*
       if: matrix.config.os == 'win-x64'
     - name: Upload release assets
       uses: nanoufo/action-upload-artifacts-and-release-assets@main
