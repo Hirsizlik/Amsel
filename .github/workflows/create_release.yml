@@ -52,7 +52,9 @@ jobs:
         cd src/Amsel.Data.Test
         dotnet test --no-restore
     - name: Create tar
-      run: tar -cf Amsel-linux-x64.tar.xz publish/bin/Release/net10.0/linux-x64/
+      run: |
+        tree
+        tar -cf Amsel-linux-x64.tar.xz publish/bin/Release/net10.0/linux-x64/
       if: matrix.config.os == 'linux-x64'
     - name: Create zip
       run: |
