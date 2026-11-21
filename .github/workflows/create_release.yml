@@ -46,7 +46,7 @@ jobs:
       run: |
         cd src/Amsel.Avalonia
         dotnet build --configuration Release -p:TreatWarningsAsErrors=false 
-        dotnet publish -c Release -r ${{ matrix.config.os }} --output publish --self-contained true
+        dotnet publish -c Release -r ${{ matrix.config.os }} --output ../../publish --self-contained true
     - name: Test
       run: |
         cd src/Amsel.Data.Test
