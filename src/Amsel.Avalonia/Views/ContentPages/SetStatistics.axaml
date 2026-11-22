@@ -1,4 +1,5 @@
 <ContentPage xmlns="https://github.com/avaloniaui"
+             xmlns:controls="using:Avalonia.Labs.Controls"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:m="using:Amsel.Avalonia.Models"
              xmlns:v="using:Amsel.Avalonia.Views.UserControls"
@@ -20,7 +21,7 @@
             <ListBox ItemsSource="{Binding Sets}" SelectionChanged="OnSelectionChanged">
                 <ListBox.ItemsPanel>
                     <ItemsPanelTemplate>
-                        <WrapPanel ItemWidth="240" />
+                        <controls:VirtualizingWrapPanel ItemSize="240,185" SpacingMode="None" />
                     </ItemsPanelTemplate>
                 </ListBox.ItemsPanel>
                 <ListBox.ItemTemplate>
