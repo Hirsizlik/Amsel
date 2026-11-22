@@ -1,7 +1,7 @@
 using Amsel.ArenaConnect;
 using Amsel.Avalonia.Models;
-using Amsel.Avalonia.Views;
 using Amsel.Avalonia.Views.UserControls;
+using Amsel.Data;
 using CommunityToolkit.Mvvm.ComponentModel;
 using System;
 using System.Linq;
@@ -39,44 +39,46 @@ public partial class SetStatisticViewModel : ViewModelBase
     public void ReloadSetsFiltered(OptionsChangedEventArgs? options)
     {
         ArgumentNullException.ThrowIfNull(arenaAssets);
-
-        options ??= new OptionsChangedEventArgs(null!, new Filter(false, false, false, true),
+        options ??= new OptionsChangedEventArgs(
+            null!,
+            new Filter(false, false, false, true),
             Sort.ReleaseDate,
             Direction.Descending);
 
-        var result = loader.SetInformation
-            .Select(s => new DecoratedSetInformation(s.Value, arenaAssets, loader.FormatInfo));
+        var result = loader.SetInformation.Select(s => s.Value);
 
-        Func<DecoratedSetInformation, IComparable?> getValue = s => options.Sort switch
+        IComparable? GetValue(SetInformation s) => options.Sort switch
         {
-            Sort.Name => s.Set.Name,
-            Sort.SetCode => s.Set.Code,
-            Sort.ReleaseDate => s.Set.Metadata?.ReleaseDate,
-            Sort.Completion1x => s.Set.Statistic.PercentOwnedUnique,
-            Sort.Completion4x => s.Set.Statistic.PercentOwned,
+            Sort.Name => s.Name,
+            Sort.SetCode => s.Code,
+            Sort.ReleaseDate => s.Metadata?.ReleaseDate,
+            Sort.Completion1x => s.Statistic.PercentOwnedUnique,
+            Sort.Completion4x => s.Statistic.PercentOwned,
             _ => throw new InvalidOperationException("Invalid Sort value")
         };
 
         result = result.Where(s =>
         {
-            if (!options.Filter.WithoutMetadata && !s.HasMetadata)
+            if (!options.Filter.WithoutMetadata && s.Metadata == null)
                 return false;
 
-            if (!options.Filter.WithoutName && s.HasNoMetadataNoName)
+            if (!options.Filter.WithoutName && s.Metadata == null && s.Name == null)
                 return false;
 
-            if (!options.Filter.WithoutProgress && s.Set.Statistic.TotalOwned == 0)
+            if (!options.Filter.WithoutProgress && s.Statistic.TotalOwned == 0)
                 return false;
 
-            if (!options.Filter.WithSubsets && s.IsSubSet)
+            if (!options.Filter.WithSubsets && s.Metadata?.IsMajorCardSet != true)
                 return false;
             return true;
         });
 
         result = options.Direction == Direction.Ascending
-            ? result.OrderBy(getValue)
-            : result.OrderByDescending(getValue);
+            ? result.OrderBy(GetValue)
+            : result.OrderByDescending(GetValue);
 
-        Sets = result.ToArray();
+        Sets = result
+            .Select(s => new DecoratedSetInformation(s, arenaAssets, loader.FormatInfo))
+            .ToArray();
     }
 }
