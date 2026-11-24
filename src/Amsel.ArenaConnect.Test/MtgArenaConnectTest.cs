@@ -51,4 +51,11 @@ public class MtgArenaConnectTest
         var s = mac.GetDataDirPath();
         Assert.That(s, Is.Not.Empty);
     }
+
+    [Test]
+    public void TestGetNonCollectibleCards()
+    {
+        var nc = mac.GetNonCollectibleCards();
+        Assert.That(nc, Is.Not.Empty);
+    }
 }

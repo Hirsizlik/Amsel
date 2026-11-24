@@ -13,16 +13,19 @@ namespace Amsel.ArenaConnect;
 public class MtgArenaConnect : IMtgArenaConnect
 {
     private readonly Process mtgaProcess;
-    private readonly IAssemblyImage assemblyImage;
+    private readonly IAssemblyImage assemblyImageCore;
+    private readonly IAssemblyImage assemblyImageSharedClientCore;
     private readonly string? mtgaPrefix; // always null on Windows, only needed for Wine/Proton
+
     public MtgArenaConnect()
     {
         mtgaProcess = GetProcess();
-        string? exePath;
-        (assemblyImage, exePath) = CreateAssemblyImage(mtgaProcess);
-        if (exePath != null)
+        var data = CreateAssemblyImages(mtgaProcess);
+        assemblyImageCore = data.Core;
+        assemblyImageSharedClientCore = data.SharedClientCore;
+        if (data.ExePath != null)
         {
-            mtgaPrefix = exePath[..exePath.IndexOf("MTGA/")];
+            mtgaPrefix = data.ExePath[..data.ExePath.IndexOf("MTGA/")];
         }
     }
 
@@ -53,7 +56,9 @@ public class MtgArenaConnect : IMtgArenaConnect
         throw PlatformNotSupported();
     }
 
-    private static (IAssemblyImage, string?) CreateAssemblyImage(Process mtgaProcess)
+    private record AssemblyImageData(IAssemblyImage Core, IAssemblyImage SharedClientCore, string? ExePath);
+
+    private static AssemblyImageData CreateAssemblyImages(Process mtgaProcess)
     {
         ProcessFacade processFacade;
         MonoLibraryOffsets monoLibraryOffsets;
@@ -78,13 +83,17 @@ public class MtgArenaConnect : IMtgArenaConnect
         }
 
         var f = new UnityProcessFacade(processFacade, monoLibraryOffsets);
-        return (AssemblyImageFactory.Create(f, "Core"), gameExecutableFilePath);
+        
+        return new AssemblyImageData(
+            AssemblyImageFactory.Create(f, "Core"),
+            AssemblyImageFactory.Create(f, "SharedClientCore"),
+            gameExecutableFilePath);
     }
 
     public Dictionary<uint, CardOwned> GetCardsOwnedFromInventory()
     {
         Dictionary<uint, CardOwned> cards = [];
-        object[] cardEntries = assemblyImage["WrapperController"]
+        object[] cardEntries = assemblyImageCore["WrapperController"]
             ["<Instance>k__BackingField"]
             ["<InventoryManager>k__BackingField"]
             ["InventoryServiceWrapper"]
@@ -104,7 +113,7 @@ public class MtgArenaConnect : IMtgArenaConnect
 
     public string GetCardDatabasePath()
     {
-        string connectionString = assemblyImage["WrapperController"]
+        string connectionString = assemblyImageCore["WrapperController"]
             ["<Instance>k__BackingField"]
             ["<CardDatabase>k__BackingField"]
             ["<CardDataProvider>k__BackingField"]
@@ -117,7 +126,7 @@ public class MtgArenaConnect : IMtgArenaConnect
 
     public string GetClientLocalizationDatabasePath()
     {
-        string connectionString = assemblyImage["WrapperController"]
+        string connectionString = assemblyImageCore["WrapperController"]
             ["<Instance>k__BackingField"]
             ["<SceneLoader>k__BackingField"]
             ["_locManager"]
@@ -158,7 +167,7 @@ public class MtgArenaConnect : IMtgArenaConnect
 
     public Dictionary<string, SetMetadata> GetSetMetadata()
     {
-        object[] collationsByMapping = assemblyImage["WrapperController"]
+        object[] collationsByMapping = assemblyImageCore["WrapperController"]
             ["<Instance>k__BackingField"]
             ["<SceneLoader>k__BackingField"]
             ["_setMetadataProvider"]
@@ -205,7 +214,7 @@ public class MtgArenaConnect : IMtgArenaConnect
 
     public ImmutableArray<FormatData> GetFormatData()
     {
-        object[] rawFormats = assemblyImage["WrapperController"]
+        object[] rawFormats = assemblyImageCore["WrapperController"]
             ["<Instance>k__BackingField"]
             ["FormatManager"]
             ["_formats"]
@@ -253,7 +262,7 @@ public class MtgArenaConnect : IMtgArenaConnect
 
     public string GetDataDirPath()
     {
-        string dataPath = assemblyImage["Wotc.Mtga.ClientPathUtilities"]
+        string dataPath = assemblyImageCore["Wotc.Mtga.ClientPathUtilities"]
             ["_storageContext"]
             ["<LocalPersistedStoragePath>k__BackingField"];
         if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
@@ -268,5 +277,19 @@ public class MtgArenaConnect : IMtgArenaConnect
         {
             throw PlatformNotSupported();
         }
+    }
+
+    public FrozenSet<uint> GetNonCollectibleCards()
+    {
+        object[] items = assemblyImageSharedClientCore["GreClient.CardData.CardUtilities"]
+            ["NonCollectibleCardList"]
+            ["_items"];
+
+        List<uint> result = [];
+        foreach (object rawItem in items)
+        {
+            result.Add((uint)rawItem);
+        }
+        return result.ToFrozenSet();
     }
 }
