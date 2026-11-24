@@ -17,17 +17,15 @@ public class MtgArenaAssetsTest
     [Test]
     public void TestGetExpansionSymbol()
     {
-        var t1 = aa.GetExpansionSymbol("WOE", Rarity.Common);
-        Assert.That(t1.Bgra32, Is.Not.Empty);
-        Assert.That(t1.Crop, Is.Null);
+        var t1 = aa.GetExpansionSymbolPng(new ExpansionSymbolKey("WOE", Rarity.Common));
+        Assert.That(t1, Is.Not.Empty);
     }
 
     [Test]
     public void TestGetExpansionSymbolAtlas()
     {
         // MID and PRM have different logic...
-        var t1 = aa.GetExpansionSymbol("MID", Rarity.Common);
-        Assert.That(t1.Bgra32, Is.Not.Empty);
-        Assert.That(t1.Crop, Is.Not.Null);
+        var t1 = aa.GetExpansionSymbolPng(new ExpansionSymbolKey("MID", Rarity.Common));
+        Assert.That(t1, Is.Not.Empty);
     }
 }
