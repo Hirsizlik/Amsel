@@ -16,7 +16,7 @@ internal class AmselCache(AmselSettings settings)
 
     internal record CardCache(int Version, DateTime Timestamp, ImmutableArray<CardStats> Cards) : ICache
     {
-        public static int CurrentVersion { get => 0; }
+        public static int CurrentVersion { get => 1; }
     }
 
     internal record SetCache(int Version, DateTime Timestamp, Dictionary<string, string?> SetLocalization,

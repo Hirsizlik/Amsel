@@ -51,7 +51,7 @@ public record CardInfo(uint CardId, string Name, string ExpansionCode, string Di
     uint CollectorNumber, uint? CollectorMax, Rarity Rarity, bool IsPrimary, uint TitleId,
     ImmutableArray<uint> Supertypes);
 
-public record CardStats(CardInfo Info, int Owned);
+public record CardStats(CardInfo Info, int Owned, bool Collectible);
 
 // Name and ParentCode are only set for related sub sets (IsMajorCardSet = false)
 public record SetMetadata(int CollationId, string Code, DateTime ReleaseDate, bool IsMajorCardSet,
