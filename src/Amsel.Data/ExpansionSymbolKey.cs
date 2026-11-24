@@ -52,7 +52,6 @@ internal static class SetRaritySymbolFixup
             // Secred lair and other Promos
             "SLD" or "SLC" or "APRM" or "EXTRALIFE2025" or "EUROLANDS" or "APACLANDS" or "PLANECATION" => "PRM",
             "G18" => "M19", // M19 gift pack
-            "MAR" => "MSC", // MAR logo is not included (because red and usually not visible?)
             "AEFA" => "MH2", // MH2 Fetch Lands
             "YECL" => "LRW", // Lorwyn Eclipsed (use Lorwyn logo)
             "CONF" => "CON", // Conflux
@@ -74,6 +73,11 @@ internal static class SetRaritySymbolFixup
         if (rarity == Rarity.Land || CommonOnlySets.Contains(code))
         {
             return Rarity.Common;
+        }
+        // The MAR expansion symbol has no Rarity and needs extra treatment
+        else if (code == "MAR")
+        {
+            return Rarity.Unknown;
         }
         // Note: M3C currently has a mythic-red symbol in place of the common symbol
         return rarity;

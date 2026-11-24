@@ -9,12 +9,14 @@ public class ExpansionSymbolKeyTest
         var noChange = new ExpansionSymbolKey("WOE", Rarity.Rare);
         var mirToCommon = new ExpansionSymbolKey("MIR", Rarity.Rare);
         var landToCommon = new ExpansionSymbolKey("WOE", Rarity.Land);
+        var marToUnknown = new ExpansionSymbolKey("MAR", Rarity.Common);
 
         using (Assert.EnterMultipleScope())
         {
             Assert.That(noChange.Rarity, Is.EqualTo(Rarity.Rare));
             Assert.That(mirToCommon.Rarity, Is.EqualTo(Rarity.Common));
             Assert.That(landToCommon.Rarity, Is.EqualTo(Rarity.Common));
+            Assert.That(marToUnknown.Rarity, Is.EqualTo(Rarity.Unknown));
         }
     }
 
