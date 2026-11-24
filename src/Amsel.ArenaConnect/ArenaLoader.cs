@@ -80,8 +80,12 @@ public sealed class ArenaLoader(AmselSettings settings)
         using IMtgArenaClientLocalizationDatabase ldb = new MtgArenaClientLocalizationDatabase(connect.GetClientLocalizationDatabasePath());
         var cloc = cdb.GetEnglishLocalization();
         Dictionary<uint, CardOwned> cardsOwned = connect.GetCardsOwnedFromInventory();
+        FrozenSet<uint> nonCollectibleCards = connect.GetNonCollectibleCards();
         Cards = cdb.GetAllCards(cloc)
-            .LeftJoin(cardsOwned, c => c.Key, o => o.Key, (c, o) => new CardStats(c.Value, o.Value?.Amount ?? 0))
+            .LeftJoin(cardsOwned, c => c.Key, o => o.Key, (c, o) => new CardStats(
+                c.Value,
+                o.Value?.Amount ?? 0,
+                !nonCollectibleCards.Contains(c.Value.CardId)))
             .ToImmutableArray();
 
         var setLocalizationDb = ldb.GetEnglishSetLocalization();

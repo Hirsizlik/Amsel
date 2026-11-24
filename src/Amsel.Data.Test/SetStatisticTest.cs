@@ -25,11 +25,11 @@ public class SetStatisticTest
     public void TestSingleSetWithDigitalRelease()
     {
         var actualStatisticDict = SetStatistic.CreateStatistics([
-            new CardStats(new CardInfo(1, "Card 1", "TEST", "DTEST", 1, 4, Rarity.Common, true, 1, []), 1),
-            new CardStats(new CardInfo(2, "Card 2", "TEST", "DTEST", 2, 4, Rarity.Common, true, 2, []), 2),
-            new CardStats(new CardInfo(3, "Card 3", "TEST", "DTEST", 3, 4, Rarity.Rare, true, 3, []), 3),
-            new CardStats(new CardInfo(4, "Card 4", "TEST", "DTEST", 4, 4, Rarity.MythicRare, true, 4, []), 0),
-            new CardStats(new CardInfo(5, "Card Bonus", "TEST", "DTEST", 4, null, Rarity.MythicRare, true, 5, []), 4),
+            new CardStats(new CardInfo(1, "Card 1", "TEST", "DTEST", 1, 4, Rarity.Common, true, 1, []), 1, true),
+            new CardStats(new CardInfo(2, "Card 2", "TEST", "DTEST", 2, 4, Rarity.Common, true, 2, []), 2, true),
+            new CardStats(new CardInfo(3, "Card 3", "TEST", "DTEST", 3, 4, Rarity.Rare, true, 3, []), 3, true),
+            new CardStats(new CardInfo(4, "Card 4", "TEST", "DTEST", 4, 4, Rarity.MythicRare, true, 4, []), 0, true),
+            new CardStats(new CardInfo(5, "Card Bonus", "TEST", "DTEST", 4, null, Rarity.MythicRare, true, 5, []), 4, true),
         ]);
         Assert.That(actualStatisticDict.Count, Is.EqualTo(2));
         Span<string> expectedSets = ["TEST", "DTEST"];
@@ -51,9 +51,9 @@ public class SetStatisticTest
     public void TestMultipleSets()
     {
         var actualStatisticDict = SetStatistic.CreateStatistics([
-            new CardStats(new CardInfo(1, "Card 1", "T1", "D1", 1, 1, Rarity.Common, true, 1, []), 1),
-            new CardStats(new CardInfo(2, "Card 2", "T2", "D1", 2, 3, Rarity.Common, true, 1, []), 2),
-            new CardStats(new CardInfo(3, "Card 3", "T2", "D2", 3, null, Rarity.Common, true, 1, []), 3),
+            new CardStats(new CardInfo(1, "Card 1", "T1", "D1", 1, 1, Rarity.Common, true, 1, []), 1, true),
+            new CardStats(new CardInfo(2, "Card 2", "T2", "D1", 2, 3, Rarity.Common, true, 1, []), 2, true),
+            new CardStats(new CardInfo(3, "Card 3", "T2", "D2", 3, null, Rarity.Common, true, 1, []), 3, true),
         ]);
         Assert.That(actualStatisticDict.Count, Is.EqualTo(4));
         var actualT1 = actualStatisticDict["T1"];
@@ -81,8 +81,8 @@ public class SetStatisticTest
     public void TestBasicLandExclusion()
     {
         var actualStatisticDict = SetStatistic.CreateStatistics([
-            new CardStats(new CardInfo(1, "Card 1", "T1", "", 1, 1, Rarity.Common, true, 1, []), 1),
-            new CardStats(new CardInfo(2, "Land", "T1", "", 2, 3, Rarity.Land, true, 1, [1]), 2),
+            new CardStats(new CardInfo(1, "Card 1", "T1", "", 1, 1, Rarity.Common, true, 1, []), 1, true),
+            new CardStats(new CardInfo(2, "Land", "T1", "", 2, 3, Rarity.Land, true, 1, [1]), 2, true),
         ]);
         Assert.That(actualStatisticDict.Count, Is.EqualTo(1));
         var actualT1 = actualStatisticDict["T1"];

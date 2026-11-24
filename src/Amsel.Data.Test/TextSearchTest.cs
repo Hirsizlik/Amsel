@@ -8,17 +8,17 @@ public class TextSearchTest
 
     private static CardStats WithName(string name)
     {
-        return new CardStats(new CardInfo(0, name, "", "", 0, null, Rarity.Unknown, true, 0, []), 0);
+        return new CardStats(new CardInfo(0, name, "", "", 0, null, Rarity.Unknown, true, 0, []), 0, true);
     }
 
     private static CardStats WithRarity(Rarity rarity)
     {
-        return new CardStats(new CardInfo(0, "", "", "", 0, null, rarity, true, 0, []), 0);
+        return new CardStats(new CardInfo(0, "", "", "", 0, null, rarity, true, 0, []), 0, true);
     }
 
     private static CardStats WithQuantity(int quantity)
     {
-        return new CardStats(new CardInfo(0, "", "", "", 0, null, Rarity.Unknown, true, 0, []), quantity);
+        return new CardStats(new CardInfo(0, "", "", "", 0, null, Rarity.Unknown, true, 0, []), quantity, true);
     }
 
     [Test]
@@ -195,19 +195,19 @@ public class TextSearchTest
         {
             Assert.That(ts.FilterCard(
                 new CardStats(new CardInfo(0, "testing mythic rare myr", "", "", 0, null,
-                Rarity.MythicRare, true, 1, []), 3)),
+                Rarity.MythicRare, true, 1, []), 3, true)),
                 Is.True);
             Assert.That(ts.FilterCard(
                 new CardStats(new CardInfo(0, "testing common myr", "", "", 0, null,
-                Rarity.Common, true, 2, []), 3)),
+                Rarity.Common, true, 2, []), 3, true)),
                 Is.False);
             Assert.That(ts.FilterCard(
                 new CardStats(new CardInfo(0, "testing not enough myr", "", "", 0, null,
-                Rarity.Common, true, 3, []), 2)),
+                Rarity.Common, true, 3, []), 2, true)),
                 Is.False);
             Assert.That(ts.FilterCard(
                 new CardStats(new CardInfo(0, "test frog", "", "", 0, null,
-                Rarity.Rare, true, 4, []), 4)),
+                Rarity.Rare, true, 4, []), 4, true)),
                 Is.False);
         }
     }
@@ -255,42 +255,42 @@ public class TextSearchTest
         {
             // legal
             Assert.That(tsLegal.FilterCard(
-                new CardStats(new CardInfo(0, "", "", "", 0, null, Rarity.MythicRare, true, 1, []), 3)),
+                new CardStats(new CardInfo(0, "", "", "", 0, null, Rarity.MythicRare, true, 1, []), 3, true)),
                 Is.True);
             Assert.That(tsNotLegal.FilterCard(
-                new CardStats(new CardInfo(0, "", "", "", 0, null, Rarity.MythicRare, true, 1, []), 3)),
+                new CardStats(new CardInfo(0, "", "", "", 0, null, Rarity.MythicRare, true, 1, []), 3, true)),
                 Is.False);
 
             // banned
             Assert.That(tsLegal.FilterCard(
-                new CardStats(new CardInfo(0, "", "", "", 0, null, Rarity.MythicRare, true, 2, []), 3)),
+                new CardStats(new CardInfo(0, "", "", "", 0, null, Rarity.MythicRare, true, 2, []), 3, true)),
                 Is.False);
             Assert.That(tsNotLegal.FilterCard(
-                new CardStats(new CardInfo(0, "", "", "", 0, null, Rarity.MythicRare, true, 2, []), 3)),
+                new CardStats(new CardInfo(0, "", "", "", 0, null, Rarity.MythicRare, true, 2, []), 3, true)),
                 Is.True);
 
             // not found (therefore not legal)
             Assert.That(tsLegal.FilterCard(
-                new CardStats(new CardInfo(0, "", "", "", 0, null, Rarity.MythicRare, true, 3, []), 3)),
+                new CardStats(new CardInfo(0, "", "", "", 0, null, Rarity.MythicRare, true, 3, []), 3, true)),
                 Is.False);
             Assert.That(tsNotLegal.FilterCard(
-                new CardStats(new CardInfo(0, "", "", "", 0, null, Rarity.MythicRare, true, 3, []), 3)),
+                new CardStats(new CardInfo(0, "", "", "", 0, null, Rarity.MythicRare, true, 3, []), 3, true)),
                 Is.True);
 
             // banned as Commander (same as banned)
             Assert.That(tsLegal.FilterCard(
-                new CardStats(new CardInfo(0, "", "", "", 0, null, Rarity.MythicRare, true, 4, []), 3)),
+                new CardStats(new CardInfo(0, "", "", "", 0, null, Rarity.MythicRare, true, 4, []), 3, true)),
                 Is.False);
             Assert.That(tsNotLegal.FilterCard(
-                new CardStats(new CardInfo(0, "", "", "", 0, null, Rarity.MythicRare, true, 4, []), 3)),
+                new CardStats(new CardInfo(0, "", "", "", 0, null, Rarity.MythicRare, true, 4, []), 3, true)),
                 Is.True);
 
             // legal, but restricted (same as legal)
             Assert.That(tsLegal.FilterCard(
-                new CardStats(new CardInfo(0, "", "", "", 0, null, Rarity.MythicRare, true, 5, []), 3)),
+                new CardStats(new CardInfo(0, "", "", "", 0, null, Rarity.MythicRare, true, 5, []), 3, true)),
                 Is.True);
             Assert.That(tsNotLegal.FilterCard(
-                new CardStats(new CardInfo(0, "", "", "", 0, null, Rarity.MythicRare, true, 5, []), 3)),
+                new CardStats(new CardInfo(0, "", "", "", 0, null, Rarity.MythicRare, true, 5, []), 3, true)),
                 Is.False);
         }
     }
