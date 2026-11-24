@@ -41,18 +41,18 @@ public partial class CardListViewModel : ViewModelBase
     private DecoratedCardStats[] FilterCards()
     {
         ArgumentNullException.ThrowIfNull(arenaAssets);
-        var cardsEnumarable = loader.Cards.AsEnumerable();
+        var cardsEnumerable = loader.Cards.AsEnumerable();
 
         if (SetWithSymbol != DecoratedSetInformation.Empty)
         {
             var code = SetWithSymbol.Set.Code;
-            cardsEnumarable = cardsEnumarable
+            cardsEnumerable = cardsEnumerable
                 .Where(c => c.Info.ExpansionCode == code || c.Info.DigitalReleaseSet == code);
         }
 
-        cardsEnumarable = cardsEnumarable.Where(textSearch.FilterCard);
+        cardsEnumerable = cardsEnumerable.Where(textSearch.FilterCard);
 
-        return cardsEnumarable.Select(c => new DecoratedCardStats(
+        return cardsEnumerable.Select(c => new DecoratedCardStats(
                 c,
                 loader.SetInformation.First(s => s.Key == c.Info.ExpansionCode).Value,
                 loader.SetInformation.FirstOrDefault(s => s.Key == c.Info.DigitalReleaseSet).Value,

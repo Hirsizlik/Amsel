@@ -20,7 +20,8 @@ public partial class CardList : ContentPage
         {
             e.Handled = true;
             (DataContext as CardListViewModel)?.OnSearch();
-        } else if (e.Key == Key.Escape)
+        }
+        else if (e.Key == Key.Escape)
         {
             e.Handled = true;
             (DataContext as CardListViewModel)?.OnSearchClear();

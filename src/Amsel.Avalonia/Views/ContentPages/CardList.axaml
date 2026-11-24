@@ -34,17 +34,28 @@
             </Style>
         </Grid.Styles>
         <TextBox Text="{Binding Search}"
-            Grid.Row="1" Grid.Column="0"
-            KeyUp="OnSearchKeyUp"
-            Classes.error="{Binding SearchError}"
-            PlaceholderText="Search..." />
+                 Grid.Row="1" Grid.Column="0"
+                 KeyUp="OnSearchKeyUp"
+                 Classes.error="{Binding SearchError}"
+                 PlaceholderText="Search..." />
         <Button Grid.Row="1" Grid.Column="1" Content="?" Click="OnSearchHelpClicked" />
-        
-        <TableView ItemsSource="{Binding Cards, Mode=OneWay}" Grid.Row="2" Grid.ColumnSpan="2">
+
+        <TableView ItemsSource="{Binding Cards, Mode=OneWay}" Grid.Row="3" Grid.ColumnSpan="2">
+            <TableView.Styles>
+                <Style Selector="TextBlock.noncollectible">
+                    <Setter Property="Foreground">#AAAAAA</Setter>
+                </Style>
+            </TableView.Styles>
             <TableView.Columns>
                 <TableViewColumn Header="Name"
-                                 x:DataType="models:DecoratedCardStats"
-                                 Binding="{Binding CardStats.Info.Name}" />
+                                 x:DataType="models:DecoratedCardStats">
+                    <TableViewColumn.CellTemplate>
+                        <DataTemplate x:DataType="models:DecoratedCardStats">
+                            <TextBlock Text="{Binding CardStats.Info.Name}"
+                                       Classes.noncollectible="{Binding !CardStats.Collectible}" />
+                        </DataTemplate>
+                    </TableViewColumn.CellTemplate>
+                </TableViewColumn>
                 <TableViewColumn Header="Set" >
                     <TableViewColumn.CellTemplate>
                         <DataTemplate x:DataType="models:DecoratedCardStats">
@@ -68,7 +79,6 @@
                                  Binding="{Binding RarityCode }"
                                  Width="60" />
                 <TableViewColumn x:DataType="models:DecoratedCardStats"
-                                 Binding="{Binding CardStats.Owned }"
                                  Width="80">
                     <TableViewColumn.HeaderTemplate>
                         <DataTemplate>
@@ -78,6 +88,12 @@
                             </StackPanel>
                         </DataTemplate>
                     </TableViewColumn.HeaderTemplate>
+                    <TableViewColumn.CellTemplate>
+                        <DataTemplate x:DataType="models:DecoratedCardStats">
+                            <TextBlock Text="{Binding CardStats.Owned }"
+                                       Classes.noncollectible="{Binding !CardStats.Collectible}" />
+                        </DataTemplate>
+                    </TableViewColumn.CellTemplate>
                 </TableViewColumn>
                 <TableViewColumn x:DataType="models:DecoratedCardStats"
                                  Binding="{Binding OwnedOverall }"
