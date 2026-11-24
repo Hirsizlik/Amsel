@@ -86,6 +86,11 @@ public partial class MtgArenaAssets : IMtgArenaAssets
                     var key = new ExpansionCodeRarityKey(code.Value, ParseRarity(rarity.Value));
                     expansionCodeRarityToBundleName[key] = new ExpansionCodeRarityValue(entry.Name, asset);
                 }
+                else if (asset.EndsWith("Images/ExpansionSymbol_MAR.png"))
+                {
+                    var key = new ExpansionCodeRarityKey("MAR", Rarity.Unknown);
+                    expansionCodeRarityToBundleName[key] = new ExpansionCodeRarityValue(entry.Name, asset);
+                }
             }
         }
 
