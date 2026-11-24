@@ -1,3 +1,4 @@
+using System.Collections.Frozen;
 using System.Collections.Immutable;
 using Amsel.Data;
 
@@ -11,4 +12,5 @@ public interface IMtgArenaConnect
     string GetClientLocalizationDatabasePath();
     ImmutableArray<FormatData> GetFormatData();
     string GetDataDirPath();
+    FrozenSet<uint> GetNonCollectibleCards();
 }
