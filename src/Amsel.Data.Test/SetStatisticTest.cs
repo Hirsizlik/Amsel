@@ -78,11 +78,12 @@ public class SetStatisticTest
     }
 
     [Test]
-    public void TestBasicLandExclusion()
+    public void TestBasicLandAndNonCollectibleExclusion()
     {
         var actualStatisticDict = SetStatistic.CreateStatistics([
             new CardStats(new CardInfo(1, "Card 1", "T1", "", 1, 1, Rarity.Common, true, 1, []), 1, true),
             new CardStats(new CardInfo(2, "Land", "T1", "", 2, 3, Rarity.Land, true, 1, [1]), 2, true),
+            new CardStats(new CardInfo(1, "Card 3", "T1", "", 3, 1, Rarity.Common, true, 1, []), 1, false),
         ]);
         Assert.That(actualStatisticDict.Count, Is.EqualTo(1));
         var actualT1 = actualStatisticDict["T1"];

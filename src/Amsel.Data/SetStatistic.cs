@@ -37,8 +37,16 @@ public class SetStatistic
         Dictionary<string, SetStatistic> result = [];
         foreach (CardStats c in cards)
         {
-            AddToSetStatistic(c.Info.ExpansionCode, c, result);
-            AddToSetStatistic(c.Info.DigitalReleaseSet, c, result);
+            foreach (var setCode in ImmutableArray.Create([c.Info.ExpansionCode, c.Info.DigitalReleaseSet]))
+            {
+                if (string.IsNullOrWhiteSpace(setCode))
+                    continue;
+                if (!result.TryGetValue(setCode, out SetStatistic? current)) {
+                    current = new SetStatistic();
+                    result[setCode] = current;
+                }
+                AddToSetStatistic(c, current);
+            }
         }
         return result;
     }
@@ -48,26 +56,18 @@ public class SetStatistic
         return cs.Info.Supertypes.Contains(1); // see Enums Table in CardDatabase
     }
 
-    private static void AddToSetStatistic(string code, CardStats cs,
-        Dictionary<string, SetStatistic> result)
+    private static void AddToSetStatistic(CardStats cs, SetStatistic ss)
     {
-        if (string.IsNullOrEmpty(code))
-            return;
-        if (!result.TryGetValue(code, out SetStatistic? current))
-        {
-            current = new SetStatistic();
-            result.Add(code, current);
-        }
-        if (IsBasicLand(cs))
+        if (IsBasicLand(cs) || !cs.Collectible)
             return;
 
         int zeroOrOne = cs.Owned > 0 ? 1 : 0;
-        current.amountByRarity[cs.Info.Rarity] += cs.Owned;
-        current.amountByRarityUnique[cs.Info.Rarity] += zeroOrOne;
-        current.cardCountByRarity[cs.Info.Rarity] += 1;
+        ss.amountByRarity[cs.Info.Rarity] += cs.Owned;
+        ss.amountByRarityUnique[cs.Info.Rarity] += zeroOrOne;
+        ss.cardCountByRarity[cs.Info.Rarity] += 1;
 
-        current.TotalOwned += cs.Owned;
-        current.TotalOwnedUnique += zeroOrOne;
-        current.CardCount += 1;
+        ss.TotalOwned += cs.Owned;
+        ss.TotalOwnedUnique += zeroOrOne;
+        ss.CardCount += 1;
     }
 }
