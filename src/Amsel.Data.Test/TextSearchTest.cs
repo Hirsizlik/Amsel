@@ -6,6 +6,8 @@ namespace Amsel.Data.Test;
 public class TextSearchTest
 {
 
+    private static readonly FrozenDictionary<uint, int> o = FrozenDictionary.Create<uint, int>([]);
+
     private static CardStats WithName(string name)
     {
         return new CardStats(new CardInfo(0, name, "", "", 0, null, Rarity.Unknown, true, 0, []), 0, true);
@@ -24,7 +26,7 @@ public class TextSearchTest
     [Test]
     public void TestNameSingleWord()
     {
-        Assert.That(TextSearch.TryParse("Test", [], out TextSearch ts), Is.True);
+        Assert.That(TextSearch.TryParse("Test", [], o, out TextSearch ts), Is.True);
         using (Assert.EnterMultipleScope())
         {
             Assert.That(ts.FilterCard(WithName("my little test")), Is.True);
@@ -36,8 +38,8 @@ public class TextSearchTest
     [Test]
     public void TestNameWithColon()
     {
-        Assert.That(TextSearch.TryParse("Protection:", [], out TextSearch ts1), Is.True);
-        Assert.That(TextSearch.TryParse(":", [], out TextSearch ts2), Is.True);
+        Assert.That(TextSearch.TryParse("Protection:", [], o, out TextSearch ts1), Is.True);
+        Assert.That(TextSearch.TryParse(":", [], o, out TextSearch ts2), Is.True);
         var c = WithName("Circle of Protection: Black");
         using (Assert.EnterMultipleScope())
         {
@@ -49,7 +51,7 @@ public class TextSearchTest
     [Test]
     public void TestNameInQuotes()
     {
-        Assert.That(TextSearch.TryParse("\"My Test\"", [], out TextSearch ts), Is.True);
+        Assert.That(TextSearch.TryParse("\"My Test\"", [], o, out TextSearch ts), Is.True);
         using (Assert.EnterMultipleScope())
         {
             Assert.That(ts.FilterCard(WithName("my test")), Is.True);
@@ -61,13 +63,13 @@ public class TextSearchTest
     [Test]
     public void TestNameBrokenQuotes()
     {
-        Assert.That(TextSearch.TryParse("\"My Test", [], out TextSearch ts), Is.False);
+        Assert.That(TextSearch.TryParse("\"My Test", [], o, out TextSearch ts), Is.False);
     }
 
     [Test]
     public void TestNameMultipeWords()
     {
-        Assert.That(TextSearch.TryParse("My Test", [], out TextSearch ts), Is.True);
+        Assert.That(TextSearch.TryParse("My Test", [], o, out TextSearch ts), Is.True);
         using (Assert.EnterMultipleScope())
         {
             Assert.That(ts.FilterCard(WithName("my test")), Is.True);
@@ -78,7 +80,7 @@ public class TextSearchTest
 
     private static void AssertRarity(string search, IEnumerable<Rarity> hitList)
     {
-        Assert.That(TextSearch.TryParse(search, [], out TextSearch ts), Is.True);
+        Assert.That(TextSearch.TryParse(search, [], o, out TextSearch ts), Is.True);
         using (Assert.EnterMultipleScope())
         {
             foreach (Rarity r in hitList)
@@ -141,7 +143,7 @@ public class TextSearchTest
 
     private static void AssertQuantiy(string search, bool zero, bool two, bool four)
     {
-        Assert.That(TextSearch.TryParse(search, [], out TextSearch ts), Is.True);
+        Assert.That(TextSearch.TryParse(search, [], o, out TextSearch ts), Is.True);
         using (Assert.EnterMultipleScope())
         {
             Assert.That(ts.FilterCard(WithQuantity(0)), zero ? Is.True : Is.False);
@@ -188,9 +190,25 @@ public class TextSearchTest
     }
 
     [Test]
+    public void TestQuantityOverall()
+    {
+        FrozenDictionary<uint, int> dict = FrozenDictionary.Create(KeyValuePair.Create<uint, int>(100, 8));
+        Assert.That(TextSearch.TryParse("qo>0", [], dict, out TextSearch t1), Is.True);
+        Assert.That(TextSearch.TryParse("qo<=4", [], dict, out TextSearch t2), Is.True);
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(t1.FilterCard(new CardStats(
+                new CardInfo(0, "", "", "", 0, null, Rarity.Unknown, true, 100, []), 0, false)), Is.True);
+            Assert.That(t2.FilterCard(new CardStats(
+                new CardInfo(0, "", "", "", 0, null, Rarity.Unknown, true, 100, []), 0, false)), Is.False);
+        }
+    }
+
+    [Test]
     public void TestComboFilter()
     {
-        Assert.That(TextSearch.TryParse("my r>U q>2 test", [], out TextSearch ts), Is.True);
+        Assert.That(TextSearch.TryParse("my r>U q>2 test", [], o, out TextSearch ts), Is.True);
         using (Assert.EnterMultipleScope())
         {
             Assert.That(ts.FilterCard(
@@ -215,13 +233,13 @@ public class TextSearchTest
     [Test]
     public void TestEquals()
     {
-        Assume.That(TextSearch.TryParse("my r>U q>2 test", [], out TextSearch tsOrig), Is.True);
-        Assume.That(TextSearch.TryParse("q>2 r>U test my", [], out TextSearch tsOtherOrder), Is.True);
-        Assume.That(TextSearch.TryParse("MY R>U Q>2 TEST", [], out TextSearch tsBlockCase), Is.True);
-        Assume.That(TextSearch.TryParse("q>=2 r>=U myr test", [], out TextSearch tsNotEqual1), Is.True);
-        Assume.That(TextSearch.TryParse("my test", [], out TextSearch tsNotEqual2), Is.True);
-        Assume.That(TextSearch.TryParse("my r>U q>2 test too", [], out TextSearch tsNotEqual3), Is.True);
-        Assume.That(TextSearch.TryParse("", [], out TextSearch tsEmpty), Is.True);
+        Assume.That(TextSearch.TryParse("my r>U q>2 test", [], o, out TextSearch tsOrig), Is.True);
+        Assume.That(TextSearch.TryParse("q>2 r>U test my", [], o, out TextSearch tsOtherOrder), Is.True);
+        Assume.That(TextSearch.TryParse("MY R>U Q>2 TEST", [], o, out TextSearch tsBlockCase), Is.True);
+        Assume.That(TextSearch.TryParse("q>=2 r>=U myr test", [], o, out TextSearch tsNotEqual1), Is.True);
+        Assume.That(TextSearch.TryParse("my test", [], o, out TextSearch tsNotEqual2), Is.True);
+        Assume.That(TextSearch.TryParse("my r>U q>2 test too", [], o, out TextSearch tsNotEqual3), Is.True);
+        Assume.That(TextSearch.TryParse("", [], o, out TextSearch tsEmpty), Is.True);
         using (Assert.EnterMultipleScope())
         {
             Assert.That(tsOrig, Is.EqualTo(tsOtherOrder));
@@ -236,14 +254,14 @@ public class TextSearchTest
     [Test]
     public void TestInvalid()
     {
-        Assert.That(TextSearch.TryParse("x=1", [], out TextSearch _), Is.False);
-        Assert.That(TextSearch.TryParse("xxx:1", [], out TextSearch _), Is.False);
-        Assert.That(TextSearch.TryParse("q:U", [], out TextSearch _), Is.False);
-        Assert.That(TextSearch.TryParse("qq:3", [], out TextSearch _), Is.False);
-        Assert.That(TextSearch.TryParse("r<7", [], out TextSearch _), Is.False);
-        Assert.That(TextSearch.TryParse("f=Standard", [], out TextSearch _), Is.False);
-        Assert.That(TextSearch.TryParse("is<banned", [], out TextSearch _), Is.False);
-        Assert.That(TextSearch.TryParse("is:invalid", [], out TextSearch _), Is.False);
+        Assert.That(TextSearch.TryParse("x=1", [], o, out TextSearch _), Is.False);
+        Assert.That(TextSearch.TryParse("xxx:1", [], o, out TextSearch _), Is.False);
+        Assert.That(TextSearch.TryParse("q:U", [], o, out TextSearch _), Is.False);
+        Assert.That(TextSearch.TryParse("qq:3", [], o, out TextSearch _), Is.False);
+        Assert.That(TextSearch.TryParse("r<7", [], o, out TextSearch _), Is.False);
+        Assert.That(TextSearch.TryParse("f=Standard", [], o, out TextSearch _), Is.False);
+        Assert.That(TextSearch.TryParse("is<banned", [], o, out TextSearch _), Is.False);
+        Assert.That(TextSearch.TryParse("is:invalid", [], o, out TextSearch _), Is.False);
     }
 
     [Test]
@@ -251,12 +269,12 @@ public class TextSearchTest
     {
         ImmutableArray<FormatInformation> format = [new FormatInformation(new FormatData("Ignored by filter", [], [2],
             FrozenDictionary.Create([KeyValuePair.Create<uint, Quota>(5, new Quota(1))]), [4], [1, 5]), "Format")];
-        Assert.That(TextSearch.TryParse("f=Format", format, out TextSearch tsInFormat), Is.True);
-        Assert.That(TextSearch.TryParse("f!=Format", format, out TextSearch tsNotInFormat), Is.True);
-        Assert.That(TextSearch.TryParse("legal=Format", format, out TextSearch tsLegal), Is.True);
-        Assert.That(TextSearch.TryParse("legal!=Format", format, out TextSearch tsNotLegal), Is.True);
-        Assert.That(TextSearch.TryParse("banned=Format", format, out TextSearch tsBanned), Is.True);
-        Assert.That(TextSearch.TryParse("banned!=Format", format, out TextSearch tsNotBanned), Is.True);
+        Assert.That(TextSearch.TryParse("f=Format", format, o, out TextSearch tsInFormat), Is.True);
+        Assert.That(TextSearch.TryParse("f!=Format", format, o, out TextSearch tsNotInFormat), Is.True);
+        Assert.That(TextSearch.TryParse("legal=Format", format, o, out TextSearch tsLegal), Is.True);
+        Assert.That(TextSearch.TryParse("legal!=Format", format, o, out TextSearch tsNotLegal), Is.True);
+        Assert.That(TextSearch.TryParse("banned=Format", format, o, out TextSearch tsBanned), Is.True);
+        Assert.That(TextSearch.TryParse("banned!=Format", format, o, out TextSearch tsNotBanned), Is.True);
         using (Assert.EnterMultipleScope())
         {
             // legal
@@ -332,10 +350,10 @@ public class TextSearchTest
     {
         ImmutableArray<FormatInformation> format = [new FormatInformation(new FormatData("Ignored", [], [2],
             FrozenDictionary.Create([KeyValuePair.Create<uint, Quota>(5, new Quota(1))]), [4], [1, 5]), "Standard Brawl")];
-        Assert.That(TextSearch.TryParse("\"f=Standard Brawl\"", format, out TextSearch _), Is.True);
-        Assert.That(TextSearch.TryParse("\"f=Standard\"", format, out TextSearch _), Is.False);
+        Assert.That(TextSearch.TryParse("\"f=Standard Brawl\"", format, o, out TextSearch _), Is.True);
+        Assert.That(TextSearch.TryParse("\"f=Standard\"", format, o, out TextSearch _), Is.False);
         // f=Standard plus "Brawl" in name
-        Assert.That(TextSearch.TryParse("f=Standard Brawl", format, out TextSearch _), Is.False);
+        Assert.That(TextSearch.TryParse("f=Standard Brawl", format, o, out TextSearch _), Is.False);
     }
 
     [Test]
@@ -344,8 +362,8 @@ public class TextSearchTest
         ImmutableArray<FormatInformation> format = [new FormatInformation(new FormatData("name", [], [2],
             FrozenDictionary.Create([KeyValuePair.Create<uint, Quota>(5, new Quota(1))]), [4], [1, 5]), "name")];
 
-        Assert.That(TextSearch.TryParse("is=banned", format, out TextSearch tsBanned), Is.True);
-        Assert.That(TextSearch.TryParse("is!=banned", format, out TextSearch tsNotBanned), Is.True);
+        Assert.That(TextSearch.TryParse("is=banned", format, o, out TextSearch tsBanned), Is.True);
+        Assert.That(TextSearch.TryParse("is!=banned", format, o, out TextSearch tsNotBanned), Is.True);
         using (Assert.EnterMultipleScope())
         {
             // legal
@@ -393,8 +411,8 @@ public class TextSearchTest
     [Test]
     public void TestIsCollectible()
     {
-        Assert.That(TextSearch.TryParse("is=collectible", [], out TextSearch tsCollectible), Is.True);
-        Assert.That(TextSearch.TryParse("Is!=Collectible", [], out TextSearch tsNotCollectible), Is.True);
+        Assert.That(TextSearch.TryParse("is=collectible", [], o, out TextSearch tsCollectible), Is.True);
+        Assert.That(TextSearch.TryParse("Is!=Collectible", [], o, out TextSearch tsNotCollectible), Is.True);
         using (Assert.EnterMultipleScope())
         {
             // collectible
