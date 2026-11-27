@@ -10,12 +10,7 @@ internal class FormatFilter(FormatInformation format, FilterOperator op) : ICard
         bool banned = format.Data.BannedTitleIds.Contains(c.Info.TitleId)
             || format.Data.BannedAsCommanderTitles.Contains(c.Info.TitleId);
         bool legal = format.Data.LegalTitleIds.Contains(c.Info.TitleId);
-        return op switch
-        {
-            FilterOperator.Equal => legal && !banned,
-            FilterOperator.NotEqual => !legal || banned,
-            _ => throw new InvalidOperationException("Unsupported Operation " + op)
-        };
+        return op.Apply(legal || banned);
     }
 
     public override bool Equals(object? other)
