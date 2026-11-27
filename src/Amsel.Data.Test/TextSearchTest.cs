@@ -328,6 +328,17 @@ public class TextSearchTest
     }
 
     [Test]
+    public void TestMultiWordFormat()
+    {
+        ImmutableArray<FormatInformation> format = [new FormatInformation(new FormatData("Ignored", [], [2],
+            FrozenDictionary.Create([KeyValuePair.Create<uint, Quota>(5, new Quota(1))]), [4], [1, 5]), "Standard Brawl")];
+        Assert.That(TextSearch.TryParse("\"f=Standard Brawl\"", format, out TextSearch _), Is.True);
+        Assert.That(TextSearch.TryParse("\"f=Standard\"", format, out TextSearch _), Is.False);
+        // f=Standard plus "Brawl" in name
+        Assert.That(TextSearch.TryParse("f=Standard Brawl", format, out TextSearch _), Is.False);
+    }
+
+    [Test]
     public void TestIsBannedFilter()
     {
         ImmutableArray<FormatInformation> format = [new FormatInformation(new FormatData("name", [], [2],
