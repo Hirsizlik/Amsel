@@ -253,14 +253,33 @@ public class TextSearchTest
             FrozenDictionary.Create([KeyValuePair.Create<uint, Quota>(5, new Quota(1))]), [4], [1, 5]), "Format")];
         Assert.That(TextSearch.TryParse("f=Format", format, out TextSearch tsInFormat), Is.True);
         Assert.That(TextSearch.TryParse("f!=Format", format, out TextSearch tsNotInFormat), Is.True);
+        Assert.That(TextSearch.TryParse("legal=Format", format, out TextSearch tsLegal), Is.True);
+        Assert.That(TextSearch.TryParse("legal!=Format", format, out TextSearch tsNotLegal), Is.True);
+        Assert.That(TextSearch.TryParse("banned=Format", format, out TextSearch tsBanned), Is.True);
+        Assert.That(TextSearch.TryParse("banned!=Format", format, out TextSearch tsNotBanned), Is.True);
         using (Assert.EnterMultipleScope())
         {
+            // legal
             Assert.That(tsInFormat.FilterCard(
                 new CardStats(new CardInfo(0, "", "", "", 0, null, Rarity.MythicRare, true, 1, []), 3, true)),
                 Is.True);
             Assert.That(tsNotInFormat.FilterCard(
                 new CardStats(new CardInfo(0, "", "", "", 0, null, Rarity.MythicRare, true, 1, []), 3, true)),
                 Is.False);
+
+            Assert.That(tsLegal.FilterCard(
+                new CardStats(new CardInfo(0, "", "", "", 0, null, Rarity.MythicRare, true, 1, []), 3, true)),
+                Is.True);
+            Assert.That(tsNotLegal.FilterCard(
+                new CardStats(new CardInfo(0, "", "", "", 0, null, Rarity.MythicRare, true, 1, []), 3, true)),
+                Is.False);
+
+            Assert.That(tsBanned.FilterCard(
+                new CardStats(new CardInfo(0, "", "", "", 0, null, Rarity.MythicRare, true, 1, []), 3, true)),
+                Is.False);
+            Assert.That(tsNotBanned.FilterCard(
+                new CardStats(new CardInfo(0, "", "", "", 0, null, Rarity.MythicRare, true, 1, []), 3, true)),
+                Is.True);
 
             // banned
             Assert.That(tsInFormat.FilterCard(
@@ -269,6 +288,42 @@ public class TextSearchTest
             Assert.That(tsNotInFormat.FilterCard(
                 new CardStats(new CardInfo(0, "", "", "", 0, null, Rarity.MythicRare, true, 2, []), 3, true)),
                 Is.False);
+
+            Assert.That(tsLegal.FilterCard(
+                new CardStats(new CardInfo(0, "", "", "", 0, null, Rarity.MythicRare, true, 2, []), 3, true)),
+                Is.False);
+            Assert.That(tsNotLegal.FilterCard(
+                new CardStats(new CardInfo(0, "", "", "", 0, null, Rarity.MythicRare, true, 2, []), 3, true)),
+                Is.True);
+
+            Assert.That(tsBanned.FilterCard(
+                new CardStats(new CardInfo(0, "", "", "", 0, null, Rarity.MythicRare, true, 2, []), 3, true)),
+                Is.True);
+            Assert.That(tsNotBanned.FilterCard(
+                new CardStats(new CardInfo(0, "", "", "", 0, null, Rarity.MythicRare, true, 2, []), 3, true)),
+                Is.False);
+
+            // not in format
+            Assert.That(tsInFormat.FilterCard(
+                new CardStats(new CardInfo(0, "", "", "", 0, null, Rarity.MythicRare, true, 3, []), 3, true)),
+                Is.False);
+            Assert.That(tsNotInFormat.FilterCard(
+                new CardStats(new CardInfo(0, "", "", "", 0, null, Rarity.MythicRare, true, 3, []), 3, true)),
+                Is.True);
+
+            Assert.That(tsLegal.FilterCard(
+                new CardStats(new CardInfo(0, "", "", "", 0, null, Rarity.MythicRare, true, 3, []), 3, true)),
+                Is.False);
+            Assert.That(tsNotLegal.FilterCard(
+                new CardStats(new CardInfo(0, "", "", "", 0, null, Rarity.MythicRare, true, 3, []), 3, true)),
+                Is.True);
+
+            Assert.That(tsBanned.FilterCard(
+                new CardStats(new CardInfo(0, "", "", "", 0, null, Rarity.MythicRare, true, 3, []), 3, true)),
+                Is.False);
+            Assert.That(tsNotBanned.FilterCard(
+                new CardStats(new CardInfo(0, "", "", "", 0, null, Rarity.MythicRare, true, 3, []), 3, true)),
+                Is.True);
         }
     }
 
