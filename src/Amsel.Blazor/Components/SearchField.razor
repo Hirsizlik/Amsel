@@ -12,17 +12,19 @@
         <li>
             Owned with
             <code>q &lt;operator&gt; &lt;number&gt;</code> (without spaces), e.g.
-            <code>"q&gt;0"</code> for cards you own one or more copies
+            <code>"q&gt;0"</code> for cards you own one or more copies.
+            Use <code>qo</code> instead if you want to filter cards over all sets with the same name, e.g.
+            <code>qo&gt;10</code> for all cards you own more than 10 copies in total.
         </li>
         <li>
             Rarity with <code>r &lt;operator&gt; [LCURM]</code>,
             e.g. <code>"q&lt;=U"</code> for all Commons and Uncommons
         </li>
         <li>
-                Format inclusion with <code>(f|legal|banned) &lt;:, =, !=&gt; &lt;format name&gt;</code>,
-                e.g. <code>f=Standard</code> for all cards in Standard,
-                <code>legal=Standard</code> for all legal cards and <code>banned=Standard</code> for all cards
-                banned in Standard.
+            Format inclusion with <code>(f|legal|banned) &lt;:, =, !=&gt; &lt;format name&gt;</code>,
+            e.g. <code>f=Standard</code> for all cards in Standard,
+            <code>legal=Standard</code> for all legal cards and <code>banned=Standard</code> for all cards
+            banned in Standard.
         </li>
         <li>
             Collectibility and Banned in any format with <code>is &lt;:, =, !=&gt; (collectible | banned)</code>,
