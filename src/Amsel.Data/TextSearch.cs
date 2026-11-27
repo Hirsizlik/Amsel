@@ -16,7 +16,7 @@ public partial class TextSearch
     private static partial Regex RarityPattern { get; }
     [GeneratedRegex("^Q(<|<=|>|>=|=|:|!=)(\\d+)$", RegexOptions.IgnoreCase)]
     private static partial Regex QuantityPattern { get; }
-    [GeneratedRegex("^(F|BANNED|LEGAL)(=|:|!=)(\\w+)$", RegexOptions.IgnoreCase)]
+    [GeneratedRegex("^(F|BANNED|LEGAL)(=|:|!=)(.+)$", RegexOptions.IgnoreCase)]
     private static partial Regex FormatPattern { get; }
     [GeneratedRegex("^IS(=|:|!=)(COLLECTIBLE|BANNED)$", RegexOptions.IgnoreCase)]
     private static partial Regex IsPattern { get; }
