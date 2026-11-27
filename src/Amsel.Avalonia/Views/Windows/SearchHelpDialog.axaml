@@ -35,6 +35,8 @@
                 Owned with
                 <Span>q &lt;operator&gt; &lt;number&gt;</Span> (without spaces),
                 e.g. <Span>q&gt;0</Span> for cards you own one or more copies.
+                Use <Span>qo</Span> instead if you want to filter cards over all sets with the same name, e.g.
+                <Span>qo&gt;10</Span> for all cards you own more than 10 copies in total.
             </TextBlock>
             <TextBlock>
                 Rarity with <Span>r &lt;operator&gt; [LCURM]</Span>,
