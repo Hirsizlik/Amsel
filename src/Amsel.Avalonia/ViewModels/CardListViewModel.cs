@@ -81,7 +81,7 @@ public partial class CardListViewModel : ViewModelBase
 
     public void OnSearch()
     {
-        if (TextSearch.TryParse(Search, loader.FormatInfo, out var result))
+        if (TextSearch.TryParse(Search, loader.FormatInfo, loader.OwnedPerTitle, out var result))
         {
             SearchError = false;
             textSearch = result;

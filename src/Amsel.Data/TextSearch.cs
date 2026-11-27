@@ -16,12 +16,18 @@ public partial class TextSearch
     private static partial Regex RarityPattern { get; }
     [GeneratedRegex("^Q(<|<=|>|>=|=|:|!=)(\\d+)$", RegexOptions.IgnoreCase)]
     private static partial Regex QuantityPattern { get; }
+    [GeneratedRegex("^QO(<|<=|>|>=|=|:|!=)(\\d+)$", RegexOptions.IgnoreCase)]
+    private static partial Regex QuantityOverallPattern { get; }
     [GeneratedRegex("^(F|BANNED|LEGAL)(=|:|!=)(.+)$", RegexOptions.IgnoreCase)]
     private static partial Regex FormatPattern { get; }
     [GeneratedRegex("^IS(=|:|!=)(COLLECTIBLE|BANNED)$", RegexOptions.IgnoreCase)]
     private static partial Regex IsPattern { get; }
 
-    public static bool TryParse(string raw, ImmutableArray<FormatInformation> formatInformation, out TextSearch result)
+    public static bool TryParse(
+        string raw,
+        ImmutableArray<FormatInformation> formatInformation,
+        FrozenDictionary<uint, int> ownedByTitle,
+        out TextSearch result)
     {
         if (string.IsNullOrWhiteSpace(raw))
         {
@@ -36,10 +42,13 @@ public partial class TextSearch
             result = new TextSearch([]);
             return false;
         }
-        return TryParseOptions(tokens, formatInformation, out result);
+        return TryParseOptions(tokens, formatInformation, ownedByTitle, out result);
     }
 
-    private static bool TryParseOptions(List<string> tokens, ImmutableArray<FormatInformation> formatInformation,
+    private static bool TryParseOptions(
+        List<string> tokens,
+        ImmutableArray<FormatInformation> formatInformation,
+        FrozenDictionary<uint, int> ownedByTitle,
         out TextSearch textSearch)
     {
         List<ICardFilter> filter = [];
@@ -65,6 +74,16 @@ public partial class TextSearch
                 filter.Add(new QuantityFilter(
                     quantity,
                     op
+                ));
+            }
+            else if (QuantityOverallPattern.Match(token) is { Success: true } quantityOverallMatch)
+            {
+                var op = FilterOperatorExtension.FromString(quantityOverallMatch.Groups[1].Value);
+                int quantity = int.Parse(quantityOverallMatch.Groups[2].Value);
+                filter.Add(new QuantityOverallFilter(
+                    quantity,
+                    op,
+                    ownedByTitle
                 ));
             }
             else if (FormatPattern.Match(token) is { Success: true } formatMatch)
