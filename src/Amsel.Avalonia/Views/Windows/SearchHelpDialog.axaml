@@ -41,8 +41,15 @@
                 e.g. <Span>q&lt;=U</Span> for all Commons and Uncommons.
             </TextBlock>
             <TextBlock>
-                Format legality with <Span>f &lt;:, =, !=&gt; &lt;format name&gt;</Span>,
-                e.g. <Span>f=Standard</Span> for all Standard legal cards.
+                Format inclusion with <Span>(f|legal|banned) &lt;:, =, !=&gt; &lt;format name&gt;</Span>,
+                e.g. <Span>f=Standard</Span> for all cards in Standard,
+                <Span>legal=Standard</Span> for all legal cards and <Span>banned=Standard</Span> for all cards
+                banned in Standard.
+            </TextBlock>
+            <TextBlock>
+                Collectibility and Banned in any format with <Span>is &lt;:, =, !=&gt; (collectible | banned)</Span>,
+                e.g. <Span>is:banned</Span> for all cards banned or restricted in any format,
+                and <Span>is!=collectible</Span> for all noncollectible cards.
             </TextBlock>
         </StackPanel>
     </StackPanel>

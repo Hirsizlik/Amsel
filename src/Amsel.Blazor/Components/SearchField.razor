@@ -19,8 +19,15 @@
             e.g. <code>"q&lt;=U"</code> for all Commons and Uncommons
         </li>
         <li>
-            Format legality with <code>f &lt;:, =, !=&gt; &lt;format name&gt;</code>,
-            e.g. <code>"f=Standard"</code> for all Standard legal cards
+                Format inclusion with <code>(f|legal|banned) &lt;:, =, !=&gt; &lt;format name&gt;</code>,
+                e.g. <code>f=Standard</code> for all cards in Standard,
+                <code>legal=Standard</code> for all legal cards and <code>banned=Standard</code> for all cards
+                banned in Standard.
+        </li>
+        <li>
+            Collectibility and Banned in any format with <code>is &lt;:, =, !=&gt; (collectible | banned)</code>,
+            e.g. <code>is:banned</code> for all cards banned or restricted in any format,
+            and <code>is!=collectible</code> for all noncollectible cards.
         </li>
     </ul>
     <button popovertarget="search-help-modal" popovertargetaction="hide">Close</button>
