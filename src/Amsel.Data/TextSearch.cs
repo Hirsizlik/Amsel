@@ -18,6 +18,8 @@ public partial class TextSearch
     private static partial Regex QuantityPattern { get; }
     [GeneratedRegex("^F(=|:|!=)(\\w+)$", RegexOptions.IgnoreCase)]
     private static partial Regex FormatPattern { get; }
+    [GeneratedRegex("^IS(=|:|!=)(COLLECTIBLE|BANNED)$", RegexOptions.IgnoreCase)]
+    private static partial Regex IsPattern { get; }
 
     public static bool TryParse(string raw, ImmutableArray<FormatInformation> formatInformation, out TextSearch result)
     {
@@ -77,6 +79,12 @@ public partial class TextSearch
                 }
                 var op = FilterOperatorExtension.FromString(formatMatch.Groups[1].Value);
                 filter.Add(new FormatFilter(format, op));
+            }
+            else if (IsPattern.Match(token) is { Success: true} isMatch)
+            {
+                var op = FilterOperatorExtension.FromString(isMatch.Groups[1].Value);
+                var type = Enum.Parse<IsFilterType>(isMatch.Groups[2].Value, true);
+                filter.Add(new IsFilter(type, op, formatInformation));
             }
             else
             {

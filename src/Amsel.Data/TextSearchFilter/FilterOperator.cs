@@ -26,6 +26,16 @@ internal static class FilterOperatorExtension
         };
     }
 
+    public static bool Apply(this FilterOperator op, bool l, bool r = true)
+    {
+        return op switch
+        {
+            FilterOperator.Equal => l == r,
+            FilterOperator.NotEqual => l != r,
+            _ => throw new ArgumentException($"Unsupported FilterOperator {op} for bool")
+        };
+    }
+
     public static FilterOperator FromString(string s)
     {
         return s switch

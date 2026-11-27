@@ -242,6 +242,8 @@ public class TextSearchTest
         Assert.That(TextSearch.TryParse("qq:3", [], out TextSearch _), Is.False);
         Assert.That(TextSearch.TryParse("r<7", [], out TextSearch _), Is.False);
         Assert.That(TextSearch.TryParse("f=Standard", [], out TextSearch _), Is.False);
+        Assert.That(TextSearch.TryParse("is<banned", [], out TextSearch _), Is.False);
+        Assert.That(TextSearch.TryParse("is:invalid", [], out TextSearch _), Is.False);
     }
 
     [Test]
@@ -249,49 +251,101 @@ public class TextSearchTest
     {
         ImmutableArray<FormatInformation> format = [new FormatInformation(new FormatData("Ignored by filter", [], [2],
             FrozenDictionary.Create([KeyValuePair.Create<uint, Quota>(5, new Quota(1))]), [4], [1, 5]), "Format")];
-        Assert.That(TextSearch.TryParse("f=Format", format, out TextSearch tsLegal), Is.True);
-        Assert.That(TextSearch.TryParse("f!=Format", format, out TextSearch tsNotLegal), Is.True);
+        Assert.That(TextSearch.TryParse("f=Format", format, out TextSearch tsInFormat), Is.True);
+        Assert.That(TextSearch.TryParse("f!=Format", format, out TextSearch tsNotInFormat), Is.True);
         using (Assert.EnterMultipleScope())
         {
-            // legal
-            Assert.That(tsLegal.FilterCard(
+            Assert.That(tsInFormat.FilterCard(
                 new CardStats(new CardInfo(0, "", "", "", 0, null, Rarity.MythicRare, true, 1, []), 3, true)),
                 Is.True);
-            Assert.That(tsNotLegal.FilterCard(
+            Assert.That(tsNotInFormat.FilterCard(
                 new CardStats(new CardInfo(0, "", "", "", 0, null, Rarity.MythicRare, true, 1, []), 3, true)),
                 Is.False);
 
             // banned
-            Assert.That(tsLegal.FilterCard(
+            Assert.That(tsInFormat.FilterCard(
+                new CardStats(new CardInfo(0, "", "", "", 0, null, Rarity.MythicRare, true, 2, []), 3, true)),
+                Is.True);
+            Assert.That(tsNotInFormat.FilterCard(
                 new CardStats(new CardInfo(0, "", "", "", 0, null, Rarity.MythicRare, true, 2, []), 3, true)),
                 Is.False);
-            Assert.That(tsNotLegal.FilterCard(
+        }
+    }
+
+    [Test]
+    public void TestIsBannedFilter()
+    {
+        ImmutableArray<FormatInformation> format = [new FormatInformation(new FormatData("name", [], [2],
+            FrozenDictionary.Create([KeyValuePair.Create<uint, Quota>(5, new Quota(1))]), [4], [1, 5]), "name")];
+
+        Assert.That(TextSearch.TryParse("is=banned", format, out TextSearch tsBanned), Is.True);
+        Assert.That(TextSearch.TryParse("is!=banned", format, out TextSearch tsNotBanned), Is.True);
+        using (Assert.EnterMultipleScope())
+        {
+            // legal
+            Assert.That(tsNotBanned.FilterCard(
+                new CardStats(new CardInfo(0, "", "", "", 0, null, Rarity.MythicRare, true, 1, []), 3, true)),
+                Is.True);
+            Assert.That(tsBanned.FilterCard(
+                new CardStats(new CardInfo(0, "", "", "", 0, null, Rarity.MythicRare, true, 1, []), 3, true)),
+                Is.False);
+
+            // banned
+            Assert.That(tsNotBanned.FilterCard(
+                new CardStats(new CardInfo(0, "", "", "", 0, null, Rarity.MythicRare, true, 2, []), 3, true)),
+                Is.False);
+            Assert.That(tsBanned.FilterCard(
                 new CardStats(new CardInfo(0, "", "", "", 0, null, Rarity.MythicRare, true, 2, []), 3, true)),
                 Is.True);
 
-            // not found (therefore not legal)
-            Assert.That(tsLegal.FilterCard(
-                new CardStats(new CardInfo(0, "", "", "", 0, null, Rarity.MythicRare, true, 3, []), 3, true)),
-                Is.False);
-            Assert.That(tsNotLegal.FilterCard(
+            // not in legal list (not banned)
+            Assert.That(tsNotBanned.FilterCard(
                 new CardStats(new CardInfo(0, "", "", "", 0, null, Rarity.MythicRare, true, 3, []), 3, true)),
                 Is.True);
+            Assert.That(tsBanned.FilterCard(
+                new CardStats(new CardInfo(0, "", "", "", 0, null, Rarity.MythicRare, true, 3, []), 3, true)),
+                Is.False);
 
             // banned as Commander (same as banned)
-            Assert.That(tsLegal.FilterCard(
+            Assert.That(tsNotBanned.FilterCard(
                 new CardStats(new CardInfo(0, "", "", "", 0, null, Rarity.MythicRare, true, 4, []), 3, true)),
                 Is.False);
-            Assert.That(tsNotLegal.FilterCard(
+            Assert.That(tsBanned.FilterCard(
                 new CardStats(new CardInfo(0, "", "", "", 0, null, Rarity.MythicRare, true, 4, []), 3, true)),
                 Is.True);
 
-            // legal, but restricted (same as legal)
-            Assert.That(tsLegal.FilterCard(
-                new CardStats(new CardInfo(0, "", "", "", 0, null, Rarity.MythicRare, true, 5, []), 3, true)),
-                Is.True);
-            Assert.That(tsNotLegal.FilterCard(
+            // restricted (same as banned)
+            Assert.That(tsNotBanned.FilterCard(
                 new CardStats(new CardInfo(0, "", "", "", 0, null, Rarity.MythicRare, true, 5, []), 3, true)),
                 Is.False);
+            Assert.That(tsBanned.FilterCard(
+                new CardStats(new CardInfo(0, "", "", "", 0, null, Rarity.MythicRare, true, 5, []), 3, true)),
+               Is.True);
+        }
+    }
+
+    [Test]
+    public void TestIsCollectible()
+    {
+        Assert.That(TextSearch.TryParse("is=collectible", [], out TextSearch tsCollectible), Is.True);
+        Assert.That(TextSearch.TryParse("Is!=Collectible", [], out TextSearch tsNotCollectible), Is.True);
+        using (Assert.EnterMultipleScope())
+        {
+            // collectible
+            Assert.That(tsCollectible.FilterCard(
+                new CardStats(new CardInfo(0, "", "", "", 0, null, Rarity.MythicRare, true, 1, []), 3, true)),
+                Is.True);
+            Assert.That(tsNotCollectible.FilterCard(
+                new CardStats(new CardInfo(0, "", "", "", 0, null, Rarity.MythicRare, true, 1, []), 3, true)),
+                Is.False);
+
+            // not collectible
+            Assert.That(tsCollectible.FilterCard(
+                new CardStats(new CardInfo(0, "", "", "", 0, null, Rarity.MythicRare, true, 1, []), 3, false)),
+                Is.False);
+            Assert.That(tsNotCollectible.FilterCard(
+                new CardStats(new CardInfo(0, "", "", "", 0, null, Rarity.MythicRare, true, 1, []), 3, false)),
+                Is.True);
         }
     }
 }
