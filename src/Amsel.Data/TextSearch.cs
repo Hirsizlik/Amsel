@@ -16,7 +16,7 @@ public partial class TextSearch
     private static partial Regex RarityPattern { get; }
     [GeneratedRegex("^Q(<|<=|>|>=|=|:|!=)(\\d+)$", RegexOptions.IgnoreCase)]
     private static partial Regex QuantityPattern { get; }
-    [GeneratedRegex("^F(=|:|!=)(\\w+)$", RegexOptions.IgnoreCase)]
+    [GeneratedRegex("^(F|BANNED|LEGAL)(=|:|!=)(\\w+)$", RegexOptions.IgnoreCase)]
     private static partial Regex FormatPattern { get; }
     [GeneratedRegex("^IS(=|:|!=)(COLLECTIBLE|BANNED)$", RegexOptions.IgnoreCase)]
     private static partial Regex IsPattern { get; }
@@ -69,7 +69,11 @@ public partial class TextSearch
             }
             else if (FormatPattern.Match(token) is { Success: true } formatMatch)
             {
-                string formatName = formatMatch.Groups[2].Value;
+                FormatFilterType type = Enum.TryParse<FormatFilterType>(formatMatch.Groups[1].Value, true, out var result) 
+                    ? result
+                    : FormatFilterType.Any;
+                var op = FilterOperatorExtension.FromString(formatMatch.Groups[2].Value);
+                string formatName = formatMatch.Groups[3].Value;
                 FormatInformation? format = formatInformation
                     .FirstOrDefault(f => f.Name.Equals(formatName, StringComparison.OrdinalIgnoreCase));
                 if (format == null)
@@ -77,8 +81,7 @@ public partial class TextSearch
                     textSearch = new TextSearch([]);
                     return false;
                 }
-                var op = FilterOperatorExtension.FromString(formatMatch.Groups[1].Value);
-                filter.Add(new FormatFilter(format, op));
+                filter.Add(new FormatFilter(format, op, type));
             }
             else if (IsPattern.Match(token) is { Success: true} isMatch)
             {
